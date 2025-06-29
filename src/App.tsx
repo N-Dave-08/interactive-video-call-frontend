@@ -4,7 +4,7 @@ import { Button } from "./components/ui/button";
 export default function App() {
 	return (
 		<div>
-			App <Button>asdasdasdasasd</Button>
+			App <Button>asdasdasdasasdasdasd</Button>
 		</div>
 	);
 }
