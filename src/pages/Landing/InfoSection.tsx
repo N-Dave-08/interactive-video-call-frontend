@@ -29,16 +29,20 @@ export default function Features() {
 						),
 					},
 				].map((box) => (
-					<div key={box.text} className={`size-full rounded-xl bg-white`}>
+					// cards
+					<div
+						key={box.text}
+						className={`group w-full rounded-xl bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300`}
+					>
 						<div className="flex flex-col items-center justify-center p-12 gap-12">
-							<div className="h-60 w-full flex items-center justify-center">
+							<div className="h-60 w-full flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
 								{box.image}
 							</div>
 							<p className="text-center text-md">
 								Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
 								eiusmod tempor incididunt ut labore et dolore magna aliqua.
 							</p>
-							<Button>Learn More</Button>
+							<Button className="group-hover:scale-110">Learn More</Button>
 						</div>
 					</div>
 				))}

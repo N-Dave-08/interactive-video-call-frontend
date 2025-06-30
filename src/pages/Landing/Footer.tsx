@@ -14,7 +14,7 @@ export default function Footer() {
 							className="h-10 w-10 rounded bg-white p-1 shadow"
 						/>
 						<span className="font-extrabold text-lg tracking-wide">
-							Pre-Play
+							Prep Play
 						</span>
 					</div>
 					<p className="text-sm text-white/80 leading-relaxed mb-4 max-w-xs">
