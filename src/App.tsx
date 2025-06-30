@@ -1,10 +1,9 @@
-import React from "react";
-import { Button } from "./components/ui/button";
+import LandingPage from "./pages/Landing";
 
 export default function App() {
 	return (
 		<div>
-			App <Button>asdasdasdasdasdsasdasdasd</Button>
+			<LandingPage />
 		</div>
 	);
 }
