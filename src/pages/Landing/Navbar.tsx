@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import prepPlayLogo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import PrivacyProlicyModal from "./modals/privacy-policy-modal";
 
 const menuItems = [
 	{ name: "How it works", href: "/" },
@@ -70,17 +71,24 @@ export default function Navbar() {
 
 					{/* Desktop menu */}
 					<div className="absolute inset-0 m-auto hidden size-fit lg:block">
-						<ul className="flex gap-8 text-sm">
-							{menuItems.map((item) => (
-								<li key={item.name}>
-									<a
-										href={item.href}
+						<ul className="flex gap-8 text-sm ">
+							{menuItems.map((item) => {
+								const isPrivacyPolicy = item.name === "Privacy Policy";
+								return (
+									<li
+										key={item.name}
 										className="text-zinc-500 hover:text-zinc-900 block duration-150"
 									>
-										<span>{item.name}</span>
-									</a>
-								</li>
-							))}
+										{isPrivacyPolicy ? (
+											<PrivacyProlicyModal />
+										) : (
+											<a href={item.href}>
+												<span>{item.name}</span>
+											</a>
+										)}
+									</li>
+								);
+							})}
 						</ul>
 					</div>
 
