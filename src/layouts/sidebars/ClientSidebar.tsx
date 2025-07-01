@@ -1,11 +1,14 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-
+import { IconInnerShadowTop } from "@tabler/icons-react";
+import { Calendar, Gamepad, HeartHandshake, Home, Pencil } from "lucide-react";
+import { NavUser } from "@/components/nav/ClientNav";
 import {
 	Sidebar,
 	SidebarContent,
+	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarGroupLabel,
+	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
@@ -19,30 +22,49 @@ const items = [
 		icon: Home,
 	},
 	{
-		title: "Inbox",
-		url: "#",
-		icon: Inbox,
-	},
-	{
-		title: "Calendar",
+		title: "Schedule",
 		url: "#",
 		icon: Calendar,
 	},
 	{
-		title: "Search",
+		title: "Mini Games",
 		url: "#",
-		icon: Search,
+		icon: Gamepad,
 	},
 	{
-		title: "Settings",
+		title: "Drawing Pad",
 		url: "#",
-		icon: Settings,
+		icon: Pencil,
 	},
 ];
+
+const data = {
+	user: {
+		name: "shadcn",
+		email: "m@example.com",
+		avatar: "/avatars/shadcn.jpg",
+	},
+};
 
 export default function ClientSidebar() {
 	return (
 		<Sidebar>
+			<SidebarHeader>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							asChild
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
+						>
+							<div>
+								<HeartHandshake className="!size-5 text-indigo-400" />
+								<span className="text-base font-semibold">Prep Play</span>
+							</div>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
+			</SidebarHeader>
+
 			<SidebarContent>
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -62,6 +84,9 @@ export default function ClientSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 			</SidebarContent>
+			<SidebarFooter>
+				<NavUser user={data.user} />
+			</SidebarFooter>
 		</Sidebar>
 	);
 }

@@ -9,7 +9,7 @@ export default function ClientLayout({
 	return (
 		<SidebarProvider>
 			<ClientSidebar />
-			<main>
+			<main className="flex-1 bg-red-500">
 				<SidebarTrigger />
 				{children}
 			</main>
