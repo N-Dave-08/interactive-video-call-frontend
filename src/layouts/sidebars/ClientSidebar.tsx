@@ -23,7 +23,7 @@ const items = [
 	},
 	{
 		title: "Schedule",
-		url: "#",
+		url: "/client/schedule",
 		icon: Calendar,
 	},
 	{
@@ -33,7 +33,7 @@ const items = [
 	},
 	{
 		title: "Drawing Pad",
-		url: "#",
+		url: "/client/drawing-pad",
 		icon: Pencil,
 	},
 ];
