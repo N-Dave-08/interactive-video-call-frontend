@@ -1,5 +1,5 @@
-import { IconInnerShadowTop } from "@tabler/icons-react";
 import { Calendar, Gamepad, HeartHandshake, Home, Pencil } from "lucide-react";
+import { Link } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
 import {
 	Sidebar,
@@ -18,7 +18,7 @@ import {
 const items = [
 	{
 		title: "Home",
-		url: "#",
+		url: "/client/home",
 		icon: Home,
 	},
 	{
@@ -28,7 +28,7 @@ const items = [
 	},
 	{
 		title: "Mini Games",
-		url: "#",
+		url: "/client/mini-games",
 		icon: Gamepad,
 	},
 	{
@@ -70,16 +70,20 @@ export default function ClientSidebar() {
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{items.map((item) => (
-								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild>
-										<a href={item.url}>
-											<item.icon />
-											<span>{item.title}</span>
-										</a>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
+							{items.map((item) => {
+								const isActive = location.pathname === item.url;
+
+								return (
+									<SidebarMenuItem key={item.title}>
+										<SidebarMenuButton asChild isActive={isActive}>
+											<Link to={item.url}>
+												<item.icon />
+												<span>{item.title}</span>
+											</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
 						</SidebarMenu>
 					</SidebarGroupContent>
 				</SidebarGroup>
