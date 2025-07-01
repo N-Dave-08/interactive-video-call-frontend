@@ -1,5 +1,4 @@
-import { Copyright, Mail, Phone } from "lucide-react";
-import prepPlayLogo from "@/assets/logo.svg";
+import { Copyright, HeartHandshake, Mail, Phone } from "lucide-react";
 
 export default function Footer() {
 	return (
@@ -8,11 +7,7 @@ export default function Footer() {
 				{/* Left: Logo and description */}
 				<div className="flex-1 min-w-[220px] flex flex-col items-start">
 					<div className="flex items-center gap-3 mb-3">
-						<img
-							src={prepPlayLogo}
-							alt="Logo"
-							className="h-10 w-10 rounded bg-white p-1 shadow"
-						/>
+						<HeartHandshake className="h-8 w-8" />
 						<span className="font-extrabold text-lg tracking-wide">
 							Prep Play
 						</span>

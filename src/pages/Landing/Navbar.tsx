@@ -1,6 +1,5 @@
-import { Menu, X } from "lucide-react";
+import { HeartHandshake, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import prepPlayLogo from "@/assets/logo.svg";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PrivacyProlicyModal from "./modals/privacy-policy-modal";
@@ -42,7 +41,7 @@ export default function Navbar() {
 							aria-label="home"
 							className="flex items-center space-x-2"
 						>
-							<img src={prepPlayLogo} alt="logo" className="h-8 w-8" />
+							<HeartHandshake className="h-8 w-8 text-indigo-400" />
 							<div className="leading-0">
 								<p className="font-bold text-lg">Prep Play</p>
 								<span className="text-sm">Consultancy</span>
