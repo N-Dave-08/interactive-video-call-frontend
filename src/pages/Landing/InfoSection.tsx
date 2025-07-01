@@ -5,7 +5,7 @@ import Container from "./Container";
 
 export default function Features() {
 	return (
-		<Container index={1}>
+		<Container>
 			<div className="flex items-center justify-center gap-12 h-full py-20">
 				{[
 					{

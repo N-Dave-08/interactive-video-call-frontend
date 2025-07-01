@@ -3,7 +3,7 @@ import prepPlayLogo from "@/assets/logo.svg";
 
 export default function Footer() {
 	return (
-		<footer className="bg-primary text-white px-6 md:px-10 pt-10 pb-2 w-full">
+		<footer className="text-white px-6 md:px-10 pt-10 pb-2 w-full">
 			<div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-10 md:gap-6 justify-between">
 				{/* Left: Logo and description */}
 				<div className="flex-1 min-w-[220px] flex flex-col items-start">
