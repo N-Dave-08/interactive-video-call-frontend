@@ -13,7 +13,9 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarRail,
 } from "@/components/ui/sidebar";
+import MusicPlayerSidebar from "@/features/music-player-sidebar";
 
 // Menu items.
 const items = [
@@ -70,7 +72,7 @@ export default function ClientSidebar() {
 			<SidebarContent>
 				{/* gradient */}
 				<div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-blue-100/60 pointer-events-none" />
-
+				{/* Menu Tabs */}
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
 					<SidebarGroupContent>
@@ -94,8 +96,10 @@ export default function ClientSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
+				<MusicPlayerSidebar className="z-50 border-none" />
 				<NavUser user={data.user} />
 			</SidebarFooter>
+			<SidebarRail />
 		</Sidebar>
 	);
 }

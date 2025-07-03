@@ -1,5 +1,4 @@
 import { SectionCards } from "@/components/cards/SectionCards";
-import MusicPlayer from "@/features/music-player";
 import ClientLayout from "@/layouts/ClientLayout";
 
 export default function HomePage() {
@@ -12,9 +11,6 @@ export default function HomePage() {
 				<div className="flex justify-end w-1/5 mr-4">
 					<div className="w-full">
 						<p>Background Image</p>
-
-						{/* Music Player */}
-						<MusicPlayer />
 					</div>
 				</div>
 			</div>
