@@ -7,7 +7,7 @@ import {
 	SkipForward,
 	Volume2,
 } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import twinkleSong from "@/assets/music/twinle-twinkle.mp3";
 import { Button } from "@/components/ui/button";
@@ -97,13 +97,6 @@ export default function MusicPlayerSidebar({ className = "" }) {
 			)}
 			layout
 			initial={false}
-			animate={
-				isFirstRender.current
-					? false
-					: {
-							height: isMinimized ? "auto" : "auto",
-						}
-			}
 			transition={{
 				duration: 0.3,
 				ease: "easeInOut",
@@ -119,13 +112,11 @@ export default function MusicPlayerSidebar({ className = "" }) {
 			>
 				<track kind="captions" />
 			</audio>
-
-			{/* Minimized State */}
-			<AnimatePresence mode="wait">
+			<div>
 				{isMinimized ? (
 					<motion.div
 						key="minimized"
-						initial={{ opacity: 0, y: -10 }}
+						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
 						exit={{ opacity: 0, y: -10 }}
 						transition={{ duration: 0.2 }}
@@ -170,7 +161,6 @@ export default function MusicPlayerSidebar({ className = "" }) {
 						</div>
 					</motion.div>
 				) : (
-					/* Expanded State */
 					<motion.div
 						key="expanded"
 						initial={{ opacity: 0, y: 10 }}
@@ -179,7 +169,6 @@ export default function MusicPlayerSidebar({ className = "" }) {
 						transition={{ duration: 0.2 }}
 						className="p-3 space-y-3"
 					>
-						{/* Header with minimize button */}
 						<div className="flex justify-between items-center">
 							<div className="w-6" /> {/* Spacer */}
 							<div className="bg-primary rounded-lg size-12 flex items-center justify-center">
@@ -195,7 +184,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 							</Button>
 						</div>
 
-						{/* Track Info */}
+						{/* Header */}
 						<motion.div
 							className="text-center space-y-1"
 							initial={{ opacity: 0 }}
@@ -285,7 +274,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 						</motion.div>
 					</motion.div>
 				)}
-			</AnimatePresence>
+			</div>
 		</motion.div>
 	);
 }

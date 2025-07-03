@@ -1,7 +1,5 @@
-import React from "react";
-import VideoCall from "@/features/video-call/VideoCall";
-import ClientLayout from "@/layouts/ClientLayout";
+import DrawingPad from "@/features/drawing-pad";
 
-export default function DrawingPad() {
-	return <div>DrawingPad</div>;
+export default function DrawingPadPage() {
+	return <DrawingPad />;
 }
