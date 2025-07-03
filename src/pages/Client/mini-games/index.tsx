@@ -3,7 +3,7 @@ import { motion, scale } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardFooter } from "@/components/ui/card";
 
-export default function MiniGames() {
+export default function MiniGamesPage() {
 	const navigate = useNavigate();
 	const MotionCard = motion(Card);
 

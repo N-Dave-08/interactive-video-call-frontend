@@ -1,4 +1,11 @@
-import { Calendar, Gamepad, HeartHandshake, Home, Pencil } from "lucide-react";
+import {
+	Calendar,
+	Gamepad,
+	HeartHandshake,
+	Home,
+	Pencil,
+	Video,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
 
@@ -38,6 +45,11 @@ const items = [
 		title: "Drawing Pad",
 		url: "/client/drawing-pad",
 		icon: Pencil,
+	},
+	{
+		title: "Video Call",
+		url: "/client/meeting",
+		icon: Video,
 	},
 ];
 
