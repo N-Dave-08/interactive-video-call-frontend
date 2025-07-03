@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import ClientLayout from "@/layouts/ClientLayout";
 import DrawingPad from "@/pages/Client/DrawingPad";
 import HomePage from "@/pages/Client/HomePage";
 import MiniGames from "@/pages/Client/mini-games";
@@ -10,11 +11,20 @@ export default function AppRoutes() {
 	return (
 		<Routes>
 			<Route path="/" element={<LandingPage />} />
-			<Route path="/client/home" element={<HomePage />} />
-			<Route path="/client/schedule" element={<Schedule />} />
-			<Route path="/client/mini-games" element={<MiniGames />} />
-			<Route path="/client/mini-games/snake" element={<Snake />} />
-			<Route path="/client/drawing-pad" element={<DrawingPad />} />
+			<Route
+				path="/client/*"
+				element={
+					<ClientLayout>
+						<Routes>
+							<Route path="home" element={<HomePage />} />
+							<Route path="schedule" element={<Schedule />} />
+							<Route path="mini-games" element={<MiniGames />} />
+							<Route path="mini-games/snake" element={<Snake />} />
+							<Route path="drawing-pad" element={<DrawingPad />} />
+						</Routes>
+					</ClientLayout>
+				}
+			/>
 		</Routes>
 	);
 }

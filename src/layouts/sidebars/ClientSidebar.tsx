@@ -1,5 +1,5 @@
 import { Calendar, Gamepad, HeartHandshake, Home, Pencil } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
 
 import {
@@ -50,6 +50,8 @@ const data = {
 };
 
 export default function ClientSidebar() {
+	const location = useLocation();
+
 	return (
 		<Sidebar>
 			<div className="absolute inset-0 bg-[url(/mountain-01.jpg)] bg-cover bg-center opacity-60 pointer-events-none" />
@@ -61,7 +63,7 @@ export default function ClientSidebar() {
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<div>
-								<HeartHandshake className="!size-5 text-indigo-400 z-50" />
+								<HeartHandshake className="!size-5 text-primary z-50" />
 								<span className="text-base font-semibold z-50">Prep Play</span>
 							</div>
 						</SidebarMenuButton>

@@ -20,7 +20,21 @@ export default function MusicPlayerSidebar({ className = "" }) {
 	const [duration, setDuration] = useState(0);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [volume, setVolume] = useState([75]);
-	const [isMinimized, setIsMinimized] = useState(false);
+
+	const isFirstRender = useRef(true);
+
+	const [isMinimized, setIsMinimized] = useState(() => {
+		const stored = localStorage.getItem("musicPlayerMinimized");
+		return stored === "true";
+	});
+
+	useEffect(() => {
+		isFirstRender.current = false;
+	}, []);
+
+	useEffect(() => {
+		localStorage.setItem("musicPlayerMinimized", String(isMinimized));
+	}, [isMinimized]);
 
 	const handlePlay = () => {
 		if (!audioRef.current) return;
@@ -83,9 +97,13 @@ export default function MusicPlayerSidebar({ className = "" }) {
 			)}
 			layout
 			initial={false}
-			animate={{
-				height: isMinimized ? "auto" : "auto",
-			}}
+			animate={
+				isFirstRender.current
+					? false
+					: {
+							height: isMinimized ? "auto" : "auto",
+						}
+			}
 			transition={{
 				duration: 0.3,
 				ease: "easeInOut",
@@ -115,7 +133,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 					>
 						<div className="flex items-center justify-between">
 							<div className="flex items-center space-x-3 flex-1 min-w-0">
-								<div className="bg-indigo-400 rounded-lg size-8 flex items-center justify-center flex-shrink-0">
+								<div className="bg-primary rounded-lg size-8 flex items-center justify-center flex-shrink-0">
 									<Music className="text-white size-4" />
 								</div>
 								<div className="min-w-0 flex-1">
@@ -124,7 +142,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 									</p>
 									<div className="w-full bg-gray-200 rounded-full h-1 mt-1">
 										<motion.div
-											className="bg-indigo-400 h-1 rounded-full"
+											className="bg-primary h-1 rounded-full"
 											initial={{ width: 0 }}
 											animate={{ width: `${progressPercentage}%` }}
 											transition={{ duration: 0.1 }}
@@ -136,7 +154,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 							<div className="flex items-center space-x-1 flex-shrink-0">
 								<Button
 									size="icon"
-									className="h-8 w-8 bg-indigo-400 hover:bg-indigo-500 text-white rounded-full"
+									className="h-8 w-8 text-white rounded-full"
 									onClick={(e) => {
 										e.stopPropagation();
 										handlePlay();
@@ -164,7 +182,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 						{/* Header with minimize button */}
 						<div className="flex justify-between items-center">
 							<div className="w-6" /> {/* Spacer */}
-							<div className="bg-indigo-400 rounded-lg size-12 flex items-center justify-center">
+							<div className="bg-primary rounded-lg size-12 flex items-center justify-center">
 								<Music className="text-white size-6" />
 							</div>
 							<Button
@@ -227,7 +245,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 
 							<Button
 								size="icon"
-								className="h-10 w-10 bg-indigo-400 hover:bg-indigo-500 text-white rounded-full"
+								className="h-10 w-10 text-white rounded-full"
 								onClick={handlePlay}
 							>
 								{isPlaying ? (
