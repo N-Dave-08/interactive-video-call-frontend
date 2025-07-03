@@ -24,6 +24,7 @@ export default function MiniGames() {
 
 					return (
 						<MotionCard
+							whileHover="hover"
 							initial={{ opacity: 0, y: 50, scale: 0.8 }}
 							animate={{
 								opacity: 1,
@@ -35,12 +36,14 @@ export default function MiniGames() {
 									ease: "easeOut",
 								},
 							}}
-							whileHover="hover"
 							className="hover:cursor-pointer relative overflow-hidden"
 							key={item.name}
 							onClick={() => navigate(`/client/mini-games/${slug}`)}
 						>
 							<motion.div
+								initial="initial"
+								animate="initial"
+								whileHover="hover"
 								variants={{
 									initial: { opacity: 0, y: 10 },
 									hover: { opacity: 1, y: 0 },
