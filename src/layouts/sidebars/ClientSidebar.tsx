@@ -4,8 +4,10 @@ import {
 	HeartHandshake,
 	Home,
 	Pencil,
+	User,
 	Video,
 } from "lucide-react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
 
@@ -22,7 +24,8 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import MusicPlayerSidebar from "@/features/music-player-sidebar";
+import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
+import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
 
 // Menu items.
 const items = [
@@ -30,6 +33,11 @@ const items = [
 		title: "Home",
 		url: "/client/home",
 		icon: Home,
+	},
+	{
+		title: "Profile",
+		url: "/client/profile",
+		icon: User,
 	},
 	{
 		title: "Schedule",
@@ -62,11 +70,15 @@ const data = {
 };
 
 export default function ClientSidebar() {
+	const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
 	const location = useLocation();
 
 	return (
 		<Sidebar>
-			<div className="absolute inset-0 bg-[url(/mountain-01.jpg)] bg-cover bg-center opacity-60 pointer-events-none" />
+			<div
+				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none"
+				style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
+			/>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -110,7 +122,8 @@ export default function ClientSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
-				<MusicPlayerSidebar className="z-50 border-none" />
+				<ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
+				<MusicPlayerSidebar className="border-none" />
 				<NavUser user={data.user} />
 			</SidebarFooter>
 			<SidebarRail />

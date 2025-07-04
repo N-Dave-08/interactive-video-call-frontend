@@ -1,4 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AvatarCharacter from "@/features/avatar-character";
 import ClientSidebar from "./sidebars/ClientSidebar";
 
 export default function ClientLayout({
@@ -13,6 +14,7 @@ export default function ClientLayout({
 				<SidebarTrigger />
 				{children}
 			</main>
+			<AvatarCharacter />
 		</SidebarProvider>
 	);
 }

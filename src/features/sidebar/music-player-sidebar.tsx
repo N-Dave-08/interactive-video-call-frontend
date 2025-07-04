@@ -97,10 +97,6 @@ export default function MusicPlayerSidebar({ className = "" }) {
 			)}
 			layout
 			initial={false}
-			transition={{
-				duration: 0.3,
-				ease: "easeInOut",
-			}}
 			onClick={() => {
 				if (isMinimized) setIsMinimized(false);
 			}}
@@ -114,14 +110,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 			</audio>
 			<div>
 				{isMinimized ? (
-					<motion.div
-						key="minimized"
-						initial={{ opacity: 0, y: 10 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -10 }}
-						transition={{ duration: 0.2 }}
-						className="p-3"
-					>
+					<div key="minimized" className="p-3">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center space-x-3 flex-1 min-w-0">
 								<div className="bg-primary rounded-lg size-8 flex items-center justify-center flex-shrink-0">
@@ -159,7 +148,7 @@ export default function MusicPlayerSidebar({ className = "" }) {
 								</Button>
 							</div>
 						</div>
-					</motion.div>
+					</div>
 				) : (
 					<motion.div
 						key="expanded"
