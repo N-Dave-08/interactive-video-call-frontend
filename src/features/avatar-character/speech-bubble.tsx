@@ -125,14 +125,13 @@ export function SpeechBubble({
 		<div className={cn("relative inline-block", currentTail.container)}>
 			<div
 				className={cn(
-					"relative rounded-lg px-4 py-3 shadow-sm",
+					"relative rounded-lg px-6 py-5 shadow-sm",
 					variants[variant],
 					className,
 				)}
 				{...props}
 			>
 				{children}
-
 				{/* Outer tail (border) */}
 				<div
 					className={cn(
@@ -141,7 +140,6 @@ export function SpeechBubble({
 						currentTail.offset[tailOffset],
 					)}
 				/>
-
 				{/* Inner tail (fill) - only for default variant with border */}
 				{variant === "default" && (
 					<div

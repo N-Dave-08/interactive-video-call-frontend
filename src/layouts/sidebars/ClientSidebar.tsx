@@ -2,10 +2,10 @@ import {
 	Calendar,
 	Gamepad,
 	HeartHandshake,
-	Home,
+	LayoutDashboard,
+	LibraryBig,
 	Pencil,
 	User,
-	Video,
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -30,9 +30,9 @@ import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
 // Menu items.
 const items = [
 	{
-		title: "Home",
-		url: "/client/home",
-		icon: Home,
+		title: "Dashboard",
+		url: "/client/dashboard",
+		icon: LayoutDashboard,
 	},
 	{
 		title: "Profile",
@@ -55,9 +55,9 @@ const items = [
 		icon: Pencil,
 	},
 	{
-		title: "Video Call",
-		url: "/client/meeting",
-		icon: Video,
+		title: "Sessions",
+		url: "/client/sessions",
+		icon: LibraryBig,
 	},
 ];
 
