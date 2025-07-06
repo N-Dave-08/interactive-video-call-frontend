@@ -196,11 +196,11 @@ export function TutorialCharacter({
 							: {
 									opacity: 0,
 									scale: 0.5,
-									rotate:
+									x:
 										bubblePosition === "left"
-											? 15
+											? 90
 											: bubblePosition === "right"
-												? -15
+												? -90
 												: 0,
 									y:
 										bubblePosition === "top"
@@ -214,6 +214,7 @@ export function TutorialCharacter({
 						opacity: 1,
 						scale: 1,
 						rotate: 0,
+						x: 0,
 						y: 0,
 					}}
 					transition={{

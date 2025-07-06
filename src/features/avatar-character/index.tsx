@@ -2,20 +2,21 @@ import { useState } from "react";
 import { TutorialCharacter } from "./character";
 
 export default function AvatarCharacter() {
-	const positions = [
-		"top-10", // Top
-		"left-20", // Left
-		"right-10", // Right
-		"bottom-10", // Bottom center
-	];
-	const [screenPosition, setScreenPosition] = useState(0);
+	const [isBottomRight, setIsBottomRight] = useState(false);
 
 	const handleNext = () => {
-		setScreenPosition((prev) => (prev + 1) % positions.length);
+		setIsBottomRight(true);
 	};
 
 	return (
-		<div className={`absolute ${positions[screenPosition]}`}>
+		<div
+			className={
+				isBottomRight
+					? "fixed bottom-10 right-10 z-50 flex items-end justify-end"
+					: "fixed inset-0 flex items-center justify-center z-50"
+			}
+			style={{ minHeight: "0" }}
+		>
 			<TutorialCharacter
 				name={""}
 				avatar="😃"
@@ -23,7 +24,7 @@ export default function AvatarCharacter() {
 				message={"Hello! Let's have some fun together."}
 				type="hint"
 				bubblePosition={"left"}
-				size={"2xl"}
+				size={isBottomRight ? "md" : "2xl"}
 				showNext={true}
 				onNext={handleNext}
 				showHint={true}

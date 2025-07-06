@@ -7,7 +7,8 @@ export default function RoomLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<main className="h-screen w-full">
+		<main className="h-screen w-full relative">
+			<div className="absolute inset-0 bg-[url(/backgrounds/rainbow.jpg)] bg-cover bg-center opacity-60 pointer-events-none" />
 			{children}
 			<AvatarCharacter />
 		</main>
