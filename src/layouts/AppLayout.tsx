@@ -1,17 +1,14 @@
+import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import ClientSidebar from "./sidebars/ClientSidebar";
+import AppSidebar from "./sidebars/AppSidebar";
 
-export default function ClientLayout({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
+export default function AppLayout() {
 	return (
 		<SidebarProvider>
-			<ClientSidebar />
+			<AppSidebar />
 			<main className="flex-1">
 				<SidebarTrigger />
-				{children}
+				<Outlet />
 			</main>
 		</SidebarProvider>
 	);

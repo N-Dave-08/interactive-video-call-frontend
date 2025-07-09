@@ -5,7 +5,7 @@ import {
 	IconNotification,
 	IconUserCircle,
 } from "@tabler/icons-react";
-
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -22,6 +22,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/useAuth";
 
 export function NavUser({
 	user,
@@ -30,9 +31,19 @@ export function NavUser({
 		name: string;
 		email: string;
 		avatar: string;
+		place_of_assignment?: string;
+		role?: string;
+		condition?: string;
 	};
 }) {
 	const { isMobile } = useSidebar();
+	const navigate = useNavigate();
+	const { logout } = useAuth();
+
+	function handleLogout() {
+		logout();
+		navigate("/login");
+	}
 
 	return (
 		<SidebarMenu>
@@ -73,6 +84,21 @@ export function NavUser({
 									<span className="text-muted-foreground truncate text-xs">
 										{user.email}
 									</span>
+									{user.place_of_assignment && (
+										<span className="text-muted-foreground truncate text-xs">
+											Place: {user.place_of_assignment}
+										</span>
+									)}
+									{user.role && (
+										<span className="text-muted-foreground truncate text-xs">
+											Role: {user.role}
+										</span>
+									)}
+									{user.condition && (
+										<span className="text-muted-foreground truncate text-xs">
+											Status: {user.condition}
+										</span>
+									)}
 								</div>
 							</div>
 						</DropdownMenuLabel>
@@ -92,7 +118,7 @@ export function NavUser({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem onClick={handleLogout}>
 							<IconLogout />
 							Log out
 						</DropdownMenuItem>

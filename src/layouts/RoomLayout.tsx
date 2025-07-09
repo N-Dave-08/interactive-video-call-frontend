@@ -1,6 +1,6 @@
 import type React from "react";
 import AvatarCharacter from "@/features/avatar-character";
-import MusicPlayer from "@/features/sidebar/music-player";
+import MusicPlayer from "@/features/music-player";
 
 export default function RoomLayout({
 	children,

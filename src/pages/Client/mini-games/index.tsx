@@ -27,7 +27,7 @@ export default function MiniGamesPage() {
 						animate="initial"
 						className="hover:cursor-pointer relative overflow-hidden"
 						key={item.name}
-						onClick={() => navigate(`/client/mini-games/${slug}`)}
+						onClick={() => navigate(`/mini-games/${slug}`)}
 					>
 						<motion.div
 							variants={{
