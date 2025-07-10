@@ -124,7 +124,7 @@ export default function Navbar() {
 								</Link>
 							</Button>
 							<Button size="sm" className={cn(isScrolled && "lg:hidden")}>
-								<Link to="/signup">
+								<Link to="/register">
 									<span>Sign Up</span>
 								</Link>
 							</Button>

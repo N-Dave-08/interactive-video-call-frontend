@@ -14,11 +14,8 @@ import Snake from "@/pages/Client/mini-games/snake";
 import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/Room";
 import SchedulePage from "@/pages/Client/Schedule";
-import SessionsPage from "@/pages/Client/Sessions";
+import SessionsPage from "@/pages/Client/sessions";
 import LandingPage from "@/pages/Landing";
-
-// Placeholder for AdminDashboard
-// const AdminDashboard = () => <div>Admin Dashboard (Placeholder)</div>;
 
 const DashboardRoute = () => {
 	const { user } = useAuth();
@@ -55,8 +52,8 @@ export default function AppRoutes() {
 				<Route path="mini-games/snake" element={<Snake />} />
 				<Route path="drawing-pad" element={<DrawingPadPage />} />
 				<Route path="sessions" element={<SessionsPage />} />
+				<Route path="/users" element={<UsersPage />} />
 			</Route>
-			<Route path="/users" element={<UsersPage />} />
 			<Route path="/login" element={<LoginPage />} />
 			<Route path="/register" element={<RegisterPage />} />
 		</Routes>

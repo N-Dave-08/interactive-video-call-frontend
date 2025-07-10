@@ -70,7 +70,7 @@ const adminItems = [
 	},
 	{
 		title: "Users",
-		url: "/admin/users",
+		url: "/users",
 		icon: User,
 	},
 ];
@@ -133,8 +133,8 @@ export default function AppSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
-				<ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
-				<MusicPlayerSidebar className="border-none" />
+				{/* <ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
+				<MusicPlayerSidebar className="border-none" /> */}
 				<NavUser
 					user={{
 						name: user ? `${user.first_name} ${user.last_name}` : "No name",
