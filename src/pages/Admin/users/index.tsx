@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { fetchUsers } from "@/api/users";
 import type { User } from "@/types/user";
-import { DataTable } from "./data-table";
+import { DataTable } from "./users-data-table";
+import { UsersDataTableSkeleton } from "./users-data-table-skeleton";
 
 export default function UsersPage() {
 	const [data, setData] = useState<User[]>([]);
@@ -20,12 +21,17 @@ export default function UsersPage() {
 			});
 	}, []);
 
-	if (loading) return <div>Loading users...</div>;
 	if (error) return <div>{error}</div>;
 
 	return (
-		<div>
-			<DataTable data={data} />
+		<div className="container mx-auto py-8 px-4">
+			<div className="mb-8">
+				<h2 className="text-2xl font-bold tracking-tight">User Management</h2>
+				<p className="text-muted-foreground">
+					Manage your team members and their account permissions here.
+				</p>
+			</div>
+			{loading ? <UsersDataTableSkeleton /> : <DataTable data={data} />}
 		</div>
 	);
 }

@@ -85,8 +85,8 @@ export default function AppSidebar() {
 	return (
 		<Sidebar>
 			<div
-				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none"
-				style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
+				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none bg-primary"
+				// style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
 			/>
 			<SidebarHeader>
 				<SidebarMenu>
