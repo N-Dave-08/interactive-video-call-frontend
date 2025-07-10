@@ -24,7 +24,7 @@ export default function UsersPage() {
 	if (error) return <div>{error}</div>;
 
 	return (
-		<div className="container mx-auto py-8 px-4">
+		<>
 			<div className="mb-8">
 				<h2 className="text-2xl font-bold tracking-tight">User Management</h2>
 				<p className="text-muted-foreground">
@@ -32,6 +32,6 @@ export default function UsersPage() {
 				</p>
 			</div>
 			{loading ? <UsersDataTableSkeleton /> : <DataTable data={data} />}
-		</div>
+		</>
 	);
 }

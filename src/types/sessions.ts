@@ -14,9 +14,9 @@ export interface DrawingData {
 
 export interface EmotionalExpression {
 	method: string;
-	drawing_data: DrawingData;
+	drawing_data: string;
 	selected_feelings: string[];
-	body_map_annotations: BodyMapAnnotation[];
+	body_map_annotations: string[];
 }
 
 export interface UserInfo {
@@ -27,13 +27,16 @@ export interface UserInfo {
 export interface Session {
 	session_id: string;
 	social_worker_id: string;
+	title: string;
 	start_time: string;
 	end_time: string | null;
+	child_data: ChildData;
 	avatar_data: AvatarData;
 	emotional_expression: EmotionalExpression;
 	session_notes: string;
 	tags: string[];
 	status: string;
+	stage: string;
 	createdAt: string;
 	updatedAt: string;
 	user: UserInfo;
@@ -43,4 +46,12 @@ export interface SessionsListResponse {
 	success: boolean;
 	message: string;
 	data: Session[];
+}
+
+export interface ChildData {
+	age: number;
+	birthday: string;
+	last_name: string;
+	first_name: string;
+	place_of_birth: string;
 }

@@ -3,6 +3,7 @@ import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types/sessions";
 import SessionCards from "./session-cards";
+import SessionCardsSkeleton from "./session-cards-skeleton";
 
 export default function SessionsPage() {
 	const { user } = useAuth();
@@ -28,9 +29,22 @@ export default function SessionsPage() {
 			});
 	}, [user]);
 
-	if (loading) return <div>Loading sessions...</div>;
 	if (error) return <div>Error: {error}</div>;
 	if (!user) return null;
 
-	return <SessionCards sessions={sessions} user={user} />;
+	return (
+		<>
+			<div className="pb-4">
+				<h1 className="text-3xl font-bold text-gray-900">Session Records</h1>
+				<p className="text-gray-600">
+					Track and review therapy session progress
+				</p>
+			</div>
+			{loading ? (
+				<SessionCardsSkeleton />
+			) : (
+				<SessionCards sessions={sessions} user={user} />
+			)}
+		</>
+	);
 }

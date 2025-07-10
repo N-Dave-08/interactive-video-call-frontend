@@ -8,7 +8,9 @@ export default function AppLayout() {
 			<AppSidebar />
 			<main className="flex-1">
 				<SidebarTrigger />
-				<Outlet />
+				<div className="container mx-auto py-8 px-4">
+					<Outlet />
+				</div>
 			</main>
 		</SidebarProvider>
 	);

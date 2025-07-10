@@ -75,6 +75,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { AddUserDialog } from "./add-user-dialog";
+import { DeleteUserDialog } from "./delete-user-dialog";
+import { EditUserDialog } from "./edit-user-dialog";
 
 export const schema = z.object({
 	id: z.string(),
@@ -327,38 +330,61 @@ const columns: ColumnDef<User>[] = [
 	{
 		id: "actions",
 		header: "",
-		cell: ({ row }) => (
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						variant="ghost"
-						className="h-8 w-8 p-0 data-[state=open]:bg-muted"
-					>
-						<MoreVertical className="h-4 w-4" />
-						<span className="sr-only">Open menu</span>
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="w-48">
-					<DropdownMenuItem>
-						<Eye className="h-4 w-4 mr-2" />
-						View Details
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<Edit className="h-4 w-4 mr-2" />
-						Edit User
-					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<Mail className="h-4 w-4 mr-2" />
-						Send Email
-					</DropdownMenuItem>
-					<DropdownMenuSeparator />
-					<DropdownMenuItem className="text-destructive focus:text-destructive">
-						<Trash2 className="h-4 w-4 mr-2" />
-						Delete User
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
-		),
+		cell: ({ row }) => {
+			const handleEdit = () => {
+				// This will be handled by the parent component
+				// We'll use a custom event to communicate with the parent
+				const event = new CustomEvent("editUser", {
+					detail: row.original,
+				});
+				window.dispatchEvent(event);
+			};
+
+			const handleDelete = () => {
+				// This will be handled by the parent component
+				// We'll use a custom event to communicate with the parent
+				const event = new CustomEvent("deleteUser", {
+					detail: row.original,
+				});
+				window.dispatchEvent(event);
+			};
+
+			return (
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							className="h-8 w-8 p-0 data-[state=open]:bg-muted"
+						>
+							<MoreVertical className="h-4 w-4" />
+							<span className="sr-only">Open menu</span>
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end" className="w-48">
+						<DropdownMenuItem>
+							<Eye className="h-4 w-4 mr-2" />
+							View Details
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={handleEdit}>
+							<Edit className="h-4 w-4 mr-2" />
+							Edit User
+						</DropdownMenuItem>
+						<DropdownMenuItem>
+							<Mail className="h-4 w-4 mr-2" />
+							Send Email
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem
+							className="text-destructive focus:text-destructive"
+							onClick={handleDelete}
+						>
+							<Trash2 className="h-4 w-4 mr-2" />
+							Delete User
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			);
+		},
 		enableSorting: false,
 		enableHiding: false,
 	},
@@ -378,10 +404,38 @@ export function DataTable({ data }: { data: User[] }) {
 	});
 	const [tableData, setTableData] = React.useState<User[]>(data);
 	const [globalFilter, setGlobalFilter] = useState("");
+	const [editDialogOpen, setEditDialogOpen] = React.useState(false);
+	const [editingUser, setEditingUser] = React.useState<User | null>(null);
+	const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+	const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+	const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
 
 	React.useEffect(() => {
 		setTableData(data);
 	}, [data]);
+
+	// Listen for edit user events
+	React.useEffect(() => {
+		const handleEditUser = (event: CustomEvent) => {
+			setEditingUser(event.detail);
+			setEditDialogOpen(true);
+		};
+
+		const handleDeleteUser = (event: CustomEvent) => {
+			setDeletingUser(event.detail);
+			setDeleteDialogOpen(true);
+		};
+
+		window.addEventListener("editUser", handleEditUser as EventListener);
+		window.addEventListener("deleteUser", handleDeleteUser as EventListener);
+		return () => {
+			window.removeEventListener("editUser", handleEditUser as EventListener);
+			window.removeEventListener(
+				"deleteUser",
+				handleDeleteUser as EventListener,
+			);
+		};
+	}, []);
 
 	const table = useReactTable<User>({
 		data: tableData,
@@ -423,6 +477,40 @@ export function DataTable({ data }: { data: User[] }) {
 	const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
 	const totalRowsCount = table.getFilteredRowModel().rows.length;
 
+	const handleSaveUser = async (id: string, data: any) => {
+		// Simulate API call
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		// Update the table data
+		setTableData((prev) =>
+			prev.map((user) => (user.id === id ? { ...user, ...data } : user)),
+		);
+	};
+
+	const handleAddUser = async (data: any) => {
+		// Simulate API call
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		// Create new user with generated ID and timestamps
+		const newUser: User = {
+			id: `user_${Date.now()}`, // Generate a unique ID
+			...data,
+			createdAt: new Date().toISOString(),
+			updatedAt: new Date().toISOString(),
+		};
+
+		// Add to table data
+		setTableData((prev) => [newUser, ...prev]);
+	};
+
+	const handleDeleteUser = async (id: string) => {
+		// Simulate API call
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		// Remove user from table data
+		setTableData((prev) => prev.filter((user) => user.id !== id));
+	};
+
 	return (
 		<div className="space-y-6">
 			{/* Header */}
@@ -431,7 +519,7 @@ export function DataTable({ data }: { data: User[] }) {
 					<Download className="h-4 w-4 mr-2" />
 					Export
 				</Button>
-				<Button size="sm">
+				<Button size="sm" onClick={() => setAddDialogOpen(true)}>
 					<UserPlus className="h-4 w-4 mr-2" />
 					Add User
 				</Button>
@@ -592,7 +680,25 @@ export function DataTable({ data }: { data: User[] }) {
 							<Download className="h-4 w-4 mr-2" />
 							Export Selected
 						</Button>
-						<Button variant="destructive" size="sm">
+						<Button
+							variant="destructive"
+							size="sm"
+							onClick={() => {
+								const selectedUsers = table
+									.getFilteredSelectedRowModel()
+									.rows.map((row) => row.original);
+								// For bulk delete, we'll just delete the first selected user as an example
+								// In a real app, you might want a bulk delete confirmation dialog
+								if (selectedUsers.length > 0) {
+									const event = new CustomEvent("deleteUser", {
+										detail: selectedUsers[0],
+									});
+									window.dispatchEvent(event);
+									// Clear selection after delete
+									table.toggleAllPageRowsSelected(false);
+								}
+							}}
+						>
 							<Trash2 className="h-4 w-4 mr-2" />
 							Delete Selected
 						</Button>
@@ -726,6 +832,33 @@ export function DataTable({ data }: { data: User[] }) {
 					</div>
 				</div>
 			</div>
+
+			{/* Edit User Dialog */}
+			{editingUser && (
+				<EditUserDialog
+					user={editingUser}
+					open={editDialogOpen}
+					onOpenChange={setEditDialogOpen}
+					onSave={handleSaveUser}
+				/>
+			)}
+
+			{/* Add User Dialog */}
+			<AddUserDialog
+				open={addDialogOpen}
+				onOpenChange={setAddDialogOpen}
+				onSave={handleAddUser}
+			/>
+
+			{/* Delete User Dialog */}
+			{deletingUser && (
+				<DeleteUserDialog
+					user={deletingUser}
+					open={deleteDialogOpen}
+					onOpenChange={setDeleteDialogOpen}
+					onDelete={handleDeleteUser}
+				/>
+			)}
 		</div>
 	);
 }

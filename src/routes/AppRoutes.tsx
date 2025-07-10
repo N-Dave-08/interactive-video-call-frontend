@@ -15,6 +15,7 @@ import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/Room";
 import SchedulePage from "@/pages/Client/Schedule";
 import SessionsPage from "@/pages/Client/sessions";
+import SessionDetailPage from "@/pages/Client/sessions/session-detail";
 import LandingPage from "@/pages/Landing";
 
 const DashboardRoute = () => {
@@ -52,6 +53,7 @@ export default function AppRoutes() {
 				<Route path="mini-games/snake" element={<Snake />} />
 				<Route path="drawing-pad" element={<DrawingPadPage />} />
 				<Route path="sessions" element={<SessionsPage />} />
+				<Route path="sessions/:sessionId" element={<SessionDetailPage />} />
 				<Route path="/users" element={<UsersPage />} />
 			</Route>
 			<Route path="/login" element={<LoginPage />} />
