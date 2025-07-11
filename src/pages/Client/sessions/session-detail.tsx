@@ -77,7 +77,7 @@ export default function SessionDetailPage() {
 
 	if (!session) {
 		return (
-			<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+			<div className="min-h-screen flex items-center justify-center">
 				<div className="bg-white/80 p-8 rounded-xl shadow-lg text-center">
 					<h1 className="text-2xl font-bold mb-4">Session Detail</h1>
 					<p className="text-red-500">
@@ -92,7 +92,7 @@ export default function SessionDetailPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+		<div className="min-h-screen ">
 			<div className="max-w-4xl mx-auto p-6">
 				{/* Header */}
 				<div className="mb-8">
