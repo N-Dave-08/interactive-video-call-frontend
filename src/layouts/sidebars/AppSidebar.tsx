@@ -7,7 +7,6 @@ import {
 	Pencil,
 	User,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
 import {
@@ -23,8 +22,8 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
-import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
+// import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
+// import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
 import { useAuth } from "@/hooks/useAuth";
 
 // Menu items for client
@@ -76,7 +75,7 @@ const adminItems = [
 ];
 
 export default function AppSidebar() {
-	const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
+	// const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
 	const location = useLocation();
 	const { user } = useAuth();
 

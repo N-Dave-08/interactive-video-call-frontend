@@ -10,7 +10,6 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	type Row,
 	type SortingState,
 	useReactTable,
 	type VisibilityState,
@@ -44,7 +43,6 @@ import {
 import * as React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,26 +73,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import type { AddUserData, EditUserData } from "@/schemas";
+import type { User } from "@/types";
 import { AddUserDialog } from "./add-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
-
-export const schema = z.object({
-	id: z.string(),
-	first_name: z.string(),
-	last_name: z.string(),
-	username: z.string(),
-	place_of_assignment: z.string(),
-	phone_number: z.string().nullable(),
-	email: z.string(),
-	role: z.string(),
-	condition: z.string(),
-	createdAt: z.string(),
-	updatedAt: z.string(),
-	avatar: z.string().optional(),
-});
-
-type User = z.infer<typeof schema>;
 
 const getConditionBadge = (condition: string) => {
 	const variants = {
@@ -275,10 +258,16 @@ const columns: ColumnDef<User>[] = [
 				try {
 					// Simulate API call
 					await new Promise((resolve) => setTimeout(resolve, 500));
-					(table.options.meta as any)?.onConditionChange?.(id, newCondition);
+					(
+						table.options.meta as {
+							onConditionChange?: (id: string, condition: string) => void;
+						}
+					)?.onConditionChange?.(id, newCondition);
 					toast.success(`User status updated to ${newCondition}`);
 				} catch (err) {
-					toast.error("Failed to update user status");
+					toast.error(
+						`Failed to update user status: ${err instanceof Error ? err.message : "Unknown error"}`,
+					);
 				}
 			};
 
@@ -477,7 +466,7 @@ export function DataTable({ data }: { data: User[] }) {
 	const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
 	const totalRowsCount = table.getFilteredRowModel().rows.length;
 
-	const handleSaveUser = async (id: string, data: any) => {
+	const handleSaveUser = async (id: string, data: EditUserData) => {
 		// Simulate API call
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -487,7 +476,7 @@ export function DataTable({ data }: { data: User[] }) {
 		);
 	};
 
-	const handleAddUser = async (data: any) => {
+	const handleAddUser = async (data: AddUserData) => {
 		// Simulate API call
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -495,6 +484,8 @@ export function DataTable({ data }: { data: User[] }) {
 		const newUser: User = {
 			id: `user_${Date.now()}`, // Generate a unique ID
 			...data,
+			phone_number: data.phone_number || null,
+			password: data.password || "defaultPassword123", // Default password
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};

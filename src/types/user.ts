@@ -11,4 +11,5 @@ export interface User {
 	condition: string;
 	createdAt: string;
 	updatedAt: string;
+	avatar?: string;
 }

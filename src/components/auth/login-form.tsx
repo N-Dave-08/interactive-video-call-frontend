@@ -28,16 +28,14 @@ export function LoginForm({
 
 	// Filter out form-specific props for the outer div
 	const {
-		onSubmit,
-		ref,
-		action,
-		method,
-		encType,
-		autoComplete,
-		acceptCharset,
-		noValidate,
-		target,
-		...divProps
+		onSubmit: _onSubmit,
+		ref: _ref,
+		action: _action,
+		method: _method,
+		autoComplete: _autoComplete,
+		acceptCharset: _acceptCharset,
+		noValidate: _noValidate,
+		target: _target,
 	} = props;
 
 	// Add a type guard for errors with a Response
@@ -72,7 +70,9 @@ export function LoginForm({
 						if (errorData?.error) {
 							message = errorData.error;
 						}
-					} catch {}
+					} catch {
+						// Ignore JSON parsing errors, use default message
+					}
 				}
 			} else if (err instanceof Error) {
 				message = err.message;

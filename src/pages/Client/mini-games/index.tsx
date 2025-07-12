@@ -1,5 +1,5 @@
 import { Bird, Box, Hammer, WormIcon } from "lucide-react";
-import { motion, scale } from "motion/react";
+import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardFooter } from "@/components/ui/card";
 

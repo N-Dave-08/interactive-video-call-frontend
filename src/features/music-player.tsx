@@ -1,11 +1,4 @@
-import {
-	ChevronDown,
-	ChevronUp,
-	Music,
-	Pause,
-	Play,
-	Volume2,
-} from "lucide-react";
+import { ChevronDown, Music, Pause, Play, Volume2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import twinkleSong from "@/assets/music/twinle-twinkle.mp3";
@@ -67,7 +60,7 @@ export default function MusicPlayer({ className = "" }) {
 		return `${mins}:${secs.toString().padStart(2, "0")}`;
 	};
 
-	const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+	// const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
 	if (!isExpanded) {
 		return (
