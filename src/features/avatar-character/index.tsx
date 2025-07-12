@@ -20,26 +20,21 @@ export default function AvatarCharacter({
 	size = "2xl",
 }: AvatarCharacterProps) {
 	return (
-		<div
-			className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"
-			style={{ minHeight: "0" }}
-		>
-			<div className="pointer-events-auto">
-				<TutorialCharacter
-					name={""}
-					avatar="😃"
-					color="bg-indigo-300"
-					message={message}
-					type="hint"
-					bubblePosition={bubblePosition}
-					size={size}
-					showNext={showNext}
-					onNext={onNext}
-					showHint={showHint}
-					onHint={onHint}
-					delay={200}
-				/>
-			</div>
+		<div className="pointer-events-auto">
+			<TutorialCharacter
+				name={""}
+				avatar="😃"
+				color="bg-indigo-300"
+				message={message}
+				type="hint"
+				bubblePosition={bubblePosition}
+				size={size}
+				showNext={showNext}
+				onNext={onNext}
+				showHint={showHint}
+				onHint={onHint}
+				delay={200}
+			/>
 		</div>
 	);
 }

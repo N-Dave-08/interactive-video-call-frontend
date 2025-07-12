@@ -40,6 +40,16 @@ export default function AppRoutes() {
 				}
 			/>
 			<Route
+				path="/room/:session_id"
+				element={
+					<ProtectedRoute>
+						<RoomLayout>
+							<Room />
+						</RoomLayout>
+					</ProtectedRoute>
+				}
+			/>
+			<Route
 				element={
 					<ProtectedRoute>
 						<AppLayout />

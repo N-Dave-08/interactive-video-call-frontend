@@ -8,7 +8,7 @@ export default function SessionCardsSkeleton() {
 	return (
 		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
 			{skeletons.map((_, i) => (
-				<Card key={`session-skeleton-card-${i + 1}`} className="shadow-sm">
+				<Card key={`session-skeleton-card-${i + 1}`} className="shadow-sm h-96">
 					<CardContent className="py-6 space-y-4">
 						<Skeleton className="h-6 w-2/3 mb-2" />
 						<Skeleton className="h-4 w-full" />

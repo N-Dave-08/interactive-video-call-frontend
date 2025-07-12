@@ -2,16 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Button } from "@/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types/sessions";
+import CreateSessionModal from "./create-session-modal";
 import SessionCards from "./session-cards";
 import SessionCardsSkeleton from "./session-cards-skeleton";
 
@@ -21,7 +14,6 @@ export default function SessionsPage() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [open, setOpen] = useState(false);
-	const [title, setTitle] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -59,39 +51,11 @@ export default function SessionsPage() {
 				</Button>
 			</div>
 
-			<Dialog open={open} onOpenChange={setOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Create New Session</DialogTitle>
-					</DialogHeader>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							setOpen(false);
-							navigate("/room");
-						}}
-						className="space-y-4"
-					>
-						<Input
-							type="text"
-							placeholder="Session Title"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							required
-						/>
-						<DialogFooter>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setOpen(false)}
-							>
-								Cancel
-							</Button>
-							<Button type="submit">Create</Button>
-						</DialogFooter>
-					</form>
-				</DialogContent>
-			</Dialog>
+			<CreateSessionModal
+				open={open}
+				setOpen={setOpen}
+				onSessionCreated={(sessionId) => navigate(`/room/${sessionId}`)}
+			/>
 
 			{loading ? (
 				<SessionCardsSkeleton />
