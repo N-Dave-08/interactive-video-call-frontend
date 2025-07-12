@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { CreateSessionPayload } from "@/api/sessions";
 import { createSession } from "@/api/sessions";
@@ -261,91 +262,88 @@ export default function Room() {
 			{/* Right: Form Content */}
 			<main className="flex-1 ml-0 md:ml-72 flex flex-col p-8">
 				{/* Avatar and speech bubble */}
-				<div className="flex flex-col md:flex-row md:items-start gap-8">
-					{/* Avatar positioning logic */}
-					{!showChildForm && step === 0 && (
-						<div className="flex-shrink-0 flex justify-center md:justify-start md:w-1/3">
-							<AvatarCharacter
-								message={avatarMessage}
-								showNext={!showChildForm}
-								onNext={handleGotIt}
-								bubblePosition="left"
-								size="2xl"
-							/>
-						</div>
+				<motion.div
+					layout
+					transition={{ type: "spring", stiffness: 100, damping: 40 }}
+					className={
+						!showChildForm && step === 0
+							? "flex-shrink-0 flex justify-center md:justify-start md:w-1/3"
+							: "fixed bottom-20 right-20 z-30"
+					}
+					style={!showChildForm && step === 0 ? {} : { pointerEvents: "none" }}
+				>
+					<AvatarCharacter
+						message={
+							!showChildForm && step === 0
+								? avatarMessage
+								: stageMessages[step] || ""
+						}
+						showNext={!showChildForm}
+						onNext={handleGotIt}
+						bubblePosition="left"
+						size={!showChildForm && step === 0 ? "2xl" : "md"}
+					/>
+				</motion.div>
+				<div className="flex-1 w-full">
+					{error && <div className="text-red-500 mb-2">{error}</div>}
+					{step === 0 && showChildForm && (
+						<Stage1ChildData
+							value={childData}
+							onChange={setChildData}
+							onNext={handleChildDataNext}
+							loading={loading}
+							error={error || undefined}
+						/>
 					)}
-					{showChildForm && (
-						<div className="fixed bottom-20 right-20 z-30">
-							<AvatarCharacter
-								message={stageMessages[step] || ""}
-								showNext={false}
-								onNext={() => {}}
-								bubblePosition="left"
-								size="md"
-							/>
-						</div>
+					{step === 1 && (
+						<Stage2AvatarData
+							value={avatarData}
+							onChange={setAvatarData}
+							onNext={handleAvatarDataNext}
+							onBack={() => setStep(0)}
+							loading={loading}
+							error={error || undefined}
+						/>
 					)}
-					<div className="flex-1 w-full">
-						{error && <div className="text-red-500 mb-2">{error}</div>}
-						{step === 0 && showChildForm && (
-							<Stage1ChildData
-								value={childData}
-								onChange={setChildData}
-								onNext={handleChildDataNext}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 1 && (
-							<Stage2AvatarData
-								value={avatarData}
-								onChange={setAvatarData}
-								onNext={handleAvatarDataNext}
-								onBack={() => setStep(0)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 2 && (
-							<Stage3VideoMinigames
-								onNext={handleVideoMinigamesNext}
-								onBack={() => setStep(1)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 3 && (
-							<Stage4Other
-								onNext={handleStage4Next}
-								onBack={() => setStep(2)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 4 && (
-							<Stage5EmotionalExpressions
-								value={emotion}
-								onChange={setEmotion}
-								onNext={handleEmotionalExpressionsNext}
-								onBack={() => setStep(3)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 5 && (
-							<Stage6SessionNotesTags
-								notes={sessionNotes}
-								tagsInput={tagsInput}
-								onNotesChange={setSessionNotes}
-								onTagsInputChange={setTagsInput}
-								onTagsBlur={() => {}}
-								onNext={handleSessionNotesNext}
-								onBack={() => setStep(4)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-					</div>
+					{step === 2 && (
+						<Stage3VideoMinigames
+							onNext={handleVideoMinigamesNext}
+							onBack={() => setStep(1)}
+							loading={loading}
+							error={error || undefined}
+						/>
+					)}
+					{step === 3 && (
+						<Stage4Other
+							onNext={handleStage4Next}
+							onBack={() => setStep(2)}
+							loading={loading}
+							error={error || undefined}
+						/>
+					)}
+					{step === 4 && (
+						<Stage5EmotionalExpressions
+							value={emotion}
+							onChange={setEmotion}
+							onNext={handleEmotionalExpressionsNext}
+							onBack={() => setStep(3)}
+							loading={loading}
+							error={error || undefined}
+						/>
+					)}
+					{step === 5 && (
+						<Stage6SessionNotesTags
+							notes={sessionNotes}
+							tagsInput={tagsInput}
+							onNotesChange={setSessionNotes}
+							onTagsInputChange={setTagsInput}
+							onTagsBlur={() => {}}
+							onNext={handleSessionNotesNext}
+							onBack={() => setStep(4)}
+							loading={loading}
+							error={error || undefined}
+						/>
+					)}
 				</div>
 			</main>
 		</div>
