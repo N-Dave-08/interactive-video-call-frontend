@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useState } from "react";
 import type { CreateSessionPayload } from "@/api/sessions";
 import { createSession } from "@/api/sessions";
