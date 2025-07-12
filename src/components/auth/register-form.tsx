@@ -24,10 +24,7 @@ import {
 	SelectValue,
 } from "../ui/select";
 
-export function RegisterForm({
-	className,
-	...props
-}: React.ComponentProps<"form">) {
+export function RegisterForm({ className }: React.ComponentProps<"form">) {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
 	const [placeOfAssignment, setPlaceOfAssignment] = useState("");
