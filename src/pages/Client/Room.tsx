@@ -1,10 +1,9 @@
 import { motion } from "motion/react";
-import { useState } from "react";
-import type { CreateSessionPayload } from "@/api/sessions";
-import { createSession, updateSession } from "@/api/sessions";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { updateSession } from "@/api/sessions";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
-import { useSessionStore } from "@/store/sessionStore";
 import VerticalStepper from "./components/VerticalStepper";
 import Stage1ChildData from "./stages/Stage1ChildData";
 import Stage2AvatarData from "./stages/Stage2AvatarData";
@@ -25,7 +24,14 @@ const steps = [
 export default function Room() {
 	const [step, setStep] = useState(0);
 	const { user } = useAuth();
-	const sessionTitle = useSessionStore((state) => state.title);
+	const { session_id } = useParams();
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (session_id === "undefined") {
+			navigate("/room", { replace: true });
+		}
+	}, [session_id, navigate]);
 
 	// Stage 1 interaction states
 	const [showChildForm, setShowChildForm] = useState(false);
@@ -46,12 +52,11 @@ export default function Room() {
 		hair: "default",
 	});
 	const [emotion, setEmotion] = useState("neutral");
-	// Add more states as needed for emotional_expression, session_notes, tags, etc.
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
-	const [sessionId, setSessionId] = useState<string | null>(null);
+	const [tags, setTags] = useState<string[]>([]);
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -60,45 +65,32 @@ export default function Room() {
 	};
 
 	const handleChildDataNext = async () => {
-		if (!user) return;
+		if (!user || loading || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
+			// Only update the existing session
+			await updateSession(session_id, {
 				child_data: { ...childData, age: Number(childData.age) },
-				avatar_data: { head: "default", hair: "default" },
-				emotional_expression: {
-					method: "",
-					drawing_data: "",
-					selected_feelings: [],
-					body_map_annotations: [],
-				},
-				session_notes: "",
-				tags: [],
 				stage: "Stage 1",
-			};
-			const session = await createSession(payload);
-			console.log("Session created:", session);
-			setSessionId(session.data.session_id);
+			});
 			setStep(1);
 		} catch (err: unknown) {
-			console.error("Create session error:", err);
+			console.error("Update session error:", err);
 			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
+			else setError("Failed to update session");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const handleAvatarDataNext = async () => {
-		console.log(sessionId);
-		if (!user || !sessionId) return;
+		console.log(session_id);
+		if (!user || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(sessionId, {
+			await updateSession(session_id, {
 				avatar_data: avatarData,
 				stage: "Stage 2",
 			});
@@ -112,11 +104,11 @@ export default function Room() {
 	};
 
 	const handleVideoMinigamesNext = async () => {
-		if (!user || !sessionId) return;
+		if (!user || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(sessionId, {
+			await updateSession(session_id, {
 				stage: "Stage 3",
 			});
 			setStep(3);
@@ -129,11 +121,11 @@ export default function Room() {
 	};
 
 	const handleStage4Next = async () => {
-		if (!user || !sessionId) return;
+		if (!user || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(sessionId, {
+			await updateSession(session_id, {
 				stage: "Stage 4",
 			});
 			setStep(4);
@@ -146,11 +138,11 @@ export default function Room() {
 	};
 
 	const handleEmotionalExpressionsNext = async () => {
-		if (!user || !sessionId) return;
+		if (!user || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(sessionId, {
+			await updateSession(session_id, {
 				emotional_expression: {
 					method: "drawing",
 					drawing_data: "base64encodedstringhere",
@@ -168,18 +160,30 @@ export default function Room() {
 		}
 	};
 
-	const handleSessionNotesNext = async () => {
-		if (!user || !sessionId) return;
-		setLoading(true);
-		setError(null);
+	const handleTagsInputChange = (val: string) => {
+		setTagsInput(val);
+	};
+
+	const handleTagsBlur = () => {
+		// Parse tags from input
 		const parsedTags = tagsInput
 			.split(",")
 			.map((tag) => tag.trim())
 			.filter(Boolean);
+		// Only keep unique tags
+		const uniqueTags = Array.from(new Set(parsedTags));
+		setTags(uniqueTags);
+		setTagsInput(uniqueTags.join(", "));
+	};
+
+	const handleSessionNotesNext = async () => {
+		if (!user || !session_id) return;
+		setLoading(true);
+		setError(null);
 		try {
-			await updateSession(sessionId, {
+			await updateSession(session_id, {
 				session_notes: sessionNotes,
-				tags: parsedTags,
+				tags: tags, // use deduplicated tags
 				stage: "Stage 6",
 			});
 			// show success state here
@@ -200,7 +204,6 @@ export default function Room() {
 		"How are you feeling today?",
 		"Add your session notes and tags!",
 	];
-
 	return (
 		<div className="flex min-h-screen ">
 			{/* Left: Vertical Stepper Overlay */}
@@ -284,8 +287,8 @@ export default function Room() {
 						notes={sessionNotes}
 						tagsInput={tagsInput}
 						onNotesChange={setSessionNotes}
-						onTagsInputChange={setTagsInput}
-						onTagsBlur={() => {}}
+						onTagsInputChange={handleTagsInputChange}
+						onTagsBlur={handleTagsBlur}
 						onNext={handleSessionNotesNext}
 						onBack={() => setStep(4)}
 						loading={loading}

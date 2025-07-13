@@ -63,7 +63,7 @@ export default function CreateSessionModal({
 			};
 			const session = await createSession(payload);
 			setOpen(false);
-			onSessionCreated(session.session_id);
+			onSessionCreated(session.data.session_id);
 		} catch (err: unknown) {
 			if (err instanceof Error) {
 				setError(err.message || "Failed to create session");
