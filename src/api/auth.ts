@@ -42,6 +42,10 @@ export interface RegisterResponse {
 	};
 }
 
+interface ApiError extends Error {
+	response: Response;
+}
+
 export async function login(
 	email: string,
 	password: string,
@@ -55,8 +59,8 @@ export async function login(
 		},
 	);
 	if (!res.ok) {
-		const error = new Error("Login failed");
-		(error as any).response = res;
+		const error = new Error("Login failed") as ApiError;
+		error.response = res;
 		throw error;
 	}
 	return res.json();

@@ -16,29 +16,13 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-export function LoginForm({
-	className,
-	...props
-}: React.ComponentProps<"form">) {
+export function LoginForm({ className }: React.ComponentProps<"form">) {
 	const [loading, setLoading] = useState(false);
 	const emailRef = useRef<HTMLInputElement>(null);
 	const passwordRef = useRef<HTMLInputElement>(null);
 	const navigate = useNavigate();
 	const { login } = useAuth();
 
-	// Filter out form-specific props for the outer div
-	const {
-		onSubmit: _onSubmit,
-		ref: _ref,
-		action: _action,
-		method: _method,
-		autoComplete: _autoComplete,
-		acceptCharset: _acceptCharset,
-		noValidate: _noValidate,
-		target: _target,
-	} = props;
-
-	// Add a type guard for errors with a Response
 	function isErrorWithResponse(
 		error: unknown,
 	): error is { response: Response } {

@@ -73,7 +73,9 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 						if (errorData?.error) {
 							message = errorData.error;
 						}
-					} catch {}
+					} catch {
+						// ignore JSON parsing errors, use default message
+					}
 				}
 			} else if (err instanceof Error) {
 				message = err.message;

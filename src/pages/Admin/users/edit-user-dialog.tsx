@@ -113,7 +113,7 @@ export function EditUserDialog({
 			await onSave(user.id, formData);
 			toast.success("User updated successfully");
 			onOpenChange(false);
-		} catch (error) {
+		} catch {
 			toast.error("Failed to update user");
 		} finally {
 			setIsLoading(false);
@@ -263,7 +263,7 @@ export function EditUserDialog({
 							<Select
 								value={formData.role}
 								onValueChange={(value) =>
-									handleInputChange("role", value as any)
+									handleInputChange("role", value as "admin" | "social_worker")
 								}
 							>
 								<SelectTrigger
@@ -289,7 +289,10 @@ export function EditUserDialog({
 						<Select
 							value={formData.condition}
 							onValueChange={(value) =>
-								handleInputChange("condition", value as any)
+								handleInputChange(
+									"condition",
+									value as "approved" | "pending" | "rejected" | "blocked",
+								)
 							}
 						>
 							<SelectTrigger
