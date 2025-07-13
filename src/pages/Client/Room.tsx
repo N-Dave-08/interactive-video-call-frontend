@@ -60,6 +60,12 @@ export default function Room() {
 				if (stage && Object.hasOwn(stageToStep, stage)) {
 					setStep(stageToStep[stage]);
 				}
+				if (session?.child_data) {
+					setChildData({
+						...session.child_data,
+						age: String(session.child_data.age ?? ""),
+					});
+				}
 			} catch (err) {
 				console.error("Failed to restore session step:", err);
 			}
@@ -339,7 +345,7 @@ export default function Room() {
 				)}
 				{step === 6 && (
 					<Stage7Completion
-						childName={childData.first_name || "Friend"}
+						childName={childData.first_name}
 						onBack={() => setStep(5)}
 					/>
 				)}
