@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
+import type { Session } from "@/types/sessions";
 import VerticalStepper from "./components/VerticalStepper";
 import Stage1ChildData from "./stages/Stage1ChildData";
 import Stage2AvatarData from "./stages/Stage2AvatarData";
@@ -42,7 +43,9 @@ export default function Room() {
 			try {
 				const sessionsResp = await fetchSessionsBySocialWorkerId(user.id);
 				const sessions = sessionsResp?.data || [];
-				const session = sessions.find((s: any) => s.session_id === session_id);
+				const session = (sessions as Session[]).find(
+					(s: Session) => s.session_id === session_id,
+				);
 				const stage = session?.stage;
 				// Use 0-based mapping for stageToStep
 				const stageToStep: Record<string, number> = {
@@ -88,7 +91,8 @@ export default function Room() {
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
-	const [isCompleted, setIsCompleted] = useState(false);
+	// Remove isCompleted from state
+	// const [isCompleted, setIsCompleted] = useState(false);
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -219,7 +223,7 @@ export default function Room() {
 				stage: "Completion",
 			});
 			setStep(6);
-			setIsCompleted(true);
+			// setIsCompleted(true); // Remove this line
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
 			else setError("Failed to update session");
@@ -333,7 +337,7 @@ export default function Room() {
 						error={error || undefined}
 					/>
 				)}
-				{step === 6 && isCompleted && (
+				{step === 6 && (
 					<Stage7Completion
 						childName={childData.first_name || "Friend"}
 						onBack={() => setStep(5)}

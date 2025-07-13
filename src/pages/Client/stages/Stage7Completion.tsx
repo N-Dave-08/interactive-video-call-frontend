@@ -19,10 +19,7 @@ interface Stage7CompletionProps {
 	onBack: () => void;
 }
 
-export default function Stage7Completion({
-	childName,
-	onBack,
-}: Stage7CompletionProps) {
+export default function Stage7Completion({ childName }: Stage7CompletionProps) {
 	const [confetti, setConfetti] = useState<
 		Array<{ id: number; x: number; y: number; color: string }>
 	>([]);
