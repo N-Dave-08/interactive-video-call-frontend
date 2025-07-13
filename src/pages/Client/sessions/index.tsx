@@ -16,6 +16,10 @@ export default function SessionsPage() {
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
 
+	const handleSessionDeleted = (sessionId: string) => {
+		setSessions((prev) => prev.filter((s) => s.session_id !== sessionId));
+	};
+
 	useEffect(() => {
 		if (!user) return;
 		if (user.role !== "social_worker") {
@@ -60,7 +64,11 @@ export default function SessionsPage() {
 			{loading ? (
 				<SessionCardsSkeleton />
 			) : (
-				<SessionCards sessions={sessions} user={user} />
+				<SessionCards
+					sessions={sessions}
+					user={user}
+					onSessionDeleted={handleSessionDeleted}
+				/>
 			)}
 		</>
 	);

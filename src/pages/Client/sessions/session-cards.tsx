@@ -4,17 +4,31 @@ import {
 	FileText,
 	Tag,
 	Target,
+	Trash2,
 	User,
 	UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { deleteSession } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import type { Session } from "@/types/sessions";
 
 interface SessionCardsProps {
 	sessions: Session[];
 	user: { first_name: string; last_name: string };
+	onSessionDeleted?: (sessionId: string) => void;
 }
 
 // Helper to get color class for stage
@@ -33,7 +47,11 @@ function getStageColor(stage: string) {
 	}
 }
 
-export default function SessionCards({ sessions, user }: SessionCardsProps) {
+export default function SessionCards({
+	sessions,
+	user,
+	onSessionDeleted,
+}: SessionCardsProps) {
 	const navigate = useNavigate();
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("en-US", {
@@ -49,6 +67,15 @@ export default function SessionCards({ sessions, user }: SessionCardsProps) {
 			minute: "2-digit",
 			hour12: true,
 		});
+	};
+
+	const onDeleteSession = async (session_id: string) => {
+		try {
+			await deleteSession(session_id);
+			onSessionDeleted?.(session_id);
+		} catch (_) {
+			alert("Failed to delete session. Please try again.");
+		}
 	};
 
 	return (
@@ -79,16 +106,51 @@ export default function SessionCards({ sessions, user }: SessionCardsProps) {
 									</div>
 								)}
 							</div>
-							<Badge
-								variant={session.end_time ? "secondary" : "default"}
-								className={
-									session.end_time
-										? "bg-green-100 text-green-800"
-										: "bg-blue-100 text-blue-800"
-								}
-							>
-								{session.end_time ? "Completed" : "In Progress"}
-							</Badge>
+							<div className="flex items-center gap-2">
+								<Badge
+									variant={session.end_time ? "secondary" : "default"}
+									className={
+										session.end_time
+											? "bg-green-100 text-green-800"
+											: "bg-blue-100 text-blue-800"
+									}
+								>
+									{session.end_time ? "Completed" : "In Progress"}
+								</Badge>
+								{/* Delete button with confirmation dialog */}
+								<Dialog>
+									<DialogTrigger asChild>
+										<button
+											onClick={(e) => e.stopPropagation()}
+											title="Delete session"
+											className="p-1 rounded hover:bg-red-100"
+											type="button"
+										>
+											<Trash2 className="h-4 w-4 text-red-500" />
+										</button>
+									</DialogTrigger>
+									<DialogContent onClick={(e) => e.stopPropagation()}>
+										<DialogHeader>
+											<DialogTitle>Delete Session</DialogTitle>
+											<DialogDescription>
+												Are you sure you want to delete this session? This
+												action cannot be undone.
+											</DialogDescription>
+										</DialogHeader>
+										<DialogFooter>
+											<DialogClose asChild>
+												<Button variant={"secondary"}>Cancel</Button>
+											</DialogClose>
+											<Button
+												onClick={() => onDeleteSession(session.session_id)}
+												variant={"destructive"}
+											>
+												Delete
+											</Button>
+										</DialogFooter>
+									</DialogContent>
+								</Dialog>
+							</div>
 						</div>
 					</CardHeader>
 

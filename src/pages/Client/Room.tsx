@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useState } from "react";
 import type { CreateSessionPayload } from "@/api/sessions";
-import { createSession } from "@/api/sessions";
+import { createSession, updateSession } from "@/api/sessions";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
 import { useSessionStore } from "@/store/sessionStore";
@@ -51,6 +51,7 @@ export default function Room() {
 	const [error, setError] = useState<string | null>(null);
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
+	const [sessionId, setSessionId] = useState<string | null>(null);
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -78,9 +79,12 @@ export default function Room() {
 				tags: [],
 				stage: "Stage 1",
 			};
-			await createSession(payload);
+			const session = await createSession(payload);
+			console.log("Session created:", session);
+			setSessionId(session.data.session_id);
 			setStep(1);
 		} catch (err: unknown) {
+			console.error("Create session error:", err);
 			if (err instanceof Error) setError(err.message);
 			else setError("Failed to create session");
 		} finally {
@@ -89,155 +93,99 @@ export default function Room() {
 	};
 
 	const handleAvatarDataNext = async () => {
-		if (!user) return;
+		console.log(sessionId);
+		if (!user || !sessionId) return;
 		setLoading(true);
 		setError(null);
 		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
-				child_data: { ...childData, age: Number(childData.age) },
+			await updateSession(sessionId, {
 				avatar_data: avatarData,
-				emotional_expression: {
-					method: "",
-					drawing_data: "",
-					selected_feelings: [],
-					body_map_annotations: [],
-				},
-				session_notes: "",
-				tags: [],
 				stage: "Stage 2",
-			};
-			await createSession(payload);
+			});
 			setStep(2);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
-		} finally {
-			setLoading(false);
-		}
-	};
-
-	const handleEmotionalExpressionsNext = async () => {
-		if (!user) return;
-		setLoading(true);
-		setError(null);
-		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
-				child_data: { ...childData, age: Number(childData.age) },
-				avatar_data: avatarData,
-				emotional_expression: {
-					method: "drawing",
-					drawing_data: "base64encodedstringhere",
-					selected_feelings: [emotion],
-					body_map_annotations: [],
-				},
-				session_notes: "",
-				tags: [],
-				stage: "Stage 5",
-			};
-			await createSession(payload);
-			setStep(5);
-		} catch (err: unknown) {
-			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
+			else setError("Failed to update session");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const handleVideoMinigamesNext = async () => {
-		if (!user) return;
+		if (!user || !sessionId) return;
 		setLoading(true);
 		setError(null);
 		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
-				child_data: { ...childData, age: Number(childData.age) },
-				avatar_data: avatarData,
-				emotional_expression: {
-					method: "",
-					drawing_data: "",
-					selected_feelings: [],
-					body_map_annotations: [],
-				},
-				session_notes: "",
-				tags: [],
+			await updateSession(sessionId, {
 				stage: "Stage 3",
-			};
-			await createSession(payload);
+			});
 			setStep(3);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
+			else setError("Failed to update session");
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	const handleStage4Next = async () => {
-		if (!user) return;
+		if (!user || !sessionId) return;
 		setLoading(true);
 		setError(null);
 		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
-				child_data: { ...childData, age: Number(childData.age) },
-				avatar_data: avatarData,
-				emotional_expression: {
-					method: "",
-					drawing_data: "",
-					selected_feelings: [],
-					body_map_annotations: [],
-				},
-				session_notes: "",
-				tags: [],
+			await updateSession(sessionId, {
 				stage: "Stage 4",
-			};
-			await createSession(payload);
+			});
 			setStep(4);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
+			else setError("Failed to update session");
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	const handleSessionNotesNext = async () => {
-		if (!user) return;
+	const handleEmotionalExpressionsNext = async () => {
+		if (!user || !sessionId) return;
 		setLoading(true);
 		setError(null);
-		// Parse tags from tagsInput before submit
-		const parsedTags = tagsInput
-			.split(",")
-			.map((tag) => tag.trim())
-			.filter(Boolean);
 		try {
-			const payload: CreateSessionPayload = {
-				social_worker_id: user.id,
-				title: sessionTitle,
-				child_data: { ...childData, age: Number(childData.age) },
-				avatar_data: avatarData,
+			await updateSession(sessionId, {
 				emotional_expression: {
 					method: "drawing",
 					drawing_data: "base64encodedstringhere",
 					selected_feelings: [emotion],
 					body_map_annotations: [],
 				},
+				stage: "Stage 5",
+			});
+			setStep(5);
+		} catch (err: unknown) {
+			if (err instanceof Error) setError(err.message);
+			else setError("Failed to update session");
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleSessionNotesNext = async () => {
+		if (!user || !sessionId) return;
+		setLoading(true);
+		setError(null);
+		const parsedTags = tagsInput
+			.split(",")
+			.map((tag) => tag.trim())
+			.filter(Boolean);
+		try {
+			await updateSession(sessionId, {
 				session_notes: sessionNotes,
 				tags: parsedTags,
 				stage: "Stage 6",
-			};
-			await createSession(payload);
+			});
 			// show success state here
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
-			else setError("Failed to create session");
+			else setError("Failed to update session");
 		} finally {
 			setLoading(false);
 		}
@@ -278,73 +226,72 @@ export default function Room() {
 								? avatarMessage
 								: stageMessages[step] || ""
 						}
-						showNext={!showChildForm}
+						showNext={!showChildForm && step === 0}
 						onNext={handleGotIt}
 						bubblePosition="left"
 						size={!showChildForm && step === 0 ? "2xl" : "md"}
 					/>
 				</motion.div>
-				<div className="flex-1 w-full">
-					{error && <div className="text-red-500 mb-2">{error}</div>}
-					{step === 0 && showChildForm && (
-						<Stage1ChildData
-							value={childData}
-							onChange={setChildData}
-							onNext={handleChildDataNext}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-					{step === 1 && (
-						<Stage2AvatarData
-							value={avatarData}
-							onChange={setAvatarData}
-							onNext={handleAvatarDataNext}
-							onBack={() => setStep(0)}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-					{step === 2 && (
-						<Stage3VideoMinigames
-							onNext={handleVideoMinigamesNext}
-							onBack={() => setStep(1)}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-					{step === 3 && (
-						<Stage4Other
-							onNext={handleStage4Next}
-							onBack={() => setStep(2)}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-					{step === 4 && (
-						<Stage5EmotionalExpressions
-							value={emotion}
-							onChange={setEmotion}
-							onNext={handleEmotionalExpressionsNext}
-							onBack={() => setStep(3)}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-					{step === 5 && (
-						<Stage6SessionNotesTags
-							notes={sessionNotes}
-							tagsInput={tagsInput}
-							onNotesChange={setSessionNotes}
-							onTagsInputChange={setTagsInput}
-							onTagsBlur={() => {}}
-							onNext={handleSessionNotesNext}
-							onBack={() => setStep(4)}
-							loading={loading}
-							error={error || undefined}
-						/>
-					)}
-				</div>
+
+				{/* Step Content */}
+				{step === 0 && showChildForm && (
+					<Stage1ChildData
+						value={childData}
+						onChange={setChildData}
+						onNext={handleChildDataNext}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
+				{step === 1 && (
+					<Stage2AvatarData
+						value={avatarData}
+						onChange={setAvatarData}
+						onNext={handleAvatarDataNext}
+						onBack={() => setStep(0)}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
+				{step === 2 && (
+					<Stage3VideoMinigames
+						onNext={handleVideoMinigamesNext}
+						onBack={() => setStep(1)}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
+				{step === 3 && (
+					<Stage4Other
+						onNext={handleStage4Next}
+						onBack={() => setStep(2)}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
+				{step === 4 && (
+					<Stage5EmotionalExpressions
+						value={emotion}
+						onChange={setEmotion}
+						onNext={handleEmotionalExpressionsNext}
+						onBack={() => setStep(3)}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
+				{step === 5 && (
+					<Stage6SessionNotesTags
+						notes={sessionNotes}
+						tagsInput={tagsInput}
+						onNotesChange={setSessionNotes}
+						onTagsInputChange={setTagsInput}
+						onTagsBlur={() => {}}
+						onNext={handleSessionNotesNext}
+						onBack={() => setStep(4)}
+						loading={loading}
+						error={error || undefined}
+					/>
+				)}
 			</main>
 		</div>
 	);
