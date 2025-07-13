@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { updateSession } from "@/api/sessions";
+import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
 import VerticalStepper from "./components/VerticalStepper";
@@ -11,6 +11,7 @@ import Stage3VideoMinigames from "./stages/Stage3VideoMinigames";
 import Stage4Other from "./stages/Stage4Other";
 import Stage5EmotionalExpressions from "./stages/Stage5EmotionalExpressions";
 import Stage6SessionNotesTags from "./stages/Stage6SessionNotesTags";
+import Stage7Completion from "./stages/Stage7Completion";
 
 const steps = [
 	"Child Data",
@@ -19,6 +20,7 @@ const steps = [
 	"Stage 4",
 	"Emotional Expressions",
 	"Session Notes & Tags",
+	"Completion",
 ];
 
 export default function Room() {
@@ -32,6 +34,35 @@ export default function Room() {
 			navigate("/room", { replace: true });
 		}
 	}, [session_id, navigate]);
+
+	// Restore step from backend session stage
+	useEffect(() => {
+		async function restoreStep() {
+			if (!session_id || !user?.id) return;
+			try {
+				const sessionsResp = await fetchSessionsBySocialWorkerId(user.id);
+				const sessions = sessionsResp?.data || [];
+				const session = sessions.find((s: any) => s.session_id === session_id);
+				const stage = session?.stage;
+				// Use 0-based mapping for stageToStep
+				const stageToStep: Record<string, number> = {
+					"Stage 1": 0,
+					"Stage 2": 1,
+					"Stage 3": 2,
+					"Stage 4": 3,
+					"Stage 5": 4,
+					"Stage 6": 5,
+					Completion: 6,
+				};
+				if (stage && Object.hasOwn(stageToStep, stage)) {
+					setStep(stageToStep[stage]);
+				}
+			} catch (err) {
+				console.error("Failed to restore session step:", err);
+			}
+		}
+		restoreStep();
+	}, [session_id, user?.id]);
 
 	// Stage 1 interaction states
 	const [showChildForm, setShowChildForm] = useState(false);
@@ -57,6 +88,7 @@ export default function Room() {
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
+	const [isCompleted, setIsCompleted] = useState(false);
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -64,15 +96,16 @@ export default function Room() {
 		setShowChildForm(true);
 	};
 
+	// Update all handleXNext functions to set the backend to the NEXT stage
 	const handleChildDataNext = async () => {
 		if (!user || loading || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
-			// Only update the existing session
+			// Update to the NEXT stage
 			await updateSession(session_id, {
 				child_data: { ...childData, age: Number(childData.age) },
-				stage: "Stage 1",
+				stage: "Stage 2",
 			});
 			setStep(1);
 		} catch (err: unknown) {
@@ -85,14 +118,13 @@ export default function Room() {
 	};
 
 	const handleAvatarDataNext = async () => {
-		console.log(session_id);
 		if (!user || !session_id) return;
 		setLoading(true);
 		setError(null);
 		try {
 			await updateSession(session_id, {
 				avatar_data: avatarData,
-				stage: "Stage 2",
+				stage: "Stage 3",
 			});
 			setStep(2);
 		} catch (err: unknown) {
@@ -109,7 +141,7 @@ export default function Room() {
 		setError(null);
 		try {
 			await updateSession(session_id, {
-				stage: "Stage 3",
+				stage: "Stage 4",
 			});
 			setStep(3);
 		} catch (err: unknown) {
@@ -126,7 +158,7 @@ export default function Room() {
 		setError(null);
 		try {
 			await updateSession(session_id, {
-				stage: "Stage 4",
+				stage: "Stage 5",
 			});
 			setStep(4);
 		} catch (err: unknown) {
@@ -149,7 +181,7 @@ export default function Room() {
 					selected_feelings: [emotion],
 					body_map_annotations: [],
 				},
-				stage: "Stage 5",
+				stage: "Stage 6",
 			});
 			setStep(5);
 		} catch (err: unknown) {
@@ -184,9 +216,10 @@ export default function Room() {
 			await updateSession(session_id, {
 				session_notes: sessionNotes,
 				tags: tags, // use deduplicated tags
-				stage: "Stage 6",
+				stage: "Completion",
 			});
-			// show success state here
+			setStep(6);
+			setIsCompleted(true);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
 			else setError("Failed to update session");
@@ -203,6 +236,7 @@ export default function Room() {
 		"Let's continue to the next step!",
 		"How are you feeling today?",
 		"Add your session notes and tags!",
+		"🎉 Congratulations! 🎉",
 	];
 	return (
 		<div className="flex min-h-screen ">
@@ -213,28 +247,32 @@ export default function Room() {
 			{/* Right: Form Content */}
 			<main className="flex-1 ml-0 md:ml-72 flex flex-col p-8">
 				{/* Avatar and speech bubble */}
-				<motion.div
-					layout
-					transition={{ type: "spring", stiffness: 100, damping: 40 }}
-					className={
-						!showChildForm && step === 0
-							? "flex-shrink-0 flex justify-center md:justify-start md:w-1/3"
-							: "fixed bottom-20 right-20 z-30"
-					}
-					style={!showChildForm && step === 0 ? {} : { pointerEvents: "none" }}
-				>
-					<AvatarCharacter
-						message={
+				{step !== 6 && (
+					<motion.div
+						layout
+						transition={{ type: "spring", stiffness: 100, damping: 40 }}
+						className={
 							!showChildForm && step === 0
-								? avatarMessage
-								: stageMessages[step] || ""
+								? "flex-shrink-0 flex justify-center md:justify-start md:w-1/3"
+								: "fixed bottom-20 right-20 z-30"
 						}
-						showNext={!showChildForm && step === 0}
-						onNext={handleGotIt}
-						bubblePosition="left"
-						size={!showChildForm && step === 0 ? "2xl" : "md"}
-					/>
-				</motion.div>
+						style={
+							!showChildForm && step === 0 ? {} : { pointerEvents: "none" }
+						}
+					>
+						<AvatarCharacter
+							message={
+								!showChildForm && step === 0
+									? avatarMessage
+									: stageMessages[step] || ""
+							}
+							showNext={!showChildForm && step === 0}
+							onNext={handleGotIt}
+							bubblePosition="left"
+							size={!showChildForm && step === 0 ? "2xl" : "md"}
+						/>
+					</motion.div>
+				)}
 
 				{/* Step Content */}
 				{step === 0 && showChildForm && (
@@ -293,6 +331,12 @@ export default function Room() {
 						onBack={() => setStep(4)}
 						loading={loading}
 						error={error || undefined}
+					/>
+				)}
+				{step === 6 && isCompleted && (
+					<Stage7Completion
+						childName={childData.first_name || "Friend"}
+						onBack={() => setStep(5)}
 					/>
 				)}
 			</main>
