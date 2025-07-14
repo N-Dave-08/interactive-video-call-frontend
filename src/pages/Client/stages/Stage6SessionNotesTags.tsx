@@ -55,7 +55,7 @@ export default function Stage6SessionNotesTags({
 						type="button"
 						className="px-4 py-2"
 						onClick={onNext}
-						disabled={loading}
+						disabled={!notes || !tagsInput || loading}
 					>
 						{loading ? "Saving..." : "Finish"}
 					</Button>
