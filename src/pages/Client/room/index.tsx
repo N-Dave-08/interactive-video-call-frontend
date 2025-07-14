@@ -265,7 +265,7 @@ export default function Room() {
 				<div className="h-4 bg-transparent"></div>
 			</div>
 			{/* Right: Form Content */}
-			<main className="flex-1 ml-0 flex flex-col p-8 h-full bg-blue-500">
+			<main className="flex-1 ml-0 flex flex-col p-8 h-10/12">
 				{/* Avatar and speech bubble */}
 				{step !== 6 && (
 					<motion.div
