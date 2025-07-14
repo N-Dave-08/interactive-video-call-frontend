@@ -1,5 +1,5 @@
 import { Bird, Box, Hammer, WormIcon } from "lucide-react";
-import { motion, scale } from "motion/react";
+import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardFooter } from "@/components/ui/card";
 
@@ -27,7 +27,7 @@ export default function MiniGamesPage() {
 						animate="initial"
 						className="hover:cursor-pointer relative overflow-hidden"
 						key={item.name}
-						onClick={() => navigate(`/client/mini-games/${slug}`)}
+						onClick={() => navigate(`/mini-games/${slug}`)}
 					>
 						<motion.div
 							variants={{

@@ -1,0 +1,11 @@
+POST https://prep-play-backend-production.up.railway.app/api/users
+Content-Type: application/json
+
+{
+    "first_name": "Kurt",
+    "last_name": "Cruz",
+    "email": "kurt@gmail.com",
+    "password": "12345678",
+    "username": "kurt123",
+    "place_of_assignment": "lpaldpasd"
+}

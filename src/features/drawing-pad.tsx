@@ -1,7 +1,7 @@
-import { Download, Eraser, Palette, RotateCcw } from "lucide-react";
+import { Download, Eraser, RotateCcw } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 
 interface Point {

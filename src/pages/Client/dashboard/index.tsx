@@ -1,6 +1,6 @@
 import { SectionCards } from "@/components/cards/SectionCards";
 
-export default function Dashboard() {
+export default function ClientDashboard() {
 	return (
 		<div className="flex flex-1 flex-col">
 			<div className="@container/main flex flex-1 flex-col gap-2">
