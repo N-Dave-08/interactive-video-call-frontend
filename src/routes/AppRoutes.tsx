@@ -12,7 +12,7 @@ import ClientDashboard from "@/pages/Client/dashboard";
 import MiniGamesPage from "@/pages/Client/mini-games";
 import Snake from "@/pages/Client/mini-games/snake";
 import ProfilePage from "@/pages/Client/Profile";
-import Room from "@/pages/Client/Room";
+import Room from "@/pages/Client/room";
 import SchedulePage from "@/pages/Client/Schedule";
 import SessionsPage from "@/pages/Client/sessions";
 import SessionDetailPage from "@/pages/Client/sessions/session-detail";

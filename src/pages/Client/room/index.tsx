@@ -4,15 +4,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
+import Stage1ChildData from "@/pages/Client/room/stages/Stage1ChildData";
+import Stage2AvatarData from "@/pages/Client/room/stages/Stage2AvatarData";
+import Stage3VideoMinigames from "@/pages/Client/room/stages/Stage3VideoMinigames";
+import Stage4Other from "@/pages/Client/room/stages/Stage4Other";
+import Stage5EmotionalExpressions from "@/pages/Client/room/stages/Stage5EmotionalExpressions";
+import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNotesTags";
+import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
+import VerticalStepper from "@/pages/Client/room/VerticalStepper";
 import type { Session } from "@/types/sessions";
-import VerticalStepper from "./components/VerticalStepper";
-import Stage1ChildData from "./stages/Stage1ChildData";
-import Stage2AvatarData from "./stages/Stage2AvatarData";
-import Stage3VideoMinigames from "./stages/Stage3VideoMinigames";
-import Stage4Other from "./stages/Stage4Other";
-import Stage5EmotionalExpressions from "./stages/Stage5EmotionalExpressions";
-import Stage6SessionNotesTags from "./stages/Stage6SessionNotesTags";
-import Stage7Completion from "./stages/Stage7Completion";
 
 const steps = [
 	"Child Data",
@@ -249,13 +249,23 @@ export default function Room() {
 		"🎉 Congratulations! 🎉",
 	];
 	return (
-		<div className="flex min-h-screen ">
+		<div className="h-screen">
 			{/* Left: Vertical Stepper Overlay */}
-			<aside className="hidden md:flex flex-col items-center min-h-screen w-72 py-12 bg-white/40 backdrop-blur-sm fixed left-0 top-0 z-20">
-				<VerticalStepper steps={steps} currentStep={step} />
-			</aside>
+			<div className="fixed top-0 left-0 right-0 z-50 group">
+				<div className="bg-white/95 backdrop-blur-sm border-b border-white/20 shadow-lg transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+					<div className="max-w-4xl mx-auto px-8 py-4">
+						<VerticalStepper
+							steps={steps}
+							currentStep={step}
+							direction="horizontal"
+						/>
+					</div>
+				</div>
+				{/* Hover trigger area */}
+				<div className="h-4 bg-transparent"></div>
+			</div>
 			{/* Right: Form Content */}
-			<main className="flex-1 ml-0 md:ml-72 flex flex-col p-8">
+			<main className="flex-1 ml-0 flex flex-col p-8 h-full bg-blue-500">
 				{/* Avatar and speech bubble */}
 				{step !== 6 && (
 					<motion.div
@@ -263,7 +273,7 @@ export default function Room() {
 						transition={{ type: "spring", stiffness: 100, damping: 40 }}
 						className={
 							!showChildForm && step === 0
-								? "flex-shrink-0 flex justify-center md:justify-start md:w-1/3"
+								? "fixed inset-0 z-30 flex items-center justify-center"
 								: "fixed bottom-20 right-20 z-30"
 						}
 						style={
