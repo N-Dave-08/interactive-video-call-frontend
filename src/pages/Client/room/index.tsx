@@ -88,8 +88,11 @@ export default function Room() {
 		place_of_birth: "",
 	});
 	const [avatarData, setAvatarData] = useState({
-		head: "default",
-		hair: "default",
+		head: "/avatar-assets/heads/default-head-clear.png",
+		hair: "/avatar-assets/hairs/HairB1.png",
+		expression: "/avatar-assets/expressions/F1.png",
+		clothes: "/avatar-assets/clothes/boy-uniform.png",
+		background: "/avatar-assets/bg/bg3.jpg",
 	});
 	const [emotion, setEmotion] = useState("neutral");
 	const [loading, setLoading] = useState(false);
@@ -133,7 +136,13 @@ export default function Room() {
 		setError(null);
 		try {
 			await updateSession(session_id, {
-				avatar_data: avatarData,
+				avatar_data: {
+					head: avatarData.head,
+					hair: avatarData.hair,
+					expression: avatarData.expression,
+					clothes: avatarData.clothes,
+					background: avatarData.background,
+				},
 				stage: "Stage 3",
 			});
 			setStep(2);

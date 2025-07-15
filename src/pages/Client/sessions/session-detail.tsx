@@ -357,24 +357,43 @@ export default function SessionDetailPage() {
 							<CardHeader className="pb-4">
 								<CardTitle className="flex items-center gap-2 text-lg">
 									<User className="h-5 w-5 text-purple-600" />
-									Avatar Description
+									Avatar
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-3">
-								<div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
-									<div className="text-xs text-purple-600 uppercase tracking-wide mb-1">
-										Hair
-									</div>
-									<div className="text-sm text-purple-800">
-										{session.avatar_data.hair}
-									</div>
-								</div>
-								<div className="bg-purple-50 rounded-lg p-3 border border-purple-100">
-									<div className="text-xs text-purple-600 uppercase tracking-wide mb-1">
-										Head
-									</div>
-									<div className="text-sm text-purple-800">
-										{session.avatar_data.head}
+								{/* Avatar Visual Preview */}
+								<div className="flex items-center justify-center mb-2">
+									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/30 w-full max-w-[120px] aspect-square">
+										{/* Background */}
+										<img
+											src={session.avatar_data.background}
+											className="absolute inset-0 object-cover h-full w-full brightness-75 rounded-lg"
+											alt="Avatar background"
+										/>
+										{/* Clothes */}
+										<img
+											src={session.avatar_data.clothes}
+											className="absolute inset-0 w-full h-full object-contain top-[-10px]"
+											alt="Avatar clothes"
+										/>
+										{/* Head */}
+										<img
+											src={session.avatar_data.head}
+											className="absolute inset-0 w-full h-full object-contain"
+											alt="Avatar head"
+										/>
+										{/* Hair */}
+										<img
+											src={session.avatar_data.hair}
+											className="absolute inset-0 w-full h-full object-contain"
+											alt="Avatar hair"
+										/>
+										{/* Expression */}
+										<img
+											src={session.avatar_data.expression}
+											className="absolute inset-0 w-full h-full object-contain"
+											alt="Avatar expression"
+										/>
 									</div>
 								</div>
 							</CardContent>

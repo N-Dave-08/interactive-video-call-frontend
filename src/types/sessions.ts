@@ -1,6 +1,9 @@
 export interface AvatarData {
 	hair: string;
 	head: string;
+	expression: string;
+	clothes: string;
+	background: string;
 }
 
 export interface BodyMapAnnotation {

@@ -39,7 +39,27 @@ const BackgroundBlob = ({
 	);
 };
 
-export default function AvatarCreator() {
+export default function AvatarCreator({
+	selectedHead,
+	selectedHair,
+	selectedExpression,
+	selectedClothes,
+	selectedBackground,
+	onChange,
+}: {
+	selectedHead: string;
+	selectedHair: string;
+	selectedExpression: string;
+	selectedClothes: string;
+	selectedBackground: string;
+	onChange: (data: {
+		head: string;
+		hair: string;
+		expression: string;
+		clothes: string;
+		background: string;
+	}) => void;
+}) {
 	const menuSelectSound = () => {
 		const audio = new Audio("/avatar-assets/sounds/menuselect.mp3");
 		audio.play().catch(() => {}); // Ignore errors if audio fails
@@ -61,17 +81,15 @@ export default function AvatarCreator() {
 	const defaultExpression = "/avatar-assets/expressions/F1.png";
 	const defaultClothes = "/avatar-assets/clothes/boy-uniform.png";
 
-	const [selectedHead, setSelectedHead] = useState(defaultHead);
-	const [selectedHair, setSelectedHair] = useState(defaultHair);
-	const [selectedExpression, setSelectedExpression] =
-		useState(defaultExpression);
-	const [selectedClothes, setSelectedClothes] = useState(defaultClothes);
+	// Remove internal state for selectedHead, selectedHair, selectedExpression, selectedClothes, selectedBackground
+	// Use props instead
+	// Update handleOptionSelect, handleRandomize, handleReset, handleNextBackground, handlePrevBackground to call onChange with new values
+
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [activeTab, setActiveTab] = useState("head");
 
-	const [selectedBackground, setSelectedBackground] = useState(
-		"/avatar-assets/bg/bg3.jpg",
-	);
+	// Remove internal state for selectedBackground
+	// Use props instead
 
 	useEffect(() => {
 		const timer = setTimeout(() => setIsLoaded(true), 100);
@@ -79,10 +97,13 @@ export default function AvatarCreator() {
 	}, []);
 
 	const handleReset = () => {
-		setSelectedHead(defaultHead);
-		setSelectedHair(defaultHair);
-		setSelectedExpression(defaultExpression);
-		setSelectedClothes(defaultClothes);
+		onChange({
+			head: defaultHead,
+			hair: defaultHair,
+			expression: defaultExpression,
+			clothes: defaultClothes,
+			background: selectedBackground,
+		});
 		selectStyleSound();
 	};
 
@@ -102,22 +123,26 @@ export default function AvatarCreator() {
 				.image;
 
 		// Set the random selections
-		setSelectedHead(randomHead);
-		setSelectedHair(randomHair);
-		setSelectedExpression(randomExpression);
-		setSelectedClothes(randomClothes);
-		setSelectedBackground(randomBackground);
+		onChange({
+			head: randomHead,
+			hair: randomHair,
+			expression: randomExpression,
+			clothes: randomClothes,
+			background: randomBackground,
+		});
 
 		// Play sound
 		selectStyleSound();
 	};
 
 	const handleOptionSelect = (type: string, image: string) => {
-		if (type === "head") setSelectedHead(image);
-		if (type === "hair") setSelectedHair(image);
-		if (type === "expression") setSelectedExpression(image);
-		if (type === "clothes") setSelectedClothes(image);
-
+		onChange({
+			head: type === "head" ? image : selectedHead,
+			hair: type === "hair" ? image : selectedHair,
+			expression: type === "expression" ? image : selectedExpression,
+			clothes: type === "clothes" ? image : selectedClothes,
+			background: selectedBackground,
+		});
 		selectStyleSound();
 	};
 
@@ -126,7 +151,13 @@ export default function AvatarCreator() {
 			(bg) => bg.image === selectedBackground,
 		);
 		const nextIndex = (currentIndex + 1) % backgroundOptions.length;
-		setSelectedBackground(backgroundOptions[nextIndex].image);
+		onChange({
+			head: selectedHead,
+			hair: selectedHair,
+			expression: selectedExpression,
+			clothes: selectedClothes,
+			background: backgroundOptions[nextIndex].image,
+		});
 		selectStyleSound();
 	};
 
@@ -136,7 +167,13 @@ export default function AvatarCreator() {
 		);
 		const prevIndex =
 			(currentIndex - 1 + backgroundOptions.length) % backgroundOptions.length;
-		setSelectedBackground(backgroundOptions[prevIndex].image);
+		onChange({
+			head: selectedHead,
+			hair: selectedHair,
+			expression: selectedExpression,
+			clothes: selectedClothes,
+			background: backgroundOptions[prevIndex].image,
+		});
 		selectStyleSound();
 	};
 

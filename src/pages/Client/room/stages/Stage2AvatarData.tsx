@@ -7,9 +7,14 @@ import StageCardLayout from "./StageCardLayout";
 interface AvatarData {
 	head: string;
 	hair: string;
+	expression: string;
+	clothes: string;
+	background: string;
 }
 
 export default function Stage2AvatarData({
+	value,
+	onChange,
 	onNext,
 	onBack,
 	loading,
@@ -22,9 +27,20 @@ export default function Stage2AvatarData({
 	loading?: boolean;
 	error?: string;
 }) {
+	const handleAvatarChange = (data: AvatarData) => {
+		onChange(data);
+	};
+
 	return (
 		<StageCardLayout>
-			<AvatarCreator />
+			<AvatarCreator
+				selectedHead={value.head}
+				selectedHair={value.hair}
+				selectedExpression={value.expression}
+				selectedClothes={value.clothes}
+				selectedBackground={value.background}
+				onChange={handleAvatarChange}
+			/>
 			<div className="sticky bottom-0 w-full z-20">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
