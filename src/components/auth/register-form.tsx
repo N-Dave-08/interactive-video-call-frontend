@@ -83,7 +83,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 		};
 		try {
 			await registerApi(payload);
-			toast.success("Registration successful! Please log in.");
+			toast.success("Registration successful! Please wait for admin approval.");
 			setTimeout(() => navigate("/login"), 1500);
 		} catch (err: unknown) {
 			let message = "Registration failed";
@@ -216,7 +216,28 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 											<FormItem>
 												<FormLabel>Phone Number</FormLabel>
 												<FormControl>
-													<Input {...field} id="phone_number" />
+													<div className="flex items-center">
+														<span className="px-2 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600 select-none">
+															+63
+														</span>
+														<Input
+															{...field}
+															id="phone_number"
+															type="text"
+															inputMode="numeric"
+															maxLength={10}
+															className="rounded-l-none"
+															placeholder="9123456789"
+															onChange={(e) => {
+																// Only allow numbers, max 10 digits
+																const value = e.target.value
+																	.replace(/\D/g, "")
+																	.slice(0, 10);
+																field.onChange(value);
+															}}
+															value={field.value}
+														/>
+													</div>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
