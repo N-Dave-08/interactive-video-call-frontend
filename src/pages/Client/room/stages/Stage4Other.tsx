@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Heart, Lightbulb, Puzzle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage4Other({

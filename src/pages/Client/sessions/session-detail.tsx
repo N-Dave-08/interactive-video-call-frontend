@@ -4,7 +4,6 @@ import {
 	Calendar,
 	Clock,
 	Heart,
-	MapPin,
 	MessageSquare,
 	Palette,
 	Tag,
@@ -333,18 +332,6 @@ export default function SessionDetailPage() {
 											</div>
 											<div className="text-sm font-medium">
 												{formatDate(session.child_data.birthday)}
-											</div>
-										</div>
-									</div>
-
-									<div className="flex items-center gap-3">
-										<MapPin className="h-4 w-4 text-green-500" />
-										<div>
-											<div className="text-xs text-gray-500 uppercase tracking-wide">
-												Place of Birth
-											</div>
-											<div className="text-sm font-medium">
-												{session.child_data.place_of_birth}
 											</div>
 										</div>
 									</div>

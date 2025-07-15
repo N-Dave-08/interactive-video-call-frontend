@@ -45,11 +45,13 @@ export default function CreateSessionModal({
 					last_name: "",
 					age: 0,
 					birthday: "",
-					place_of_birth: "",
 				},
 				avatar_data: {
 					hair: "default",
 					head: "default",
+					expression: "default",
+					clothes: "default",
+					background: "default",
 				},
 				emotional_expression: {
 					method: "",

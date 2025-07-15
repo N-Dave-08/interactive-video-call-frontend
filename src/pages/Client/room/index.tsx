@@ -131,8 +131,6 @@ export default function Room() {
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
-	// Remove isCompleted from state
-	// const [isCompleted, setIsCompleted] = useState(false);
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -266,10 +264,9 @@ export default function Room() {
 				session_notes: sessionNotes,
 				tags: tags, // use deduplicated tags
 				stage: "Completion",
-				status: "completed", // <-- Add this line to update status
+				status: "completed",
 			});
 			setStep(6);
-			// setIsCompleted(true); // Remove this line
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
 			else setError("Failed to update session");
