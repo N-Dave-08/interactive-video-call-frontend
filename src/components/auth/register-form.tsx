@@ -1,7 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import type React from "react";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { z } from "zod";
 import { register as registerApi } from "@/api/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +14,15 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import {
 	Select,
@@ -24,35 +34,52 @@ import {
 	SelectValue,
 } from "../ui/select";
 
+const registerSchema = z
+	.object({
+		first_name: z.string().min(1, "First name is required"),
+		last_name: z.string().min(1, "Last name is required"),
+		username: z.string().min(1, "Username is required"),
+		place_of_assignment: z.string().min(1, "Place of assignment is required"),
+		phone_number: z.string().min(1, "Phone number is required"),
+		email: z.string().email("Invalid email address"),
+		password: z.string().min(6, "Password must be at least 6 characters"),
+		confirm_password: z.string().min(1, "Please confirm your password"),
+	})
+	.refine((data) => data.password === data.confirm_password, {
+		message: "Passwords do not match",
+		path: ["confirm_password"],
+	});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
 export function RegisterForm({ className }: React.ComponentProps<"form">) {
 	const [loading, setLoading] = useState(false);
 	const navigate = useNavigate();
-	const [placeOfAssignment, setPlaceOfAssignment] = useState("");
+	const form = useForm<RegisterFormValues>({
+		resolver: zodResolver(registerSchema),
+		defaultValues: {
+			first_name: "",
+			last_name: "",
+			username: "",
+			place_of_assignment: "",
+			phone_number: "",
+			email: "",
+			password: "",
+			confirm_password: "",
+		},
+	});
+	const { handleSubmit, control } = form;
 
-	// Refs for all required fields
-	const firstNameRef = useRef<HTMLInputElement>(null);
-	const lastNameRef = useRef<HTMLInputElement>(null);
-	const usernameRef = useRef<HTMLInputElement>(null);
-	const phoneNumberRef = useRef<HTMLInputElement>(null);
-	const emailRef = useRef<HTMLInputElement>(null);
-	const passwordRef = useRef<HTMLInputElement>(null);
-
-	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
+	async function onSubmit(data: RegisterFormValues) {
 		setLoading(true);
-		if (!placeOfAssignment) {
-			toast.error("Please select a place of assignment.");
-			setLoading(false);
-			return;
-		}
 		const payload = {
-			first_name: firstNameRef.current?.value || "",
-			last_name: lastNameRef.current?.value || "",
-			username: usernameRef.current?.value || "",
-			place_of_assignment: placeOfAssignment,
-			phone_number: phoneNumberRef.current?.value || "",
-			email: emailRef.current?.value || "",
-			password: passwordRef.current?.value || "",
+			first_name: data.first_name,
+			last_name: data.last_name,
+			username: data.username,
+			place_of_assignment: data.place_of_assignment,
+			phone_number: data.phone_number,
+			email: data.email,
+			password: data.password,
 		};
 		try {
 			await registerApi(payload);
@@ -96,76 +123,159 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="px-6 pb-6 pt-0">
-					<form onSubmit={handleSubmit}>
-						<div className="grid gap-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="grid gap-2">
-									<Label htmlFor="first_name">First Name</Label>
-									<Input id="first_name" required ref={firstNameRef} />
+					<Form {...form}>
+						<form onSubmit={handleSubmit(onSubmit)}>
+							<div className="grid gap-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<FormField
+										name="first_name"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>First Name</FormLabel>
+												<FormControl>
+													<Input {...field} id="first_name" />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										name="last_name"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Last Name</FormLabel>
+												<FormControl>
+													<Input {...field} id="last_name" />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
 								</div>
-								<div className="grid gap-2">
-									<Label htmlFor="last_name">Last Name</Label>
-									<Input id="last_name" required ref={lastNameRef} />
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<FormField
+										name="username"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Username</FormLabel>
+												<FormControl>
+													<Input {...field} id="username" />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										name="place_of_assignment"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Place of Assignment</FormLabel>
+												<FormControl>
+													<Select
+														value={field.value}
+														onValueChange={field.onChange}
+													>
+														<SelectTrigger className="w-full">
+															<SelectValue placeholder="Select a Place" />
+														</SelectTrigger>
+														<SelectContent className="w-full min-w-[200px]">
+															<SelectGroup>
+																<SelectLabel>Places</SelectLabel>
+																<SelectItem value="Bontoc">Bontoc</SelectItem>
+																<SelectItem value="Barlig">Barlig</SelectItem>
+																<SelectItem value="Bauko">Bauko</SelectItem>
+																<SelectItem value="Besao">Besao</SelectItem>
+																<SelectItem value="Natonin">Natonin</SelectItem>
+																<SelectItem value="Paracelis">
+																	Paracelis
+																</SelectItem>
+																<SelectItem value="Sabangan">
+																	Sabangan
+																</SelectItem>
+																<SelectItem value="Sadanga">Sadanga</SelectItem>
+																<SelectItem value="Sagada">Sagada</SelectItem>
+																<SelectItem value="Tadian">Tadian</SelectItem>
+															</SelectGroup>
+														</SelectContent>
+													</Select>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
 								</div>
-							</div>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="grid gap-2">
-									<Label htmlFor="username">Username</Label>
-									<Input id="username" required ref={usernameRef} />
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+									<FormField
+										name="phone_number"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Phone Number</FormLabel>
+												<FormControl>
+													<Input {...field} id="phone_number" />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+									<FormField
+										name="email"
+										control={control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Email</FormLabel>
+												<FormControl>
+													<Input {...field} id="email" type="email" />
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
 								</div>
-								<div className="grid gap-2">
-									<Label htmlFor="place_of_assignment">
-										Place of Assignment
-									</Label>
-									<Select
-										value={placeOfAssignment}
-										onValueChange={setPlaceOfAssignment}
-									>
-										<SelectTrigger className="w-full">
-											<SelectValue placeholder="Select a Place" />
-										</SelectTrigger>
-										<SelectContent className="w-full min-w-[200px]">
-											<SelectGroup>
-												<SelectLabel>Places</SelectLabel>
-												<SelectItem value="Bontoc">Bontoc</SelectItem>
-												<SelectItem value="Barlig">Barlig</SelectItem>
-												<SelectItem value="Bauko">Bauko</SelectItem>
-												<SelectItem value="Besao">Besao</SelectItem>
-												<SelectItem value="Natonin">Natonin</SelectItem>
-												<SelectItem value="Paracelis">Paracelis</SelectItem>
-												<SelectItem value="Sabangan">Sabangan</SelectItem>
-												<SelectItem value="Sadanga">Sadanga</SelectItem>
-												<SelectItem value="Sagada">Sagada</SelectItem>
-												<SelectItem value="Tadian">Tadian</SelectItem>
-											</SelectGroup>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-								<div className="grid gap-2">
-									<Label htmlFor="phone_number">Phone Number</Label>
-									<Input id="phone_number" required ref={phoneNumberRef} />
-								</div>
-								<div className="grid gap-2">
-									<Label htmlFor="email">Email</Label>
-									<Input id="email" type="email" required ref={emailRef} />
-								</div>
-							</div>
-							<div className="grid gap-2">
-								<Label htmlFor="password">Password</Label>
-								<Input
-									id="password"
-									type="password"
-									required
-									ref={passwordRef}
+								<FormField
+									name="password"
+									control={control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Password</FormLabel>
+											<FormControl>
+												<Input {...field} id="password" type="password" />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
 								/>
+								<FormField
+									name="confirm_password"
+									control={control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Confirm Password</FormLabel>
+											<FormControl>
+												<Input
+													{...field}
+													id="confirm_password"
+													type="password"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+								<Button
+									type="submit"
+									className="w-full mt-2"
+									disabled={loading}
+								>
+									{loading ? "Registering..." : "Register"}
+								</Button>
 							</div>
-							<Button type="submit" className="w-full mt-2" disabled={loading}>
-								{loading ? "Registering..." : "Register"}
-							</Button>
-						</div>
-					</form>
+						</form>
+					</Form>
 				</CardContent>
 			</Card>
 			<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
