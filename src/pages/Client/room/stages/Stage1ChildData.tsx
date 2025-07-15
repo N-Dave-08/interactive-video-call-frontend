@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Sparkles, User } from "lucide-react";
+import { Calendar, Sparkles, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,6 @@ interface ChildData {
 	last_name: string;
 	age: string;
 	birthday: string;
-	place_of_birth: string;
 }
 
 export default function Stage1ChildData({
@@ -26,6 +26,15 @@ export default function Stage1ChildData({
 	loading?: boolean;
 	error?: string;
 }) {
+	const [currentStep, setCurrentStep] = useState(() => {
+		const savedStep = localStorage.getItem("stage1-current-step");
+		return savedStep ? Number(savedStep) : 0;
+	});
+
+	useEffect(() => {
+		localStorage.setItem("stage1-current-step", String(currentStep));
+	}, [currentStep]);
+
 	const inputFields = [
 		{
 			id: "first_name",
@@ -57,14 +66,20 @@ export default function Stage1ChildData({
 			color: "from-green-400 to-emerald-400",
 			type: "date",
 		},
-		{
-			id: "place_of_birth",
-			label: "Where were you born?",
-			placeholder: "Enter your birthplace",
-			icon: MapPin,
-			color: "from-orange-400 to-yellow-400",
-		},
 	];
+
+	const currentField = inputFields[currentStep];
+	const isLastStep = currentStep === inputFields.length - 1;
+	const currentValue = value[currentField.id as keyof ChildData];
+
+	const handleContinue = () => {
+		if (!isLastStep) {
+			setCurrentStep((prev) => prev + 1);
+		} else {
+			localStorage.removeItem("stage1-current-step");
+			onNext();
+		}
+	};
 
 	return (
 		<motion.div
@@ -91,45 +106,43 @@ export default function Stage1ChildData({
 				</motion.div>
 
 				<div className="space-y-4 flex-1 flex flex-col justify-between">
-					{inputFields.map((field, index) => (
-						<motion.div
-							key={field.id}
-							initial={{ opacity: 0, x: -20 }}
-							animate={{ opacity: 1, x: 0 }}
-							transition={{ delay: 0.3 + index * 0.1, duration: 0.5 }}
-							className="group"
+					<motion.div
+						key={currentField.id}
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ delay: 0.3, duration: 0.5 }}
+						className="group"
+					>
+						<Label
+							htmlFor={currentField.id}
+							className="text-base font-semibold text-gray-700 mb-2 block"
 						>
-							<Label
-								htmlFor={field.id}
-								className="text-base font-semibold text-gray-700 mb-2 block"
-							>
-								{field.label}
-							</Label>
-							<div className="relative">
+							{currentField.label}
+						</Label>
+						<div className="relative">
+							<div
+								className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
+							/>
+							<div className="relative flex items-center">
 								<div
-									className={`absolute inset-0 bg-gradient-to-r ${field.color} rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
-								/>
-								<div className="relative flex items-center">
-									<div
-										className={`absolute left-4 z-10 w-8 h-8 bg-gradient-to-r ${field.color} rounded-full flex items-center justify-center`}
-									>
-										<field.icon className="w-5 h-5 text-white" />
-									</div>
-									<Input
-										id={field.id}
-										type={field.type || "text"}
-										placeholder={field.placeholder}
-										value={value[field.id as keyof ChildData]}
-										onChange={(e) =>
-											onChange({ ...value, [field.id]: e.target.value })
-										}
-										className="pl-14 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
-										min={field.type === "number" ? "1" : undefined}
-									/>
+									className={`absolute left-4 z-10 w-8 h-8 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center`}
+								>
+									<currentField.icon className="w-5 h-5 text-white" />
 								</div>
+								<Input
+									id={currentField.id}
+									type={currentField.type || "text"}
+									placeholder={currentField.placeholder}
+									value={currentValue}
+									onChange={(e) =>
+										onChange({ ...value, [currentField.id]: e.target.value })
+									}
+									className="pl-14 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
+									min={currentField.type === "number" ? "1" : undefined}
+								/>
 							</div>
-						</motion.div>
-					))}
+						</div>
+					</motion.div>
 				</div>
 
 				<motion.div
@@ -140,10 +153,8 @@ export default function Stage1ChildData({
 				>
 					<Button
 						type="button"
-						onClick={onNext}
-						disabled={
-							!value.first_name || !value.last_name || !value.age || loading
-						}
+						onClick={handleContinue}
+						disabled={!currentValue || loading}
 						className="px-6 py-2 text-base font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 					>
 						{loading ? (
@@ -159,7 +170,11 @@ export default function Stage1ChildData({
 						) : (
 							<Sparkles className="w-5 h-5 mr-2" />
 						)}
-						{loading ? "Saving..." : "Let's Continue!"}
+						{loading
+							? "Saving..."
+							: isLastStep
+								? "Let's Continue!"
+								: "Continue"}
 					</Button>
 				</motion.div>
 

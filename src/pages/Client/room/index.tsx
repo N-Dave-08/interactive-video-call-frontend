@@ -62,8 +62,10 @@ export default function Room() {
 				}
 				if (session?.child_data) {
 					setChildData({
-						...session.child_data,
+						first_name: session.child_data.first_name ?? "",
+						last_name: session.child_data.last_name ?? "",
 						age: String(session.child_data.age ?? ""),
+						birthday: session.child_data.birthday ?? "",
 					});
 				}
 			} catch (err) {
@@ -74,7 +76,10 @@ export default function Room() {
 	}, [session_id, user?.id]);
 
 	// Stage 1 interaction states
-	const [showChildForm, setShowChildForm] = useState(false);
+	const [showChildForm, setShowChildForm] = useState(() => {
+		const saved = localStorage.getItem("showChildForm");
+		return saved === "true";
+	});
 	const [avatarMessage, setAvatarMessage] = useState(
 		"Hello! Let's have some fun together.",
 	);
@@ -85,7 +90,6 @@ export default function Room() {
 		last_name: "",
 		age: "",
 		birthday: "",
-		place_of_birth: "",
 	});
 	const [avatarData, setAvatarData] = useState({
 		head: "/avatar-assets/heads/default-head-clear.png",
@@ -107,6 +111,7 @@ export default function Room() {
 	const handleGotIt = () => {
 		setAvatarMessage("Great! What's your name and age?");
 		setShowChildForm(true);
+		localStorage.setItem("showChildForm", "true");
 	};
 
 	// Update all handleXNext functions to set the backend to the NEXT stage
@@ -121,6 +126,8 @@ export default function Room() {
 				stage: "Stage 2",
 			});
 			setStep(1);
+			setShowChildForm(false);
+			localStorage.removeItem("showChildForm");
 		} catch (err: unknown) {
 			console.error("Update session error:", err);
 			if (err instanceof Error) setError(err.message);

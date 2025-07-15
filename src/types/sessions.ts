@@ -56,5 +56,4 @@ export interface ChildData {
 	birthday: string;
 	last_name: string;
 	first_name: string;
-	place_of_birth: string;
 }

@@ -115,11 +115,11 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 
 	return (
 		<div className={cn("flex flex-col gap-6", className)}>
-			<Card className="rounded-lg border shadow-sm w-full max-w-md mx-auto">
+			<Card className="rounded-3xl border shadow-lg w-full max-w-md mx-auto bg-gradient-to-br from-indigo-100 via-purple-50 to-white text-gray-900">
 				<CardHeader className="text-center pb-2">
-					<CardTitle className="text-xl">Create your account</CardTitle>
+					<CardTitle className="text-2xl font-bold">Join the Fun!</CardTitle>
 					<CardDescription>
-						Fill in the details below to register
+						Let&apos;s create your play account!
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="px-6 pb-6 pt-0">
@@ -134,7 +134,11 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 											<FormItem>
 												<FormLabel>First Name</FormLabel>
 												<FormControl>
-													<Input {...field} id="first_name" />
+													<Input
+														{...field}
+														id="first_name"
+														className="rounded-lg"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -147,7 +151,11 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 											<FormItem>
 												<FormLabel>Last Name</FormLabel>
 												<FormControl>
-													<Input {...field} id="last_name" />
+													<Input
+														{...field}
+														id="last_name"
+														className="rounded-lg"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -162,7 +170,11 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 											<FormItem>
 												<FormLabel>Username</FormLabel>
 												<FormControl>
-													<Input {...field} id="username" />
+													<Input
+														{...field}
+														id="username"
+														className="rounded-lg"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -179,7 +191,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 														value={field.value}
 														onValueChange={field.onChange}
 													>
-														<SelectTrigger className="w-full">
+														<SelectTrigger className="w-full rounded-lg">
 															<SelectValue placeholder="Select a Place" />
 														</SelectTrigger>
 														<SelectContent className="w-full min-w-[200px]">
@@ -217,7 +229,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 												<FormLabel>Phone Number</FormLabel>
 												<FormControl>
 													<div className="flex items-center">
-														<span className="px-2 py-2 border border-r-0 rounded-l-md bg-gray-100 text-gray-600 select-none">
+														<span className="px-2 py-2 border border-r-0 rounded-l-lg bg-indigo-100 text-indigo-700 select-none">
 															+63
 														</span>
 														<Input
@@ -226,7 +238,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 															type="text"
 															inputMode="numeric"
 															maxLength={10}
-															className="rounded-l-none"
+															className="rounded-r-lg rounded-l-none"
 															placeholder="9123456789"
 															onChange={(e) => {
 																// Only allow numbers, max 10 digits
@@ -250,7 +262,12 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 											<FormItem>
 												<FormLabel>Email</FormLabel>
 												<FormControl>
-													<Input {...field} id="email" type="email" />
+													<Input
+														{...field}
+														id="email"
+														type="email"
+														className="rounded-lg"
+													/>
 												</FormControl>
 												<FormMessage />
 											</FormItem>
@@ -264,7 +281,12 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 										<FormItem>
 											<FormLabel>Password</FormLabel>
 											<FormControl>
-												<Input {...field} id="password" type="password" />
+												<Input
+													{...field}
+													id="password"
+													type="password"
+													className="rounded-lg"
+												/>
 											</FormControl>
 											<FormMessage />
 										</FormItem>
@@ -281,6 +303,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 													{...field}
 													id="confirm_password"
 													type="password"
+													className="rounded-lg"
 												/>
 											</FormControl>
 											<FormMessage />
@@ -289,23 +312,26 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 								/>
 								<Button
 									type="submit"
-									className="w-full mt-2"
+									className="w-full mt-2 bg-indigo-500 text-white hover:bg-indigo-600 rounded-xl"
 									disabled={loading}
 								>
-									{loading ? "Registering..." : "Register"}
+									{loading ? "Signing You Up..." : "Join the Adventure!"}
 								</Button>
 							</div>
 						</form>
 					</Form>
 				</CardContent>
 			</Card>
-			<div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
+			<div className="text-indigo-700 *:[a]:hover:text-purple-600 text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
 				By registering, you agree to our <a href="/">Terms of Service</a> and{" "}
 				<a href="/">Privacy Policy</a>.
 			</div>
 			<div className="text-center text-sm">
 				Already have an account?{" "}
-				<Link to="/login" className="underline underline-offset-4">
+				<Link
+					to="/login"
+					className="underline underline-offset-4 text-indigo-600"
+				>
 					Login
 				</Link>
 			</div>
