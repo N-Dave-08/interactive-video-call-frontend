@@ -239,7 +239,7 @@ export default function AvatarCreator({
 								: "opacity-0 -translate-x-8"
 						}`}
 					>
-						<Card className="bg-white/60 backdrop-blur-lg border border-white/20 shadow-2xl rounded-3xl overflow-hidden sticky top-8 h-full">
+						<Card className="bg-transparent border-none shadow-none overflow-hidden sticky top-8 h-full">
 							<CardContent className="p-4 flex flex-col h-full">
 								{/* <div className="text-center mb-4 flex flex-col justify-center items-center w-full ">
 									<h3 className="text-lg font-bold text-slate-900 mb-1">

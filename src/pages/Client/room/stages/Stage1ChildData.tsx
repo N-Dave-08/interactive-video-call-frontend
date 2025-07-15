@@ -1,7 +1,6 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, Sparkles, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Calendar as BirthdayCalendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { useQuestionStore } from "@/store/questionStore";
@@ -111,7 +110,8 @@ export default function Stage1ChildData({
 								onChange({ ...value, birthday: `${mm}/${dd}/${yyyy}` });
 							}
 						}}
-						className="mb-2"
+						disabled={{ after: new Date() }}
+						className="mb-2 w-xs mx-auto p-2"
 					/>
 					{currentValue && (
 						<div className="text-sm text-gray-700 mt-1">
@@ -131,7 +131,7 @@ export default function Stage1ChildData({
 				onChange={(e) =>
 					onChange({ ...value, [currentField.id]: e.target.value })
 				}
-				className="pl-14 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
+				className="pl-14 pr-4 py-6 font-semibold text-xl md:text-xl border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
 				min={currentField.type === "number" ? "1" : undefined}
 			/>
 		);
@@ -141,18 +141,28 @@ export default function Stage1ChildData({
 		<motion.div
 			initial={{ opacity: 0, y: 50 }}
 			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.6, ease: "easeOut" }}
+			transition={{ type: "spring", stiffness: 100, damping: 15 }}
 		>
-			<StageCardLayout>
+			<StageCardLayout cardClassName="w-full max-w-lg">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2, duration: 0.5 }}
+					transition={{
+						delay: 0.2,
+						duration: 0.5,
+						type: "spring",
+						stiffness: 150,
+						damping: 20,
+					}}
 					className="text-center mb-4"
 				>
-					<div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mb-4">
+					<motion.div
+						className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mb-4"
+						whileHover={{ scale: 1.1, rotate: 10 }}
+						transition={{ type: "spring", stiffness: 300, damping: 10 }}
+					>
 						<User className="w-8 h-8 text-white" />
-					</div>
+					</motion.div>
 					<h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
 						Tell me about yourself!
 					</h2>
@@ -160,43 +170,64 @@ export default function Stage1ChildData({
 						Let's get to know each other better
 					</p>
 				</motion.div>
-
 				<div className="space-y-4 flex-1 flex flex-col justify-between">
-					<motion.div
-						key={currentField.id}
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: 0.3, duration: 0.5 }}
-						className="group"
-					>
-						{/* Label removed, question now shown by avatar */}
-						<div className="relative">
-							<div
-								className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
-							/>
-							<div className="relative flex items-center">
+					<AnimatePresence mode="wait">
+						<motion.div
+							key={currentField.id}
+							initial={{ opacity: 0, x: -50, scale: 0.8 }}
+							animate={{ opacity: 1, x: 0, scale: 1 }}
+							exit={{ opacity: 0, x: 50, scale: 0.8 }}
+							transition={{
+								type: "spring",
+								stiffness: 120,
+								damping: 18,
+								duration: 0.6,
+							}}
+							className="group"
+						>
+							<div className="relative">
 								<div
-									className={`absolute left-4 z-10 w-8 h-8 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center`}
-								>
-									<currentField.icon className="w-5 h-5 text-white" />
+									className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
+								/>
+								<div className="relative flex items-center">
+									<motion.div
+										className={`absolute left-4 z-10 w-8 h-8 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center`}
+										initial={{ scale: 0 }}
+										animate={{ scale: 1 }}
+										transition={{
+											type: "spring",
+											stiffness: 200,
+											damping: 10,
+											delay: 0.4,
+										}}
+									>
+										<currentField.icon className="w-5 h-5 text-white" />
+									</motion.div>
+									<div className="w-full">{renderField()}</div>
 								</div>
-								<div className="w-full">{renderField()}</div>
 							</div>
-						</div>
-					</motion.div>
+						</motion.div>
+					</AnimatePresence>
 				</div>
-
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.8, duration: 0.5 }}
+					transition={{
+						delay: 0.8,
+						duration: 0.5,
+						type: "spring",
+						stiffness: 150,
+						damping: 20,
+					}}
 					className="flex justify-center mt-2"
 				>
-					<Button
+					<motion.button
 						type="button"
 						onClick={handleContinue}
 						disabled={!currentValue || loading}
-						className="px-6 py-2 text-base font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+						className="flex items-center px-6 py-2 text-base font-bold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+						whileTap={{ scale: 0.95 }}
+						style={{ outline: "none", border: "none" }}
 					>
 						{loading ? (
 							<motion.div
@@ -216,9 +247,8 @@ export default function Stage1ChildData({
 							: isLastStep
 								? "Let's Continue!"
 								: "Continue"}
-					</Button>
+					</motion.button>
 				</motion.div>
-
 				{error && (
 					<motion.div
 						initial={{ opacity: 0, scale: 0.9 }}

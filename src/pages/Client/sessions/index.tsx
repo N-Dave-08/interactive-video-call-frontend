@@ -110,7 +110,10 @@ export default function SessionsPage() {
 			<CreateSessionModal
 				open={open}
 				setOpen={setOpen}
-				onSessionCreated={(sessionId) => navigate(`/room/${sessionId}`)}
+				onSessionCreated={(sessionId) => {
+					localStorage.removeItem("showChildForm");
+					navigate(`/room/${sessionId}`);
+				}}
 			/>
 
 			{loading ? (

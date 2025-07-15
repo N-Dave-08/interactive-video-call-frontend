@@ -329,13 +329,13 @@ export default function Room() {
 								layout
 								transition={{ type: "spring", stiffness: 100, damping: 40 }}
 								className={
-									!showChildForm && step === 0
+									step === 0 && !showChildForm
 										? "fixed inset-0 z-30 flex items-center justify-center"
-										: "fixed bottom-20 right-20 z-30"
+										: step === 0
+											? "fixed top-96 right-96 z-30"
+											: "fixed bottom-20 right-20 z-30"
 								}
-								style={
-									!showChildForm && step === 0 ? {} : { pointerEvents: "none" }
-								}
+								style={step === 0 ? {} : { pointerEvents: "none" }}
 							>
 								<AvatarCharacter
 									showNext={!showChildForm && step === 0}
