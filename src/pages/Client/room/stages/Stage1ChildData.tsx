@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, Sparkles, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Calendar as BirthdayCalendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import StageCardLayout from "./StageCardLayout";
@@ -81,6 +82,59 @@ export default function Stage1ChildData({
 		}
 	};
 
+	const renderField = () => {
+		if (currentField.id === "birthday") {
+			// Parse the value to a Date if possible
+			let selectedDate: Date | undefined;
+			if (currentValue) {
+				const parts = currentValue.split("/");
+				if (parts.length === 3) {
+					const [month, day, year] = parts;
+					const date = new Date(
+						`${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`,
+					);
+					if (!Number.isNaN(date.getTime())) selectedDate = date;
+				}
+			}
+			return (
+				<div className="relative flex flex-col items-center">
+					<BirthdayCalendar
+						mode="single"
+						selected={selectedDate}
+						onSelect={(date) => {
+							if (date) {
+								const mm = String(date.getMonth() + 1).padStart(2, "0");
+								const dd = String(date.getDate()).padStart(2, "0");
+								const yyyy = date.getFullYear();
+								onChange({ ...value, birthday: `${mm}/${dd}/${yyyy}` });
+							}
+						}}
+						className="mb-2"
+					/>
+					{currentValue && (
+						<div className="text-sm text-gray-700 mt-1">
+							Selected: {currentValue}
+						</div>
+					)}
+				</div>
+			);
+		}
+		// Default input for other fields
+		return (
+			<Input
+				id={currentField.id}
+				type={currentField.type || "text"}
+				placeholder={currentField.placeholder}
+				value={currentValue}
+				onChange={(e) =>
+					onChange({ ...value, [currentField.id]: e.target.value })
+				}
+				className="pl-14 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
+				min={currentField.type === "number" ? "1" : undefined}
+			/>
+		);
+	};
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 50 }}
@@ -129,17 +183,7 @@ export default function Stage1ChildData({
 								>
 									<currentField.icon className="w-5 h-5 text-white" />
 								</div>
-								<Input
-									id={currentField.id}
-									type={currentField.type || "text"}
-									placeholder={currentField.placeholder}
-									value={currentValue}
-									onChange={(e) =>
-										onChange({ ...value, [currentField.id]: e.target.value })
-									}
-									className="pl-14 pr-4 py-3 text-base border-2 border-gray-200 rounded-xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
-									min={currentField.type === "number" ? "1" : undefined}
-								/>
+								<div className="w-full">{renderField()}</div>
 							</div>
 						</div>
 					</motion.div>
