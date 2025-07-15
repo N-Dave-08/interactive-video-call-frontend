@@ -11,7 +11,6 @@ export default function Stage6SessionNotesTags({
 	tagsInput,
 	onNotesChange,
 	onTagsInputChange,
-	onTagsBlur,
 	onNext,
 	onBack,
 	loading,
@@ -21,7 +20,6 @@ export default function Stage6SessionNotesTags({
 	tagsInput: string;
 	onNotesChange: (val: string) => void;
 	onTagsInputChange: (val: string) => void;
-	onTagsBlur: () => void;
 	onNext: () => void;
 	onBack: () => void;
 	loading?: boolean;
@@ -148,7 +146,6 @@ export default function Stage6SessionNotesTags({
 									placeholder="e.g. fun, creative, happy (separate with commas)"
 									value={tagsInput}
 									onChange={(e) => onTagsInputChange(e.target.value)}
-									onBlur={onTagsBlur}
 									className="pl-16 pr-4 py-4 text-lg border-2 border-gray-200 rounded-2xl bg-white/80 backdrop-blur-sm focus:border-purple-400 focus:ring-4 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300"
 								/>
 							</div>

@@ -212,19 +212,15 @@ export default function Room() {
 	};
 
 	const handleTagsInputChange = (val: string) => {
-		setTagsInput(val);
-	};
-
-	const handleTagsBlur = () => {
 		// Parse tags from input
-		const parsedTags = tagsInput
+		const parsedTags = val
 			.split(",")
 			.map((tag) => tag.trim())
 			.filter(Boolean);
 		// Only keep unique tags
 		const uniqueTags = Array.from(new Set(parsedTags));
 		setTags(uniqueTags);
-		setTagsInput(uniqueTags.join(", "));
+		setTagsInput(val); // Keep the raw input for display
 	};
 
 	const handleSessionNotesNext = async () => {
@@ -355,7 +351,6 @@ export default function Room() {
 						tagsInput={tagsInput}
 						onNotesChange={setSessionNotes}
 						onTagsInputChange={handleTagsInputChange}
-						onTagsBlur={handleTagsBlur}
 						onNext={handleSessionNotesNext}
 						onBack={() => setStep(4)}
 						loading={loading}

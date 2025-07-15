@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
 	Check,
 	ChevronLeft,
@@ -258,23 +259,29 @@ export default function AvatarCreator({
 												alt="Avatar background"
 											/>
 											{/* Clothes overlay with breathing animation */}
-											<img
+											<motion.img
 												src={
 													selectedClothes ||
 													"/placeholder.svg?height=192&width=192"
 												}
-												className="absolute inset-0 w-full h-full object-contain transition-all duration-500 animate-breathing top-[-10px]"
+												className="absolute inset-0 w-full h-full object-contain top-[-10px]"
 												alt="Avatar clothes"
-												style={{
-													animation: "breathing 3s ease-in-out infinite",
+												animate={{ scale: [1, 1.02, 1] }}
+												transition={{
+													duration: 3,
+													repeat: Infinity,
+													ease: "easeInOut",
 												}}
 											/>
 											{/* Base head with bobbing animation */}
-											<div
-												className="absolute inset-0 w-full h-full transition-all duration-500 animate-head-bob"
-												style={{
-													animation: "headBob 2s ease-in-out infinite",
-													transformOrigin: "bottom center",
+											<motion.div
+												className="absolute inset-0 w-full h-full"
+												style={{ transformOrigin: "bottom center" }}
+												animate={{ y: [0, -3, 0] }}
+												transition={{
+													duration: 2,
+													repeat: Infinity,
+													ease: "easeInOut",
 												}}
 											>
 												<img
@@ -285,14 +292,16 @@ export default function AvatarCreator({
 													className="w-full h-full object-contain"
 													alt="Avatar head"
 												/>
-											</div>
-
+											</motion.div>
 											{/* Hair overlay with same bobbing animation */}
-											<div
-												className="absolute inset-0 w-full h-full transition-all duration-500 animate-head-bob"
-												style={{
-													animation: "headBob 2s ease-in-out infinite",
-													transformOrigin: "bottom center",
+											<motion.div
+												className="absolute inset-0 w-full h-full"
+												style={{ transformOrigin: "bottom center" }}
+												animate={{ y: [0, -3, 0] }}
+												transition={{
+													duration: 2,
+													repeat: Infinity,
+													ease: "easeInOut",
 												}}
 											>
 												<img
@@ -303,14 +312,16 @@ export default function AvatarCreator({
 													className="w-full h-full object-contain"
 													alt="Avatar hair"
 												/>
-											</div>
-
+											</motion.div>
 											{/* Expressions overlay with same bobbing animation */}
-											<div
-												className="absolute inset-0 w-full h-full transition-all duration-500 animate-head-bob"
-												style={{
-													animation: "headBob 2s ease-in-out infinite",
-													transformOrigin: "bottom center",
+											<motion.div
+												className="absolute inset-0 w-full h-full"
+												style={{ transformOrigin: "bottom center" }}
+												animate={{ y: [0, -3, 0] }}
+												transition={{
+													duration: 2,
+													repeat: Infinity,
+													ease: "easeInOut",
 												}}
 											>
 												<img
@@ -321,7 +332,7 @@ export default function AvatarCreator({
 													className="w-full h-full object-contain"
 													alt="Avatar expression"
 												/>
-											</div>
+											</motion.div>
 										</div>
 									</div>
 								</div>
@@ -441,7 +452,7 @@ export default function AvatarCreator({
 										</div>
 										<div className="grid grid-cols-4 gap-3">
 											{headOptions.map((head, index) => (
-												<button
+												<motion.button
 													key={head.id}
 													type="button"
 													onClick={() => handleOptionSelect("head", head.image)}
@@ -449,12 +460,17 @@ export default function AvatarCreator({
 														if (e.key === "Enter" || e.key === " ")
 															handleOptionSelect("head", head.image);
 													}}
-													className={`relative group cursor-pointer transition-all duration-300 hover:scale-105 ${
+													className="relative group cursor-pointer hover:scale-105"
+													initial={{ opacity: 0, y: 16 }}
+													animate={
 														isLoaded
-															? "opacity-100 translate-y-0"
-															: "opacity-0 translate-y-4"
-													}`}
-													style={{ transitionDelay: `${600 + index * 50}ms` }}
+															? { opacity: 1, y: 0 }
+															: { opacity: 0, y: 16 }
+													}
+													transition={{
+														delay: 0.6 + index * 0.05,
+														duration: 0.3,
+													}}
 													tabIndex={0}
 												>
 													<div
@@ -478,7 +494,7 @@ export default function AvatarCreator({
 															</Badge>
 														)}
 													</div>
-												</button>
+												</motion.button>
 											))}
 										</div>
 									</TabsContent>
@@ -500,7 +516,7 @@ export default function AvatarCreator({
 										</div>
 										<div className="grid grid-cols-4 gap-3">
 											{hairOptions.map((hair, index) => (
-												<button
+												<motion.button
 													key={hair.id}
 													type="button"
 													onClick={() => handleOptionSelect("hair", hair.image)}
@@ -508,12 +524,17 @@ export default function AvatarCreator({
 														if (e.key === "Enter" || e.key === " ")
 															handleOptionSelect("hair", hair.image);
 													}}
-													className={`relative group cursor-pointer transition-all duration-300 hover:scale-105 ${
+													className="relative group cursor-pointer hover:scale-105"
+													initial={{ opacity: 0, y: 16 }}
+													animate={
 														isLoaded
-															? "opacity-100 translate-y-0"
-															: "opacity-0 translate-y-4"
-													}`}
-													style={{ transitionDelay: `${600 + index * 50}ms` }}
+															? { opacity: 1, y: 0 }
+															: { opacity: 0, y: 16 }
+													}
+													transition={{
+														delay: 0.6 + index * 0.05,
+														duration: 0.3,
+													}}
 													tabIndex={0}
 												>
 													<div
@@ -537,7 +558,7 @@ export default function AvatarCreator({
 															</Badge>
 														)}
 													</div>
-												</button>
+												</motion.button>
 											))}
 										</div>
 									</TabsContent>
@@ -559,7 +580,7 @@ export default function AvatarCreator({
 										</div>
 										<div className="grid grid-cols-4 gap-3">
 											{expressionOptions.map((expression, index) => (
-												<button
+												<motion.button
 													key={expression.id}
 													type="button"
 													onClick={() =>
@@ -572,12 +593,17 @@ export default function AvatarCreator({
 																expression.image,
 															);
 													}}
-													className={`relative group cursor-pointer transition-all duration-300 hover:scale-105 ${
+													className="relative group cursor-pointer hover:scale-105"
+													initial={{ opacity: 0, y: 16 }}
+													animate={
 														isLoaded
-															? "opacity-100 translate-y-0"
-															: "opacity-0 translate-y-4"
-													}`}
-													style={{ transitionDelay: `${600 + index * 50}ms` }}
+															? { opacity: 1, y: 0 }
+															: { opacity: 0, y: 16 }
+													}
+													transition={{
+														delay: 0.6 + index * 0.05,
+														duration: 0.3,
+													}}
 													tabIndex={0}
 												>
 													<div
@@ -601,7 +627,7 @@ export default function AvatarCreator({
 															</Badge>
 														)}
 													</div>
-												</button>
+												</motion.button>
 											))}
 										</div>
 									</TabsContent>
@@ -623,7 +649,7 @@ export default function AvatarCreator({
 										</div>
 										<div className="grid grid-cols-4 gap-3">
 											{clothesOptions.map((clothes, index) => (
-												<button
+												<motion.button
 													key={clothes.id}
 													type="button"
 													onClick={() =>
@@ -633,12 +659,17 @@ export default function AvatarCreator({
 														if (e.key === "Enter" || e.key === " ")
 															handleOptionSelect("clothes", clothes.image);
 													}}
-													className={`relative group cursor-pointer transition-all duration-300 hover:scale-105 ${
+													className="relative group cursor-pointer hover:scale-105"
+													initial={{ opacity: 0, y: 16 }}
+													animate={
 														isLoaded
-															? "opacity-100 translate-y-0"
-															: "opacity-0 translate-y-4"
-													}`}
-													style={{ transitionDelay: `${600 + index * 50}ms` }}
+															? { opacity: 1, y: 0 }
+															: { opacity: 0, y: 16 }
+													}
+													transition={{
+														delay: 0.6 + index * 0.05,
+														duration: 0.3,
+													}}
 													tabIndex={0}
 												>
 													<div
@@ -662,7 +693,7 @@ export default function AvatarCreator({
 															</Badge>
 														)}
 													</div>
-												</button>
+												</motion.button>
 											))}
 										</div>
 									</TabsContent>
@@ -672,38 +703,6 @@ export default function AvatarCreator({
 					</div>
 				</div>
 			</div>
-
-			<style>{`
-        @keyframes headTilt {
-          0%, 100% {
-            transform: translateY(0) rotate(0deg);
-          }
-          25% {
-            transform: translateY(-5px) rotate(2deg);
-          }
-          75% {
-            transform: translateY(-3px) rotate(-2deg);
-          }
-        }
-
-        @keyframes headBob {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-3px);
-          }
-        }
-        
-        @keyframes breathing {
-          50%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.02);
-          }
-        }
-      `}</style>
 		</div>
 	);
 }
