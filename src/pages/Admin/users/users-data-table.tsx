@@ -43,6 +43,7 @@ import {
 import * as React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { updateUserCondition } from "@/api/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -256,8 +257,7 @@ const columns: ColumnDef<User>[] = [
 
 			const handleChange = async (newCondition: string) => {
 				try {
-					// Simulate API call
-					await new Promise((resolve) => setTimeout(resolve, 500));
+					await updateUserCondition(id, newCondition); // Call backend API
 					(
 						table.options.meta as {
 							onConditionChange?: (id: string, condition: string) => void;

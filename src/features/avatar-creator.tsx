@@ -72,9 +72,9 @@ export default function AvatarCreator({
 	};
 
 	// useEffect(() => {
-	//   const audio = new Audio("/avatar-assets/sounds/you_made_it.mp3");
-	//   audio.play().catch(() => {}); // Ignore errors if audio fails
-	// }, [])
+	// 	const audio = new Audio("/avatar-assets/sounds/you_made_it.mp3");
+	// 	audio.play().catch(() => {}); // Ignore errors if audio fails
+	// }, []);
 
 	// Default values from your options
 	const defaultHead = "/avatar-assets/heads/default-head-clear.png";
