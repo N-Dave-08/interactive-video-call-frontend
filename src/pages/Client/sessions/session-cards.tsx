@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
+	ArrowRight,
 	Calendar,
 	Clock,
 	FileText,
@@ -82,12 +83,13 @@ export default function SessionCards({
 	console.log(": sessions", sessions);
 
 	return (
-		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 p-4">
 			<AnimatePresence mode="popLayout">
 				{sessions.map((session) => (
 					<motion.div
 						key={session.session_id}
 						layout
+						initial={{ opacity: 0, scale: 0.9, y: 20 }}
 						animate={{ opacity: 1, scale: 1, y: 0 }}
 						exit={{
 							opacity: 0,
@@ -99,74 +101,69 @@ export default function SessionCards({
 							duration: 0.3,
 							ease: "easeOut",
 						}}
-						whileHover={{ y: -2 }}
+						whileHover={{ y: -5, scale: 1.02 }}
+						className="relative"
 					>
 						<Card
-							className="hover:shadow-lg transition-shadow duration-200 border-0 shadow-sm cursor-pointer h-full"
+							className="rounded-2xl shadow-lg border-none bg-gradient-to-br from-white to-blue-50 hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col"
 							onClick={() =>
 								navigate(`/sessions/${session.session_id}`, {
 									state: { session },
 								})
 							}
 						>
-							<CardHeader>
-								<div className="flex items-center justify-between">
-									<div>
-										<CardTitle className="text-lg font-semibold text-gray-900">
-											{session.title}
-										</CardTitle>
-										{session.stage && (
-											<div className="flex items-center gap-2 mb-1">
-												<Target className="h-4 w-4 text-gray-500" />
-												<Badge
-													variant="secondary"
-													className={`text-sm font-medium ${getStageColor(session.stage)}`}
-												>
-													{session.stage.toUpperCase()}
-												</Badge>
-											</div>
-										)}
-									</div>
+							<CardHeader className="pb-2 flex flex-col items-start px-6 pt-6">
+								<div className="flex items-center justify-between w-full mb-2">
+									<CardTitle className="text-xl font-extrabold text-purple-700">
+										{session.title}
+									</CardTitle>
 									<div className="flex items-center gap-2">
 										<Badge
 											variant={session.end_time ? "secondary" : "default"}
 											className={
 												session.end_time
-													? "bg-green-100 text-green-800"
-													: "bg-blue-100 text-blue-800"
+													? "bg-emerald-100 text-emerald-800 rounded-full px-3 py-1 text-sm font-semibold border border-emerald-200"
+													: "bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm font-semibold border border-blue-200"
 											}
 										>
 											{session.end_time ? "Completed" : "In Progress"}
 										</Badge>
-										{/* Delete button with confirmation dialog */}
 										<Dialog>
 											<DialogTrigger asChild>
 												<motion.button
 													onClick={(e) => e.stopPropagation()}
 													title="Delete session"
-													className="p-1 rounded hover:bg-red-100"
+													className="p-2 rounded-full hover:bg-red-100 transition-colors duration-200"
 													type="button"
-													whileHover={{ scale: 1.1 }}
-													whileTap={{ scale: 0.95 }}
+													whileHover={{ scale: 1.15 }}
+													whileTap={{ scale: 0.9 }}
 												>
-													<Trash2 className="h-4 w-4 text-red-500" />
+													<Trash2 className="h-5 w-5 text-red-500" />
 												</motion.button>
 											</DialogTrigger>
 											<DialogContent onClick={(e) => e.stopPropagation()}>
 												<DialogHeader>
-													<DialogTitle>Delete Session</DialogTitle>
-													<DialogDescription>
+													<DialogTitle className="text-xl font-bold text-gray-800">
+														Delete Session
+													</DialogTitle>
+													<DialogDescription className="text-gray-600">
 														Are you sure you want to delete this session? This
 														action cannot be undone.
 													</DialogDescription>
 												</DialogHeader>
-												<DialogFooter>
+												<DialogFooter className="flex justify-end gap-2">
 													<DialogClose asChild>
-														<Button variant={"secondary"}>Cancel</Button>
+														<Button
+															variant={"secondary"}
+															className="rounded-full px-4 py-2"
+														>
+															Cancel
+														</Button>
 													</DialogClose>
 													<Button
 														onClick={() => onDeleteSession(session.session_id)}
 														variant={"destructive"}
+														className="rounded-full px-4 py-2"
 													>
 														Delete
 													</Button>
@@ -175,23 +172,34 @@ export default function SessionCards({
 										</Dialog>
 									</div>
 								</div>
+								{/* Only show stage if session is not completed */}
+								{session.stage && session.status !== "completed" && (
+									<div className="flex items-center gap-2 mb-1">
+										<Target className="h-4 w-4 text-gray-500" />
+										<Badge
+											variant="secondary"
+											className={`text-sm font-medium rounded-full px-3 py-1 border ${getStageColor(session.stage)}`}
+										>
+											{session.stage.toUpperCase()}
+										</Badge>
+									</div>
+								)}
 							</CardHeader>
-
-							<CardContent className="space-y-4">
+							<CardContent className="space-y-4 flex-grow px-6">
 								{/* Date and Time */}
-								<div className="bg-gray-50 rounded-lg p-3 space-y-2">
-									<div className="flex items-center gap-2 text-sm">
-										<Calendar className="h-4 w-4 text-gray-500" />
-										<span className="font-medium">Start:</span>
+								<div className="bg-blue-50 rounded-xl p-3 space-y-2 border border-blue-100">
+									<div className="flex items-center gap-2 text-sm text-gray-700">
+										<Calendar className="h-4 w-4 text-blue-500" />
+										<span className="font-semibold">Start:</span>
 										<span>
 											{formatDate(session.start_time)} at{" "}
 											{formatTime(session.start_time)}
 										</span>
 									</div>
 									{session.end_time ? (
-										<div className="flex items-center gap-2 text-sm">
-											<Clock className="h-4 w-4 text-gray-500" />
-											<span className="font-medium">End:</span>
+										<div className="flex items-center gap-2 text-sm text-gray-700">
+											<Clock className="h-4 w-4 text-blue-500" />
+											<span className="font-semibold">End:</span>
 											<span>
 												{formatDate(session.end_time)} at{" "}
 												{formatTime(session.end_time)}
@@ -204,12 +212,11 @@ export default function SessionCards({
 										</div>
 									)}
 								</div>
-
 								{/* Child Information */}
 								<div className="flex items-center gap-2">
-									<User className="h-4 w-4 text-blue-600" />
+									<User className="h-5 w-5 text-pink-500" />
 									<div>
-										<span className="font-medium text-gray-900">
+										<span className="font-bold text-gray-800 text-base">
 											{session.child_data.first_name}{" "}
 											{session.child_data.last_name}
 										</span>
@@ -218,48 +225,61 @@ export default function SessionCards({
 										</span>
 									</div>
 								</div>
-
 								{/* Tags */}
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
-										<Tag className="h-4 w-4 text-gray-500" />
-										<span className="font-medium text-sm">Tags:</span>
+										<Tag className="h-4 w-4 text-emerald-500" />
+										<span className="font-semibold text-sm text-gray-700">
+											Tags:
+										</span>
 									</div>
 									<div className="flex flex-wrap gap-1">
 										{session.tags.map((tag) => (
 											<Badge
 												key={tag}
 												variant="outline"
-												className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+												className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium border border-emerald-200"
 											>
 												{tag.replace(/_/g, " ")}
 											</Badge>
 										))}
 									</div>
 								</div>
-
 								{/* Session Notes */}
 								<div className="space-y-2">
 									<div className="flex items-center gap-2">
-										<FileText className="h-4 w-4 text-gray-500" />
-										<span className="font-medium text-sm">Session Notes:</span>
+										<FileText className="h-4 w-4 text-amber-500" />
+										<span className="font-semibold text-sm text-gray-700">
+											Session Notes:
+										</span>
 									</div>
-									<p className="text-sm text-gray-700 leading-relaxed bg-white p-3 rounded border-l-4 border-blue-200">
+									<p className="text-sm text-gray-700 leading-relaxed bg-amber-50 p-4 rounded-xl border-l-4 border-amber-200">
 										{session.session_notes}
 									</p>
 								</div>
-
-								{/* Interviewer */}
-								<div className="flex items-center gap-2 pt-2 border-t border-gray-100">
-									<UserCheck className="h-4 w-4 text-green-600" />
-									<span className="text-sm">
-										<span className="font-medium">Conducted by:</span>
-										<span className="ml-1 text-gray-700 capitalize">
-											{user.first_name} {user.last_name}
-										</span>
-									</span>
-								</div>
 							</CardContent>
+							<div className="flex items-center gap-2 pt-4 border-t border-gray-100 px-6 pb-6">
+								<UserCheck className="h-5 w-5 text-violet-500" />
+								<span className="text-sm text-gray-700">
+									<span className="font-semibold">Conducted by:</span>
+									<span className="ml-1 text-gray-800 capitalize font-medium">
+										{user.first_name} {user.last_name}
+									</span>
+								</span>
+								{/* Continue button for in-progress sessions */}
+								{!session.end_time && (
+									<Button
+										size="sm"
+										className="ml-auto rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1"
+										onClick={(e) => {
+											e.stopPropagation();
+											navigate(`/room/${session.session_id}`);
+										}}
+									>
+										Continue <ArrowRight className="h-4 w-4" />
+									</Button>
+								)}
+							</div>
 						</Card>
 					</motion.div>
 				))}
