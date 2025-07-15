@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, GamepadIcon, Play, Star } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage3VideoMinigames({
@@ -16,6 +18,11 @@ export default function Stage3VideoMinigames({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	useEffect(() => {
+		setQuestion("Ready for some video and minigames?");
+	}, [setQuestion]);
+
 	const activities = [
 		{
 			title: "Fun Videos",

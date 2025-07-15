@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Heart, Smile } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage5EmotionalExpressions({
@@ -21,6 +23,11 @@ export default function Stage5EmotionalExpressions({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	useEffect(() => {
+		setQuestion("How are you feeling today?");
+	}, [setQuestion]);
+
 	const emotions = [
 		{
 			value: "happy",

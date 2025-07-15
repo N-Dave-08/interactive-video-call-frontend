@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useQuestionStore } from "@/store/questionStore";
 
 interface Stage7CompletionProps {
 	childName: string;
@@ -24,8 +25,13 @@ export default function Stage7Completion({ childName }: Stage7CompletionProps) {
 		Array<{ id: number; x: number; y: number; color: string }>
 	>([]);
 	const navigate = useNavigate();
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
 
 	// Generate confetti on mount
+	useEffect(() => {
+		setQuestion("🎉 Congratulations! 🎉");
+	}, [setQuestion]);
+
 	useEffect(() => {
 		const colors = [
 			"#FF6B6B",

@@ -13,6 +13,7 @@ import Stage5EmotionalExpressions from "@/pages/Client/room/stages/Stage5Emotion
 import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNotesTags";
 import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import VerticalStepper from "@/pages/Client/room/VerticalStepper";
+import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types/sessions";
 
 const steps = [
@@ -33,6 +34,8 @@ export default function Room() {
 
 	const [initialLoading, setInitialLoading] = useState(true);
 	const [loadError, setLoadError] = useState<string | null>(null);
+
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
 
 	useEffect(() => {
 		if (session_id === "undefined") {
@@ -107,9 +110,6 @@ export default function Room() {
 		const saved = localStorage.getItem("showChildForm");
 		return saved === "true";
 	});
-	const [avatarMessage, setAvatarMessage] = useState(
-		"Hello! Let's have some fun together.",
-	);
 
 	// Example state for form fields
 	const [childData, setChildData] = useState({
@@ -134,7 +134,6 @@ export default function Room() {
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
-		setAvatarMessage("Great! What's your name and age?");
 		setShowChildForm(true);
 		localStorage.setItem("showChildForm", "true");
 	};
@@ -275,16 +274,12 @@ export default function Room() {
 		}
 	};
 
-	// Stage-specific avatar messages
-	const stageMessages = [
-		"Let's fill in your child's information!",
-		"Time to customize your avatar!",
-		"Ready for some video and minigames?",
-		"Let's continue to the next step!",
-		"How are you feeling today?",
-		"Add your session notes and tags!",
-		"🎉 Congratulations! 🎉",
-	];
+	useEffect(() => {
+		if (!showChildForm && step === 0) {
+			setQuestion("Hello! Let's have some fun together.");
+		}
+	}, [showChildForm, step, setQuestion]);
+
 	return (
 		<div className="h-screen">
 			{/* Skeleton Loader for initial loading */}
@@ -343,11 +338,6 @@ export default function Room() {
 								}
 							>
 								<AvatarCharacter
-									message={
-										!showChildForm && step === 0
-											? avatarMessage
-											: stageMessages[step] || ""
-									}
 									showNext={!showChildForm && step === 0}
 									onNext={handleGotIt}
 									bubblePosition="left"

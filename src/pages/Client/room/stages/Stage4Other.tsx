@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Heart, Lightbulb, Puzzle } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage4Other({
@@ -14,8 +16,13 @@ export default function Stage4Other({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	useEffect(() => {
+		setQuestion("Let's continue to the next step!");
+	}, [setQuestion]);
+
 	const puzzles = [
-		{ emoji: "��", label: "Puzzle 1", completed: true },
+		{ emoji: "", label: "Puzzle 1", completed: true },
 		{ emoji: "🎯", label: "Puzzle 2", completed: true },
 		{ emoji: "🌟", label: "Puzzle 3", completed: false },
 		{ emoji: "🎪", label: "Puzzle 4", completed: false },

@@ -1,9 +1,11 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, FileText, Sparkles, Tag } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage6SessionNotesTags({
@@ -25,6 +27,11 @@ export default function Stage6SessionNotesTags({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	useEffect(() => {
+		setQuestion("Add your session notes and tags!");
+	}, [setQuestion]);
+
 	const suggestedTags = [
 		{ label: "Fun", emoji: "🎉", color: "from-yellow-400 to-orange-400" },
 		{ label: "Learning", emoji: "📚", color: "from-blue-400 to-cyan-400" },

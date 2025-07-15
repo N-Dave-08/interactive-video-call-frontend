@@ -1,7 +1,8 @@
+import { useQuestionStore } from "@/store/questionStore";
 import { TutorialCharacter } from "./character";
 
 export interface AvatarCharacterProps {
-	message: string;
+	message?: string;
 	showNext?: boolean;
 	showHint?: boolean;
 	onNext?: () => void;
@@ -19,13 +20,14 @@ export default function AvatarCharacter({
 	bubblePosition = "left",
 	size = "2xl",
 }: AvatarCharacterProps) {
+	const question = useQuestionStore((s) => s.question);
 	return (
 		<div className="pointer-events-auto">
 			<TutorialCharacter
 				name={""}
 				avatar="😃"
 				color="bg-indigo-300"
-				message={message}
+				message={message ?? question}
 				type="hint"
 				bubblePosition={bubblePosition}
 				size={size}

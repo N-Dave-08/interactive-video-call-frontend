@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import AvatarCreator from "@/features/avatar-creator";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 interface AvatarData {
@@ -27,6 +29,11 @@ export default function Stage2AvatarData({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	useEffect(() => {
+		setQuestion("Let's create your avatar! Choose your look.");
+	}, [setQuestion]);
+
 	const handleAvatarChange = (data: AvatarData) => {
 		onChange(data);
 	};

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar as BirthdayCalendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
 interface ChildData {
@@ -27,14 +27,11 @@ export default function Stage1ChildData({
 	loading?: boolean;
 	error?: string;
 }) {
+	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	const [currentStep, setCurrentStep] = useState(() => {
 		const savedStep = localStorage.getItem("stage1-current-step");
 		return savedStep ? Number(savedStep) : 0;
 	});
-
-	useEffect(() => {
-		localStorage.setItem("stage1-current-step", String(currentStep));
-	}, [currentStep]);
 
 	const inputFields = [
 		{
@@ -68,6 +65,11 @@ export default function Stage1ChildData({
 			type: "date",
 		},
 	];
+
+	useEffect(() => {
+		localStorage.setItem("stage1-current-step", String(currentStep));
+		setQuestion(inputFields[currentStep].label);
+	}, [currentStep, setQuestion, inputFields[currentStep].label]);
 
 	const currentField = inputFields[currentStep];
 	const isLastStep = currentStep === inputFields.length - 1;
@@ -167,12 +169,7 @@ export default function Stage1ChildData({
 						transition={{ delay: 0.3, duration: 0.5 }}
 						className="group"
 					>
-						<Label
-							htmlFor={currentField.id}
-							className="text-base font-semibold text-gray-700 mb-2 block"
-						>
-							{currentField.label}
-						</Label>
+						{/* Label removed, question now shown by avatar */}
 						<div className="relative">
 							<div
 								className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
