@@ -12,7 +12,7 @@ import Stage5EmotionalExpressions from "@/pages/Client/room/stages/Stage5Emotion
 import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNotesTags";
 import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import VerticalStepper from "@/pages/Client/room/VerticalStepper";
-import type { Session } from "@/types/sessions";
+import type { ChildData, Session } from "@/types/sessions";
 
 const steps = [
 	"Child Data",
@@ -57,8 +57,23 @@ export default function Room() {
 					"Stage 6": 5,
 					Completion: 6,
 				};
+				let restoredStep = 0;
 				if (stage && Object.hasOwn(stageToStep, stage)) {
-					setStep(stageToStep[stage]);
+					restoredStep = stageToStep[stage];
+				}
+				// Check if Stage 1 data is incomplete
+				const child: Partial<ChildData> = session?.child_data || {};
+				const isStage1Complete =
+					!!child.first_name &&
+					!!child.last_name &&
+					!!child.age &&
+					!!child.birthday;
+				if (restoredStep > 0 && !isStage1Complete) {
+					setStep(0); // Force back to Stage 1
+					setShowChildForm(true);
+				} else {
+					setStep(restoredStep);
+					if (restoredStep === 0 && isStage1Complete) setShowChildForm(true);
 				}
 				if (session?.child_data) {
 					setChildData({
@@ -321,7 +336,10 @@ export default function Room() {
 						value={avatarData}
 						onChange={setAvatarData}
 						onNext={handleAvatarDataNext}
-						onBack={() => setStep(0)}
+						onBack={() => {
+							setStep(0);
+							setShowChildForm(true);
+						}}
 						loading={loading}
 						error={error || undefined}
 					/>
