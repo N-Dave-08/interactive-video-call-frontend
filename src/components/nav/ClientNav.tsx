@@ -1,8 +1,8 @@
 import {
-	IconCreditCard,
 	IconDotsVertical,
+	IconHelp,
 	IconLogout,
-	IconNotification,
+	IconSettings,
 	IconUserCircle,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
@@ -109,12 +109,12 @@ export function NavUser({
 								Account
 							</DropdownMenuItem>
 							<DropdownMenuItem>
-								<IconCreditCard />
-								Billing
+								<IconSettings />
+								Settings
 							</DropdownMenuItem>
 							<DropdownMenuItem>
-								<IconNotification />
-								Notifications
+								<IconHelp />
+								Help
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />

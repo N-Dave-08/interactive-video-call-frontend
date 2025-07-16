@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SessionCardsSkeleton() {
 	// Number of skeleton cards to show
-	const skeletons = Array.from({ length: 6 });
+	const skeletons = Array.from({ length: 3 });
 
 	return (
 		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">

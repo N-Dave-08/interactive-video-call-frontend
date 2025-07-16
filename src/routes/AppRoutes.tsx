@@ -7,7 +7,6 @@ import AdminDashboard from "@/pages/Admin/dashboard";
 import UsersPage from "@/pages/Admin/users";
 import LoginPage from "@/pages/Auth/login";
 import RegisterPage from "@/pages/Auth/register";
-import DrawingPadPage from "@/pages/Client/DrawingPad";
 import ClientDashboard from "@/pages/Client/dashboard";
 import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/room";
@@ -60,7 +59,6 @@ export default function AppRoutes() {
 				<Route path="dashboard" element={<DashboardRoute />} />
 				<Route path="profile" element={<ProfilePage />} />
 				<Route path="schedule" element={<SchedulePage />} />
-				<Route path="drawing-pad" element={<DrawingPadPage />} />
 				<Route path="sessions" element={<SessionsPage />} />
 				<Route path="sessions/:sessionId" element={<SessionDetailPage />} />
 				<Route path="/users" element={<UsersPage />} />

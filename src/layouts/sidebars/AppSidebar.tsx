@@ -3,7 +3,6 @@ import {
 	HeartHandshake,
 	LayoutDashboard,
 	LibraryBig,
-	Pencil,
 	User,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
@@ -41,11 +40,6 @@ const clientItems = [
 		icon: Calendar,
 	},
 	{
-		title: "Drawing Pad",
-		url: "/drawing-pad",
-		icon: Pencil,
-	},
-	{
 		title: "Sessions",
 		url: "/sessions",
 		icon: LibraryBig,
@@ -74,10 +68,10 @@ export default function AppSidebar() {
 
 	return (
 		<Sidebar>
-			<div
-				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none bg-primary"
-				// style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
-			/>
+			{/* <div
+			// className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none bg-primary"
+			// style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
+			/> */}
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -96,9 +90,9 @@ export default function AppSidebar() {
 				</SidebarMenu>
 			</SidebarHeader>
 
-			<SidebarContent>
+			<SidebarContent className="">
 				{/* gradient */}
-				<div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-blue-100/60 pointer-events-none" />
+				{/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-blue-100/60 pointer-events-none" /> */}
 				{/* Menu Tabs */}
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
