@@ -104,7 +104,11 @@ export default function Stage3VideoMinigames({
 								<ArrowLeft className="w-5 h-5 mr-2" /> Back to Games
 							</Button>
 							<div className="flex justify-center items-center min-h-[300px] bg-gray-50 rounded-xl p-4 shadow-inner">
-								{selectedGame === "Flappy Bird" && <FlappyBird />}
+								{selectedGame === "Flappy Bird" && (
+									<div className="text-2xl font-bold text-gray-500">
+										Flappy Bird coming soon!
+									</div>
+								)}
 								{selectedGame === "Snake" && <Snake />}
 							</div>
 						</motion.div>
@@ -173,7 +177,7 @@ export default function Stage3VideoMinigames({
 								initial={{ opacity: 0, x: -20 }}
 								animate={{ opacity: 1, x: 0 }}
 								whileHover={{
-									scale: 1.03,
+									scale: 1.05,
 									boxShadow:
 										"0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
 								}}
@@ -185,7 +189,7 @@ export default function Stage3VideoMinigames({
 									stiffness: 300,
 									damping: 20,
 								}}
-								className="group cursor-pointer"
+								className="group cursor-pointer rounded-3xl"
 								onClick={
 									activity.title === "Mini Games"
 										? () => setShowGamesPanel(true)
