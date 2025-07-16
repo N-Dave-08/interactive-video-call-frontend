@@ -1,3 +1,5 @@
+import MiniGameLayout from "../MiniGameLayout";
+
 export default function Snake() {
-	return <div>index</div>;
+	return <MiniGameLayout>index</MiniGameLayout>;
 }

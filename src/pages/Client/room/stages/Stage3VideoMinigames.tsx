@@ -3,10 +3,9 @@
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, GamepadIcon, Play } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import FlappyBird from "@/pages/Client/mini-games/flappy-bird";
-import Snake from "@/pages/Client/mini-games/snake";
 import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
@@ -22,12 +21,12 @@ export default function Stage3VideoMinigames({
 	error?: string;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	const navigate = useNavigate();
 	useEffect(() => {
 		setQuestion("Ready for some video and minigames?");
 	}, [setQuestion]);
 
 	const [showGamesPanel, setShowGamesPanel] = useState(false);
-	const [selectedGame, setSelectedGame] = useState<string | null>(null);
 
 	const activities = [
 		{
@@ -49,13 +48,19 @@ export default function Stage3VideoMinigames({
 	const miniGames = [
 		{
 			name: "Flappy Bird",
-			component: FlappyBird,
 			icon: "🐦",
 		},
 		{
 			name: "Snake",
-			component: Snake,
 			icon: "🐍",
+		},
+		{
+			name: "Gentle Puzzle",
+			icon: "🧩",
+		},
+		{
+			name: "Bubble Pop",
+			icon: "🫧",
 		},
 	];
 
@@ -86,47 +91,21 @@ export default function Stage3VideoMinigames({
 
 				{/* Inline Games Panel or Activities List */}
 				{showGamesPanel ? (
-					selectedGame ? (
-						// Display selected game
-						<motion.div
-							key="game-view"
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.3 }}
-							className="mb-8"
-						>
-							<Button
-								variant="outline"
-								className="mb-6 text-lg font-semibold text-gray-700 hover:text-gray-900 bg-transparent"
-								onClick={() => setSelectedGame(null)}
-							>
-								<ArrowLeft className="w-5 h-5 mr-2" /> Back to Games
-							</Button>
-							<div className="flex justify-center items-center min-h-[300px] bg-gray-50 rounded-xl p-4 shadow-inner">
-								{selectedGame === "Flappy Bird" && (
-									<div className="text-2xl font-bold text-gray-500">
-										Flappy Bird coming soon!
-									</div>
-								)}
-								{selectedGame === "Snake" && <Snake />}
-							</div>
-						</motion.div>
-					) : (
-						// Game selection panel
-						<motion.div
-							key="game-selection"
-							initial={{ opacity: 0, x: 20 }}
-							animate={{ opacity: 1, x: 0 }}
-							exit={{ opacity: 0, x: -20 }}
-							transition={{ duration: 0.3 }}
-							className="grid gap-6 mb-8"
-						>
-							<div className="text-center mb-4 text-2xl font-bold text-gray-800">
-								Choose a Game!
-							</div>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ">
-								{miniGames.map((game) => (
+					<motion.div
+						key="game-selection"
+						initial={{ opacity: 0, x: 20 }}
+						animate={{ opacity: 1, x: 0 }}
+						exit={{ opacity: 0, x: -20 }}
+						transition={{ duration: 0.3 }}
+						className="grid gap-6 mb-8"
+					>
+						<div className="text-center mb-4 text-2xl font-bold text-gray-800">
+							Choose a Game!
+						</div>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ">
+							{miniGames.map((game) => {
+								const slug = game.name.toLowerCase().replace(/\s+/g, "-");
+								return (
 									<motion.div
 										key={game.name}
 										whileHover={{
@@ -142,7 +121,7 @@ export default function Stage3VideoMinigames({
 											duration: 0.3,
 										}}
 										className="relative cursor-pointer group rounded-3xl"
-										onClick={() => setSelectedGame(game.name)}
+										onClick={() => navigate(`/mini-games/${slug}`)}
 									>
 										{/* Glowing gradient blur background */}
 										<div
@@ -157,17 +136,17 @@ export default function Stage3VideoMinigames({
 											</CardContent>
 										</Card>
 									</motion.div>
-								))}
-							</div>
-							<Button
-								variant="link"
-								className="mt-6 text-lg font-semibold text-gray-600 hover:text-gray-800"
-								onClick={() => setShowGamesPanel(false)}
-							>
-								<ArrowLeft className="w-5 h-5 mr-2" /> Back to Activities
-							</Button>
-						</motion.div>
-					)
+								);
+							})}
+						</div>
+						<Button
+							variant="link"
+							className="mt-6 text-lg font-semibold text-gray-600 hover:text-gray-800"
+							onClick={() => setShowGamesPanel(false)}
+						>
+							<ArrowLeft className="w-5 h-5 mr-2" /> Back to Activities
+						</Button>
+					</motion.div>
 				) : (
 					// Main activities list
 					<div className="grid gap-6 mb-8">
@@ -231,19 +210,21 @@ export default function Stage3VideoMinigames({
 				)}
 
 				{/* Call to action / Next adventure section */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.7, duration: 0.5 }}
-					className="text-center mb-6"
-				>
-					<div className="p-5 bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl border-2 border-purple-200 shadow-md">
-						<div className="text-3xl mb-2">🎉</div>
-						<p className="text-lg text-purple-700 font-semibold">
-							Great job exploring! Ready for the next adventure?
-						</p>
-					</div>
-				</motion.div>
+				{!showGamesPanel && (
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.7, duration: 0.5 }}
+						className="text-center mb-6"
+					>
+						<div className="p-5 bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl border-2 border-purple-200 shadow-md">
+							<div className="text-3xl mb-2">🎉</div>
+							<p className="text-lg text-purple-700 font-semibold">
+								Great job exploring! Ready for the next adventure?
+							</p>
+						</div>
+					</motion.div>
+				)}
 
 				{/* Navigation Buttons */}
 				<motion.div

@@ -1,6 +1,5 @@
 import {
 	Calendar,
-	Gamepad,
 	HeartHandshake,
 	LayoutDashboard,
 	LibraryBig,
@@ -22,8 +21,6 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-// import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
-// import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
 import { useAuth } from "@/hooks/useAuth";
 
 // Menu items for client
@@ -42,11 +39,6 @@ const clientItems = [
 		title: "Schedule",
 		url: "/schedule",
 		icon: Calendar,
-	},
-	{
-		title: "Mini Games",
-		url: "/mini-games",
-		icon: Gamepad,
 	},
 	{
 		title: "Drawing Pad",
@@ -75,7 +67,6 @@ const adminItems = [
 ];
 
 export default function AppSidebar() {
-	// const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
 	const location = useLocation();
 	const { user } = useAuth();
 
@@ -132,8 +123,6 @@ export default function AppSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
-				{/* <ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
-				<MusicPlayerSidebar className="border-none" /> */}
 				<NavUser
 					user={{
 						name: user ? `${user.first_name} ${user.last_name}` : "No name",

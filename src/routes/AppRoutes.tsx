@@ -9,14 +9,13 @@ import LoginPage from "@/pages/Auth/login";
 import RegisterPage from "@/pages/Auth/register";
 import DrawingPadPage from "@/pages/Client/DrawingPad";
 import ClientDashboard from "@/pages/Client/dashboard";
-import MiniGamesPage from "@/pages/Client/mini-games";
-import Snake from "@/pages/Client/mini-games/snake";
 import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/room";
 import SchedulePage from "@/pages/Client/Schedule";
 import SessionsPage from "@/pages/Client/sessions";
 import SessionDetailPage from "@/pages/Client/sessions/session-detail";
 import LandingPage from "@/pages/Landing";
+import MiniGameRoute from "../pages/Client/mini-games/MiniGameRoute";
 
 const DashboardRoute = () => {
 	const { user } = useAuth();
@@ -49,6 +48,8 @@ export default function AppRoutes() {
 					</ProtectedRoute>
 				}
 			/>
+			{/* Full-screen game route, no sidebar/app chrome */}
+			<Route path="/mini-games/:slug" element={<MiniGameRoute />} />
 			<Route
 				element={
 					<ProtectedRoute>
@@ -59,8 +60,6 @@ export default function AppRoutes() {
 				<Route path="dashboard" element={<DashboardRoute />} />
 				<Route path="profile" element={<ProfilePage />} />
 				<Route path="schedule" element={<SchedulePage />} />
-				<Route path="mini-games" element={<MiniGamesPage />} />
-				<Route path="mini-games/snake" element={<Snake />} />
 				<Route path="drawing-pad" element={<DrawingPadPage />} />
 				<Route path="sessions" element={<SessionsPage />} />
 				<Route path="sessions/:sessionId" element={<SessionDetailPage />} />
