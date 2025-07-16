@@ -244,16 +244,23 @@ export default function SessionDetailPage() {
 											Selected Feelings
 										</span>
 										<div className="flex flex-wrap gap-2">
-											{session.emotional_expression.selected_feelings.map(
-												(feeling) => (
-													<Badge
-														key={feeling}
-														className="bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 transition-colors"
-														variant="outline"
-													>
-														{feeling}
-													</Badge>
-												),
+											{session.emotional_expression.selected_feelings.length >
+											0 ? (
+												session.emotional_expression.selected_feelings.map(
+													(feeling) => (
+														<Badge
+															key={feeling}
+															className="bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 transition-colors"
+															variant="outline"
+														>
+															{feeling}
+														</Badge>
+													),
+												)
+											) : (
+												<span className="text-gray-400 italic">
+													None selected
+												</span>
 											)}
 										</div>
 									</div>
@@ -263,16 +270,23 @@ export default function SessionDetailPage() {
 											Body Map Annotations
 										</span>
 										<div className="flex flex-wrap gap-2">
-											{session.emotional_expression.body_map_annotations.map(
-												(annotation) => (
-													<Badge
-														key={annotation}
-														className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 transition-colors"
-														variant="outline"
-													>
-														{annotation.replace(/_/g, " ")}
-													</Badge>
-												),
+											{session.emotional_expression.body_map_annotations
+												.length > 0 ? (
+												session.emotional_expression.body_map_annotations.map(
+													(annotation) => (
+														<Badge
+															key={annotation}
+															className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 transition-colors"
+															variant="outline"
+														>
+															{annotation.replace(/_/g, " ")}
+														</Badge>
+													),
+												)
+											) : (
+												<span className="text-gray-400 italic">
+													No annotations
+												</span>
 											)}
 										</div>
 									</div>
@@ -291,7 +305,11 @@ export default function SessionDetailPage() {
 							<CardContent>
 								<div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border-l-4 border-indigo-400">
 									<p className="text-gray-700 leading-relaxed">
-										{session.session_notes}
+										{session.session_notes?.trim() ? (
+											session.session_notes
+										) : (
+											<span className="text-gray-400 italic">No notes yet</span>
+										)}
 									</p>
 								</div>
 							</CardContent>
@@ -350,37 +368,54 @@ export default function SessionDetailPage() {
 							<CardContent className="space-y-3">
 								{/* Avatar Visual Preview */}
 								<div className="flex items-center justify-center mb-2">
-									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/30 w-full max-w-[120px] aspect-square">
-										{/* Background */}
-										<img
-											src={session.avatar_data.background}
-											className="absolute inset-0 object-cover h-full w-full brightness-75 rounded-lg"
-											alt="Avatar background"
-										/>
-										{/* Clothes */}
-										<img
-											src={session.avatar_data.clothes}
-											className="absolute inset-0 w-full h-full object-contain top-[-10px]"
-											alt="Avatar clothes"
-										/>
-										{/* Head */}
-										<img
-											src={session.avatar_data.head}
-											className="absolute inset-0 w-full h-full object-contain"
-											alt="Avatar head"
-										/>
-										{/* Hair */}
-										<img
-											src={session.avatar_data.hair}
-											className="absolute inset-0 w-full h-full object-contain"
-											alt="Avatar hair"
-										/>
-										{/* Expression */}
-										<img
-											src={session.avatar_data.expression}
-											className="absolute inset-0 w-full h-full object-contain"
-											alt="Avatar expression"
-										/>
+									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/30 w-full max-w-[120px] aspect-square flex items-center justify-center">
+										{session.avatar_data?.background &&
+										session.avatar_data?.background !== "default" &&
+										session.avatar_data?.clothes &&
+										session.avatar_data?.clothes !== "default" &&
+										session.avatar_data?.head &&
+										session.avatar_data?.head !== "default" &&
+										session.avatar_data?.hair &&
+										session.avatar_data?.hair !== "default" &&
+										session.avatar_data?.expression &&
+										session.avatar_data?.expression !== "default" ? (
+											<>
+												{/* Background */}
+												<img
+													src={session.avatar_data.background}
+													className="absolute inset-0 object-cover h-full w-full brightness-75 rounded-lg"
+													alt="Avatar background"
+												/>
+												{/* Clothes */}
+												<img
+													src={session.avatar_data.clothes}
+													className="absolute inset-0 w-full h-full object-contain top-[-10px]"
+													alt="Avatar clothes"
+												/>
+												{/* Head */}
+												<img
+													src={session.avatar_data.head}
+													className="absolute inset-0 w-full h-full object-contain"
+													alt="Avatar head"
+												/>
+												{/* Hair */}
+												<img
+													src={session.avatar_data.hair}
+													className="absolute inset-0 w-full h-full object-contain"
+													alt="Avatar hair"
+												/>
+												{/* Expression */}
+												<img
+													src={session.avatar_data.expression}
+													className="absolute inset-0 w-full h-full object-contain"
+													alt="Avatar expression"
+												/>
+											</>
+										) : (
+											<div className="flex items-center justify-center w-full h-full text-gray-400 text-sm font-medium">
+												No avatar yet
+											</div>
+										)}
 									</div>
 								</div>
 							</CardContent>
@@ -396,15 +431,19 @@ export default function SessionDetailPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="flex flex-wrap gap-2">
-									{session.tags.map((tag) => (
-										<Badge
-											key={tag}
-											variant="outline"
-											className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 transition-colors"
-										>
-											{tag.replace(/_/g, " ")}
-										</Badge>
-									))}
+									{session.tags.length > 0 ? (
+										session.tags.map((tag) => (
+											<Badge
+												key={tag}
+												variant="outline"
+												className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 transition-colors"
+											>
+												{tag.replace(/_/g, " ")}
+											</Badge>
+										))
+									) : (
+										<span className="text-gray-400 italic">No tags</span>
+									)}
 								</div>
 							</CardContent>
 						</Card>
