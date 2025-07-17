@@ -86,10 +86,12 @@ export default function ChangeBackgroundBox({
 		>
 			<div className="p-3 space-y-3">
 				<div className="flex justify-between items-center">
-					<div className="w-6" /> {/* Spacer */}
 					<div className="bg-gradient-to-br from-purple-500 to-pink-400 rounded-xl size-12 flex items-center justify-center shadow-lg">
 						<Palette className="text-white size-6" />
 					</div>
+					<span className="font-semibold text-gray-500 text-sm">
+						Change Background
+					</span>
 					<Button
 						variant="ghost"
 						size="icon"
@@ -115,7 +117,7 @@ export default function ChangeBackgroundBox({
 							key={bg.name}
 							type="button"
 							variant={currentBg === bg.url ? "default" : "outline"}
-							className={`relative group overflow-hidden rounded-lg border-2 w-22 h-15 flex flex-col items-center justify-center p-0 ${currentBg === bg.url ? "border-primary shadow-lg scale-105" : "border-white/30 hover:border-white/60 hover:scale-102"}`}
+							className={`relative group overflow-hidden rounded-lg border-2 w-full h-15 flex flex-col items-center justify-center p-0 ${currentBg === bg.url ? "border-primary shadow-lg scale-105" : "border-white/30 hover:border-white/60 hover:scale-102"}`}
 							onClick={() => setBgUrl(bg.url)}
 						>
 							<div
