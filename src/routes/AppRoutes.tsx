@@ -46,9 +46,9 @@ export default function AppRoutes() {
 						</RoomLayout>
 					</ProtectedRoute>
 				}
-			/>
-			{/* Full-screen game route, no sidebar/app chrome */}
-			<Route path="/mini-games/:slug" element={<MiniGameRoute />} />
+			>
+				<Route path="mini-games/:slug" element={<MiniGameRoute />} />
+			</Route>
 			<Route
 				element={
 					<ProtectedRoute>

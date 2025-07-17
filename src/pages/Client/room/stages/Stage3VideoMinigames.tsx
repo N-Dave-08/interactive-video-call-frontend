@@ -134,7 +134,7 @@ export default function Stage3VideoMinigames({
 											duration: 0.3,
 										}}
 										className="relative cursor-pointer group rounded-3xl"
-										onClick={() => navigate(`/mini-games/${slug}`)}
+										onClick={() => navigate(`mini-games/${slug}`)}
 									>
 										{/* Glowing gradient blur background */}
 										<div

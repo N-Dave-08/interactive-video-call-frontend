@@ -16,7 +16,7 @@ function getGameName(slug?: string) {
 }
 
 export default function MiniGameRoute() {
-	const { slug } = useParams();
+	const { slug, session_id } = useParams();
 	const navigate = useNavigate();
 	const gameName = getGameName(slug);
 
@@ -41,7 +41,10 @@ export default function MiniGameRoute() {
 		<div className="min-h-screen flex flex-col">
 			{/* Minimal header */}
 			<div className="flex items-center gap-4 px-6 py-4 bg-transparent fixed top-0 left-0 right-0 z-50">
-				<Button onClick={() => navigate(-1)} variant="secondary">
+				<Button
+					onClick={() => navigate(`/room/${session_id}?panel=games`)}
+					variant="secondary"
+				>
 					<ArrowLeft className="w-5 h-5 mr-1" />
 					Back
 				</Button>

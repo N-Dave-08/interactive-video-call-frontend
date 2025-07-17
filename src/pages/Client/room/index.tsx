@@ -1,6 +1,12 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import {
+	Outlet,
+	useMatch,
+	useNavigate,
+	useParams,
+	useSearchParams,
+} from "react-router-dom";
 import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import { Skeleton } from "@/components/ui/skeleton";
 import AvatarCharacter from "@/features/avatar-character";
@@ -31,6 +37,8 @@ export default function Room() {
 	const { user } = useAuth();
 	const { session_id } = useParams();
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const isMiniGameRoute = useMatch("/room/:session_id/mini-games/:slug");
 
 	const [initialLoading, setInitialLoading] = useState(true);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -280,140 +288,155 @@ export default function Room() {
 		}
 	}, [showChildForm, step, setQuestion]);
 
+	// Clear 'panel' query param when not in Stage 3
+	useEffect(() => {
+		if (step !== 2) {
+			if (searchParams.has("panel")) {
+				searchParams.delete("panel");
+				setSearchParams(searchParams);
+			}
+		}
+	}, [step, searchParams, setSearchParams]);
+
 	return (
 		<div className="h-screen">
-			{/* Skeleton Loader for initial loading */}
-			{initialLoading && (
-				<div className="flex flex-col items-center justify-center h-full w-full p-8">
-					<Skeleton className="w-2/3 h-8 mb-6" /> {/* Stepper skeleton */}
-					<div className="flex flex-row gap-8 w-full">
-						<Skeleton className="w-1/3 h-96 rounded-2xl" />{" "}
-						{/* Avatar/side skeleton */}
-						<div className="flex-1 flex flex-col gap-4">
-							<Skeleton className="w-full h-12 rounded-xl" />
-							<Skeleton className="w-full h-8 rounded-xl" />
-							<Skeleton className="w-full h-8 rounded-xl" />
-							<Skeleton className="w-full h-32 rounded-xl" />
-						</div>
-					</div>
-				</div>
-			)}
-			{/* Error state */}
-			{!initialLoading && loadError && (
-				<div className="flex flex-col items-center justify-center h-full w-full p-8">
-					<p className="text-red-500 text-lg font-semibold">{loadError}</p>
-				</div>
-			)}
-			{/* Main content (hidden while loading) */}
-			{!initialLoading && !loadError && (
+			<Outlet />
+			{!isMiniGameRoute && (
 				<>
-					{/* Left: Vertical Stepper Overlay */}
-					<div className="fixed top-0 left-0 right-0 z-50 group">
-						<div className="bg-white/95 backdrop-blur-sm border-b border-white/20 shadow-lg transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
-							<div className="max-w-4xl mx-auto px-8 py-4">
-								<VerticalStepper
-									steps={steps}
-									currentStep={step}
-									direction="horizontal"
-								/>
+					{/* Skeleton Loader for initial loading */}
+					{initialLoading && (
+						<div className="flex flex-col items-center justify-center h-full w-full p-8">
+							<Skeleton className="w-2/3 h-8 mb-6" /> {/* Stepper skeleton */}
+							<div className="flex flex-row gap-8 w-full">
+								<Skeleton className="w-1/3 h-96 rounded-2xl" />{" "}
+								{/* Avatar/side skeleton */}
+								<div className="flex-1 flex flex-col gap-4">
+									<Skeleton className="w-full h-12 rounded-xl" />
+									<Skeleton className="w-full h-8 rounded-xl" />
+									<Skeleton className="w-full h-8 rounded-xl" />
+									<Skeleton className="w-full h-32 rounded-xl" />
+								</div>
 							</div>
 						</div>
-						{/* Hover trigger area */}
-						<div className="h-4 bg-transparent"></div>
-					</div>
-					{/* Right: Form Content */}
-					<main className="flex-1 ml-0 flex flex-col p-8 h-10/12">
-						{/* Avatar and speech bubble */}
-						{step !== 6 && (
-							<motion.div
-								layout
-								transition={{ type: "spring", stiffness: 100, damping: 40 }}
-								className={
-									step === 0 && !showChildForm
-										? "fixed inset-0 z-30 flex items-center justify-center"
-										: step === 0
-											? "fixed top-96 right-96 z-30"
-											: "fixed bottom-20 right-20 z-30"
-								}
-								style={step === 0 ? {} : { pointerEvents: "none" }}
-							>
-								<AvatarCharacter
-									showNext={!showChildForm && step === 0}
-									onNext={handleGotIt}
-									bubblePosition="left"
-									size={!showChildForm && step === 0 ? "2xl" : "md"}
-								/>
-							</motion.div>
-						)}
+					)}
+					{/* Error state */}
+					{!initialLoading && loadError && (
+						<div className="flex flex-col items-center justify-center h-full w-full p-8">
+							<p className="text-red-500 text-lg font-semibold">{loadError}</p>
+						</div>
+					)}
+					{/* Main content (hidden while loading) */}
+					{!initialLoading && !loadError && (
+						<>
+							{/* Left: Vertical Stepper Overlay */}
+							<div className="fixed top-0 left-0 right-0 z-50 group">
+								<div className="bg-white/95 backdrop-blur-sm border-b border-white/20 shadow-lg transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+									<div className="max-w-4xl mx-auto px-8 py-4">
+										<VerticalStepper
+											steps={steps}
+											currentStep={step}
+											direction="horizontal"
+										/>
+									</div>
+								</div>
+								{/* Hover trigger area */}
+								<div className="h-4 bg-transparent"></div>
+							</div>
+							{/* Right: Form Content */}
+							<main className="flex-1 ml-0 flex flex-col p-8 h-10/12">
+								{/* Avatar and speech bubble */}
+								{step !== 6 && (
+									<motion.div
+										layout
+										transition={{ type: "spring", stiffness: 100, damping: 40 }}
+										className={
+											step === 0 && !showChildForm
+												? "fixed inset-0 z-30 flex items-center justify-center"
+												: step === 0
+													? "fixed top-96 right-96 z-30"
+													: "fixed bottom-20 right-20 z-30"
+										}
+										style={step === 0 ? {} : { pointerEvents: "none" }}
+									>
+										<AvatarCharacter
+											showNext={!showChildForm && step === 0}
+											onNext={handleGotIt}
+											bubblePosition="left"
+											size={!showChildForm && step === 0 ? "2xl" : "md"}
+										/>
+									</motion.div>
+								)}
 
-						{/* Step Content */}
-						{step === 0 && showChildForm && (
-							<Stage1ChildData
-								value={childData}
-								onChange={setChildData}
-								onNext={handleChildDataNext}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 1 && (
-							<Stage2AvatarData
-								value={avatarData}
-								onChange={setAvatarData}
-								onNext={handleAvatarDataNext}
-								onBack={() => {
-									setStep(0);
-									setShowChildForm(true);
-								}}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 2 && (
-							<Stage3VideoMinigames
-								onNext={handleVideoMinigamesNext}
-								onBack={() => setStep(1)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 3 && (
-							<Stage4Other
-								onNext={handleStage4Next}
-								onBack={() => setStep(2)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 4 && (
-							<Stage5EmotionalExpressions
-								value={emotion}
-								onChange={setEmotion}
-								onNext={handleEmotionalExpressionsNext}
-								onBack={() => setStep(3)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 5 && (
-							<Stage6SessionNotesTags
-								notes={sessionNotes}
-								tagsInput={tagsInput}
-								onNotesChange={setSessionNotes}
-								onTagsInputChange={handleTagsInputChange}
-								onNext={handleSessionNotesNext}
-								onBack={() => setStep(4)}
-								loading={loading}
-								error={error || undefined}
-							/>
-						)}
-						{step === 6 && (
-							<Stage7Completion
-								childName={childData.first_name}
-								onBack={() => setStep(5)}
-							/>
-						)}
-					</main>
+								{/* Step Content */}
+								{step === 0 && showChildForm && (
+									<Stage1ChildData
+										value={childData}
+										onChange={setChildData}
+										onNext={handleChildDataNext}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 1 && (
+									<Stage2AvatarData
+										value={avatarData}
+										onChange={setAvatarData}
+										onNext={handleAvatarDataNext}
+										onBack={() => {
+											setStep(0);
+											setShowChildForm(true);
+										}}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 2 && (
+									<Stage3VideoMinigames
+										onNext={handleVideoMinigamesNext}
+										onBack={() => setStep(1)}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 3 && (
+									<Stage4Other
+										onNext={handleStage4Next}
+										onBack={() => setStep(2)}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 4 && (
+									<Stage5EmotionalExpressions
+										value={emotion}
+										onChange={setEmotion}
+										onNext={handleEmotionalExpressionsNext}
+										onBack={() => setStep(3)}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 5 && (
+									<Stage6SessionNotesTags
+										notes={sessionNotes}
+										tagsInput={tagsInput}
+										onNotesChange={setSessionNotes}
+										onTagsInputChange={handleTagsInputChange}
+										onNext={handleSessionNotesNext}
+										onBack={() => setStep(4)}
+										loading={loading}
+										error={error || undefined}
+									/>
+								)}
+								{step === 6 && (
+									<Stage7Completion
+										childName={childData.first_name}
+										onBack={() => setStep(5)}
+									/>
+								)}
+							</main>
+						</>
+					)}
 				</>
 			)}
 		</div>
