@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Apple, Chrome as Google } from "lucide-react";
+// import { Apple, Chrome as Google } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -100,7 +100,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 					<Form {...form}>
 						<form onSubmit={handleSubmit(onSubmit)}>
 							<div className="grid gap-6">
-								<div className="flex flex-col gap-4">
+								{/* <div className="flex flex-col gap-4">
 									<Button
 										variant="outline"
 										className="w-full rounded-xl border-indigo-400 text-indigo-700 hover:bg-indigo-100 bg-white"
@@ -117,12 +117,12 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 										<Google className="h-5 w-5 mr-2" />
 										Login with Google
 									</Button>
-								</div>
-								<div className="after:border-indigo-200 relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+								</div> */}
+								{/* <div className="after:border-indigo-200 relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
 									<span className="bg-white text-indigo-700 relative z-10 px-2">
 										Or continue with
 									</span>
-								</div>
+								</div> */}
 								<div className="grid gap-6">
 									<FormField
 										name="email"
