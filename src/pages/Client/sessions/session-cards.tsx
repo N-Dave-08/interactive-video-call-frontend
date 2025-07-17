@@ -80,7 +80,7 @@ export default function SessionCards({
 		}
 	};
 
-	console.log(": sessions", sessions);
+	// console.log(": sessions", sessions);
 
 	return (
 		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 p-4">

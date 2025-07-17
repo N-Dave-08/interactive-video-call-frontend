@@ -1,5 +1,3 @@
-"use client";
-
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Heart, Smile } from "lucide-react";
 import React, { useEffect } from "react";

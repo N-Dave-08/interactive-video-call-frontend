@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -7,7 +5,6 @@ import {
 	getCoreRowModel,
 	getFacetedRowModel,
 	getFacetedUniqueValues,
-	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
 	type SortingState,
@@ -41,7 +38,6 @@ import {
 	XCircle,
 } from "lucide-react";
 import * as React from "react";
-import { useState } from "react";
 import { toast } from "sonner";
 import { updateUserCondition } from "@/api/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -179,7 +175,6 @@ const columns: ColumnDef<User>[] = [
 		size: 40,
 	},
 	{
-		accessorKey: "user",
 		header: "User",
 		cell: ({ row }) => {
 			const user = row.original;
@@ -321,8 +316,6 @@ const columns: ColumnDef<User>[] = [
 		header: "",
 		cell: ({ row }) => {
 			const handleEdit = () => {
-				// This will be handled by the parent component
-				// We'll use a custom event to communicate with the parent
 				const event = new CustomEvent("editUser", {
 					detail: row.original,
 				});
@@ -330,8 +323,6 @@ const columns: ColumnDef<User>[] = [
 			};
 
 			const handleDelete = () => {
-				// This will be handled by the parent component
-				// We'll use a custom event to communicate with the parent
 				const event = new CustomEvent("deleteUser", {
 					detail: row.original,
 				});
@@ -379,7 +370,39 @@ const columns: ColumnDef<User>[] = [
 	},
 ];
 
-export function DataTable({ data }: { data: User[] }) {
+interface DataTableProps {
+	data: User[];
+	total: number;
+	search: string;
+	setSearch: (v: string) => void;
+	role: string | undefined;
+	setRole: (v: string | undefined) => void;
+	condition: string | undefined;
+	setCondition: (v: string | undefined) => void;
+	placeOfAssignment: string | undefined;
+	setPlaceOfAssignment: (v: string | undefined) => void;
+	page: number;
+	setPage: (v: number) => void;
+	rowsPerPage: number;
+	setRowsPerPage: (v: number) => void;
+	loading: boolean;
+}
+
+export function DataTable({
+	data,
+	total,
+	search,
+	setSearch,
+	condition,
+	setCondition,
+	page,
+	setPage,
+	rowsPerPage,
+	setRowsPerPage,
+	loading,
+}: DataTableProps) {
+	// Debug: log the data prop
+	// console.log("[DataTable] data:", data);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
@@ -387,12 +410,7 @@ export function DataTable({ data }: { data: User[] }) {
 		[],
 	);
 	const [sorting, setSorting] = React.useState<SortingState>([]);
-	const [pagination, setPagination] = React.useState({
-		pageIndex: 0,
-		pageSize: 10,
-	});
 	const [tableData, setTableData] = React.useState<User[]>(data);
-	const [globalFilter, setGlobalFilter] = useState("");
 	const [editDialogOpen, setEditDialogOpen] = React.useState(false);
 	const [editingUser, setEditingUser] = React.useState<User | null>(null);
 	const [addDialogOpen, setAddDialogOpen] = React.useState(false);
@@ -434,8 +452,11 @@ export function DataTable({ data }: { data: User[] }) {
 			columnVisibility,
 			rowSelection,
 			columnFilters,
-			pagination,
-			globalFilter,
+			pagination: {
+				pageIndex: page - 1,
+				pageSize: rowsPerPage,
+			},
+			// Removed globalFilter
 		},
 		getRowId: (row) => row.id.toString(),
 		enableRowSelection: true,
@@ -443,15 +464,32 @@ export function DataTable({ data }: { data: User[] }) {
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
-		onPaginationChange: setPagination,
-		onGlobalFilterChange: setGlobalFilter,
+		onPaginationChange: (pagination) => {
+			// Handle both direct object and updater function
+			let pageIndex: number | undefined;
+			let pageSize: number | undefined;
+			if (typeof pagination === "function") {
+				// Not expected in our usage, but handle for type safety
+				const result = pagination({
+					pageIndex: page - 1,
+					pageSize: rowsPerPage,
+				});
+				pageIndex = result.pageIndex;
+				pageSize = result.pageSize;
+			} else {
+				pageIndex = pagination.pageIndex;
+				pageSize = pagination.pageSize;
+			}
+			if (typeof pageIndex === "number") setPage(pageIndex + 1);
+			if (typeof pageSize === "number") setRowsPerPage(pageSize);
+		},
+		// Removed onGlobalFilterChange
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
-		globalFilterFn: "includesString",
+		// Removed getFilteredRowModel and globalFilterFn
 		meta: {
 			onConditionChange: (id: string, newValue: string) => {
 				setTableData((prev) =>
@@ -574,8 +612,8 @@ export function DataTable({ data }: { data: User[] }) {
 						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
 							placeholder="Search users..."
-							value={globalFilter ?? ""}
-							onChange={(event) => setGlobalFilter(String(event.target.value))}
+							value={search}
+							onChange={(event) => setSearch(event.target.value)}
 							className="pl-9"
 						/>
 					</div>
@@ -592,22 +630,9 @@ export function DataTable({ data }: { data: User[] }) {
 								<DropdownMenuCheckboxItem
 									key={status}
 									className="capitalize"
-									checked={(
-										table.getColumn("condition")?.getFilterValue() as string[]
-									)?.includes(status)}
+									checked={condition === status}
 									onCheckedChange={(value) => {
-										const currentFilter =
-											(table
-												.getColumn("condition")
-												?.getFilterValue() as string[]) || [];
-										const newFilter = value
-											? [...currentFilter, status]
-											: currentFilter.filter((item) => item !== status);
-										table
-											.getColumn("condition")
-											?.setFilterValue(
-												newFilter.length ? newFilter : undefined,
-											);
+										setCondition(value ? status : undefined);
 									}}
 								>
 									{getConditionBadge(status)}
@@ -698,7 +723,7 @@ export function DataTable({ data }: { data: User[] }) {
 			)}
 
 			{/* Table */}
-			<div className="rounded-lg border bg-card">
+			<div className="relative rounded-lg border bg-card">
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
@@ -717,7 +742,18 @@ export function DataTable({ data }: { data: User[] }) {
 						))}
 					</TableHeader>
 					<TableBody>
-						{table.getRowModel().rows?.length ? (
+						{loading ? (
+							Array.from({ length: rowsPerPage }).map((_, i) => (
+								<TableRow key={`skeleton-row-${i + 1}`} className="border-none">
+									{columns.map((j) => (
+										<TableCell
+											key={`skeleton-cell-${i}-${j}`}
+											className="py-3"
+										></TableCell>
+									))}
+								</TableRow>
+							))
+						) : table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
@@ -745,22 +781,19 @@ export function DataTable({ data }: { data: User[] }) {
 						)}
 					</TableBody>
 				</Table>
+				{/* Optional: overlay spinner */}
+				{loading && (
+					<div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
+						<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
+					</div>
+				)}
 			</div>
 
 			{/* Pagination */}
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 				<div className="text-sm text-muted-foreground">
-					Showing{" "}
-					{table.getState().pagination.pageIndex *
-						table.getState().pagination.pageSize +
-						1}{" "}
-					to{" "}
-					{Math.min(
-						(table.getState().pagination.pageIndex + 1) *
-							table.getState().pagination.pageSize,
-						table.getFilteredRowModel().rows.length,
-					)}{" "}
-					of {table.getFilteredRowModel().rows.length} entries
+					Showing {(page - 1) * rowsPerPage + 1} to{" "}
+					{Math.min(page * rowsPerPage, total)} of {total} entries
 				</div>
 				<div className="flex items-center gap-6">
 					<div className="flex items-center gap-2">
@@ -768,8 +801,8 @@ export function DataTable({ data }: { data: User[] }) {
 							Rows per page
 						</Label>
 						<Select
-							value={`${table.getState().pagination.pageSize}`}
-							onValueChange={(value) => table.setPageSize(Number(value))}
+							value={`${rowsPerPage}`}
+							onValueChange={(value) => setRowsPerPage(Number(value))}
 						>
 							<SelectTrigger className="w-20" id="rows-per-page">
 								<SelectValue />
@@ -787,36 +820,35 @@ export function DataTable({ data }: { data: User[] }) {
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => table.setPageIndex(0)}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() => setPage(1)}
+							disabled={page === 1}
 						>
 							<ChevronsLeft className="h-4 w-4" />
 						</Button>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
+							onClick={() => setPage(page - 1)}
+							disabled={page === 1}
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
 						<div className="flex items-center gap-1 text-sm font-medium">
-							Page {table.getState().pagination.pageIndex + 1} of{" "}
-							{table.getPageCount()}
+							Page {page} of {Math.ceil(total / rowsPerPage)}
 						</div>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
+							onClick={() => setPage(page + 1)}
+							disabled={page >= Math.ceil(total / rowsPerPage)}
 						>
 							<ChevronRight className="h-4 w-4" />
 						</Button>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							disabled={!table.getCanNextPage()}
+							onClick={() => setPage(Math.ceil(total / rowsPerPage))}
+							disabled={page >= Math.ceil(total / rowsPerPage)}
 						>
 							<ChevronsRight className="h-4 w-4" />
 						</Button>
