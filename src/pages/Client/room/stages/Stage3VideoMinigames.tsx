@@ -1,9 +1,7 @@
-"use client";
-
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, GamepadIcon, Play } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { useQuestionStore } from "@/store/questionStore";
@@ -22,11 +20,26 @@ export default function Stage3VideoMinigames({
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
+
+	// Get the panel state from URL parameter, default to 'activities'
+	const currentPanel = searchParams.get("panel") || "activities";
+	const showGamesPanel = currentPanel === "games";
+
 	useEffect(() => {
 		setQuestion("Ready for some video and minigames?");
 	}, [setQuestion]);
 
-	const [showGamesPanel, setShowGamesPanel] = useState(false);
+	// Function to update URL parameter
+	const updatePanelState = (panel: "activities" | "games") => {
+		const newSearchParams = new URLSearchParams(searchParams);
+		if (panel === "activities") {
+			newSearchParams.delete("panel");
+		} else {
+			newSearchParams.set("panel", panel);
+		}
+		setSearchParams(newSearchParams);
+	};
 
 	const activities = [
 		{
@@ -142,7 +155,7 @@ export default function Stage3VideoMinigames({
 						<Button
 							variant="link"
 							className="mt-6 text-lg font-semibold text-gray-600 hover:text-gray-800"
-							onClick={() => setShowGamesPanel(false)}
+							onClick={() => updatePanelState("activities")}
 						>
 							<ArrowLeft className="w-5 h-5 mr-2" /> Back to Activities
 						</Button>
@@ -171,7 +184,7 @@ export default function Stage3VideoMinigames({
 								className="group cursor-pointer rounded-3xl"
 								onClick={
 									activity.title === "Mini Games"
-										? () => setShowGamesPanel(true)
+										? () => updatePanelState("games")
 										: undefined
 								}
 							>

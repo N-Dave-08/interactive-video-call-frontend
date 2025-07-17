@@ -30,6 +30,8 @@ export default function Stage5EmotionalExpressions({
 		setQuestion("How are you feeling today?");
 	}, [setQuestion]);
 
+	const [stepIndex, setStepIndex] = React.useState(0);
+
 	const emotions = [
 		{
 			value: "happy",
@@ -85,17 +87,19 @@ export default function Stage5EmotionalExpressions({
 		{
 			key: "emotions",
 			label: "Emotional Expressions",
+			completed: !!value, // Step is complete if emotion is selected
 		},
 		{
 			key: "bodymap",
 			label: "Body Map",
+			completed: stepIndex > 0, // Step is complete if we've moved past it
 		},
 		{
 			key: "drawingpad",
 			label: "Drawing Pad",
+			completed: stepIndex > 1, // Step is complete if we've moved past it
 		},
 	];
-	const [stepIndex, setStepIndex] = React.useState(0);
 	const currentStep = steps[stepIndex].key;
 
 	return (
@@ -106,17 +110,51 @@ export default function Stage5EmotionalExpressions({
 		>
 			<StageCardLayout>
 				{/* Progress Indicator */}
-				<div className="flex justify-center items-center gap-2 mb-6">
-					{steps.map((step, idx) => (
-						<div
-							key={step.key}
-							className={`h-2 rounded-full transition-all duration-300 ${
-								idx <= stepIndex
-									? "bg-gradient-to-r from-pink-400 to-purple-400 w-16"
-									: "bg-gray-200 w-8"
-							}`}
-						/>
-					))}
+				<div className="mb-8">
+					<div className="flex justify-center items-center gap-2 mb-4">
+						{steps.map((step, idx) => (
+							<button
+								type="button"
+								key={step.key}
+								onClick={() => setStepIndex(idx)}
+								disabled={idx > stepIndex}
+								className={`h-2 rounded-full transition-all duration-300 ${
+									step.completed
+										? "bg-gradient-to-r from-green-400 to-emerald-400 w-16 hover:w-20"
+										: idx <= stepIndex
+											? "bg-gradient-to-r from-pink-400 to-purple-400 w-16 hover:w-20"
+											: "bg-gray-200 w-8 cursor-not-allowed"
+								} ${idx <= stepIndex ? "cursor-pointer" : ""}`}
+							/>
+						))}
+					</div>
+					<div className="flex justify-between items-center px-2">
+						{steps.map((step, idx) => (
+							<button
+								type="button"
+								key={step.key}
+								onClick={() => setStepIndex(idx)}
+								disabled={idx > stepIndex}
+								className={`text-center transition-all duration-300 ${
+									step.completed
+										? "text-green-600 font-semibold hover:text-green-700"
+										: idx <= stepIndex
+											? "text-pink-600 font-semibold hover:text-pink-700"
+											: "text-gray-400 cursor-not-allowed"
+								} ${idx <= stepIndex ? "cursor-pointer" : ""}`}
+							>
+								<div className="text-xs font-medium flex items-center justify-center gap-1">
+									{step.label}
+									{step.completed && <span className="text-green-500">✓</span>}
+								</div>
+								<div className="text-xs opacity-75">
+									{idx === 0 && "Step 1"}
+									{idx === 1 && "Step 2"}
+									{idx === 2 && "Step 3"}
+								</div>
+							</button>
+						))}
+					</div>
 				</div>
 				{/* Step Content */}
 				{currentStep === "emotions" && (
