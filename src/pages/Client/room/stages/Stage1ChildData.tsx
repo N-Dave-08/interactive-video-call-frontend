@@ -25,7 +25,6 @@ export default function Stage1ChildData({
 	},
 	onChange = () => {},
 	onNext = () => {},
-	onBack = () => {},
 	loading = false,
 	error = "",
 }: {

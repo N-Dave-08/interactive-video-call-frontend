@@ -219,29 +219,18 @@ export default function SessionDetailPage() {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-3">
-										<div>
-											<span className="text-sm font-medium text-gray-700 mb-2 block">
-												Method
+								<div className="space-y-3">
+									<div>
+										<span className="text-sm font-medium text-gray-700 mb-2 block">
+											Drawing Data
+										</span>
+										<div className="flex items-center gap-2">
+											<Palette className="h-4 w-4 text-purple-600" />
+											<span className="text-sm text-gray-600">
+												{session.emotional_expression.drawing_data
+													? "Available"
+													: "None"}
 											</span>
-											<div className="bg-pink-50 text-pink-800 px-3 py-2 rounded-lg text-sm border border-pink-200">
-												{session.emotional_expression.method}
-											</div>
-										</div>
-
-										<div>
-											<span className="text-sm font-medium text-gray-700 mb-2 block">
-												Drawing Data
-											</span>
-											<div className="flex items-center gap-2">
-												<Palette className="h-4 w-4 text-purple-600" />
-												<span className="text-sm text-gray-600">
-													{session.emotional_expression.drawing_data
-														? "Available"
-														: "None"}
-												</span>
-											</div>
 										</div>
 									</div>
 								</div>
