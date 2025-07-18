@@ -1,5 +1,3 @@
-"use client";
-
 import { Icon } from "@iconify/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Calendar, Heart, Sparkles, Star, User } from "lucide-react";
