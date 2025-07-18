@@ -1,6 +1,7 @@
+import { Icon } from "@iconify/react";
 import { RotateCcw, Star } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MiniGameLayout from "../MiniGameLayout";
 
 const shapes = [
@@ -8,27 +9,32 @@ const shapes = [
 		id: "circle",
 		color: "from-blue-400 to-blue-600",
 		label: "Circle",
-		emoji: "🔵",
+		emoji: <Icon icon="fluent-emoji:blue-circle" />,
 	},
 	{
 		id: "square",
 		color: "from-green-400 to-green-600",
 		label: "Square",
-		emoji: "🟩",
+		emoji: <Icon icon="fluent-emoji:green-square" />,
 	},
 	{
 		id: "triangle",
 		color: "from-pink-400 to-pink-600",
 		label: "Triangle",
-		emoji: "🔺",
+		emoji: <Icon icon="fluent-emoji:red-triangle-pointed-up" />,
 	},
 	{
 		id: "star",
 		color: "from-yellow-400 to-yellow-600",
 		label: "Star",
-		emoji: "⭐",
+		emoji: <Icon icon="fluent-emoji:star" />,
 	},
-	{ id: "heart", color: "from-red-400 to-red-600", label: "Heart", emoji: "❤️" },
+	{
+		id: "heart",
+		color: "from-red-400 to-red-600",
+		label: "Heart",
+		emoji: <Icon icon="fluent-emoji:red-heart" />,
+	},
 ];
 
 function Shape({
@@ -182,7 +188,10 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 				className={`w-24 h-24 rounded-full border-4 border-dashed ${hoverClasses} transition-all duration-300 bg-white/50 backdrop-blur-sm`}
 			>
 				<div className="w-full h-full rounded-full flex items-center justify-center">
-					<span className="text-2xl opacity-50">🔵</span>
+					<Icon
+						icon="fluent-emoji:blue-circle"
+						className="text-2xl opacity-50"
+					/>
 				</div>
 			</div>
 		);
@@ -193,7 +202,10 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 				className={`w-24 h-24 border-4 border-dashed ${hoverClasses} transition-all duration-300 bg-white/50 backdrop-blur-sm rounded-lg`}
 			>
 				<div className="w-full h-full flex items-center justify-center">
-					<span className="text-2xl opacity-50">🟩</span>
+					<Icon
+						icon="fluent-emoji:green-square"
+						className="text-2xl opacity-50"
+					/>
 				</div>
 			</div>
 		);
@@ -211,14 +223,12 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 						strokeDasharray="12,8"
 						className="transition-all duration-300"
 					/>
-					<text
-						x="48"
-						y="60"
-						textAnchor="middle"
-						className="text-2xl opacity-50"
-					>
-						🔺
-					</text>
+					<foreignObject x="32" y="40" width="32" height="32">
+						<Icon
+							icon="fluent-emoji:red-triangle-pointed-up"
+							className="text-2xl opacity-50"
+						/>
+					</foreignObject>
 				</svg>
 			</div>
 		);
@@ -236,14 +246,9 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 						strokeDasharray="12,8"
 						className="transition-all duration-300"
 					/>
-					<text
-						x="48"
-						y="55"
-						textAnchor="middle"
-						className="text-2xl opacity-50"
-					>
-						⭐
-					</text>
+					<foreignObject x="32" y="32" width="32" height="32">
+						<Icon icon="fluent-emoji:star" className="text-2xl opacity-50" />
+					</foreignObject>
 				</svg>
 			</div>
 		);
@@ -261,14 +266,12 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 						strokeDasharray="12,8"
 						className="transition-all duration-300"
 					/>
-					<text
-						x="48"
-						y="55"
-						textAnchor="middle"
-						className="text-2xl opacity-50"
-					>
-						❤️
-					</text>
+					<foreignObject x="32" y="32" width="32" height="32">
+						<Icon
+							icon="fluent-emoji:red-heart"
+							className="text-2xl opacity-50"
+						/>
+					</foreignObject>
 				</svg>
 			</div>
 		);
@@ -280,12 +283,26 @@ function ShapeOutline({ id, isHovered }: { id: string; isHovered: boolean }) {
 
 // --- End AnimatedGradientBackground ---
 
+// Add sound effect paths
+const GRAB_SOUND = "/sound-effects/general/casual-click.mp3";
+const PLACE_SOUND = "/sound-effects/general/minimal-click.mp3";
+const CELEBRATION_SOUND = "/sound-effects/yay-celebration.mp3";
+
 export default function GentlePuzzle() {
 	const [placed, setPlaced] = useState<{ [k: string]: boolean }>({});
 	const [dragging, setDragging] = useState<string | null>(null);
 	const [hoveredTarget, setHoveredTarget] = useState<string | null>(null);
 	const [success, setSuccess] = useState(false);
 	const [animateId, setAnimateId] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (success) {
+			try {
+				const audio = new Audio(CELEBRATION_SOUND);
+				audio.play().catch(() => {});
+			} catch {}
+		}
+	}, [success]);
 
 	const handleDrop =
 		(shapeId: string) => (e: React.DragEvent<HTMLButtonElement>) => {
@@ -295,6 +312,12 @@ export default function GentlePuzzle() {
 				setDragging(null);
 				setHoveredTarget(null);
 				setAnimateId(shapeId);
+
+				// Play place sound
+				try {
+					const audio = new Audio(PLACE_SOUND);
+					audio.play().catch(() => {});
+				} catch {}
 
 				setTimeout(() => setAnimateId(null), 1000);
 				setTimeout(() => {
@@ -324,17 +347,36 @@ export default function GentlePuzzle() {
 						<div className="flex items-center justify-center gap-2 mb-2">
 							<Star className="text-yellow-400 animate-spin" size={28} />
 							<h2 className="text-2xl md:text-3xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-								🎯 Shape Sorting Adventure! 🎯
+								<Icon
+									icon="fluent-emoji:direct-hit"
+									className="inline w-7 h-7 mr-1 align-middle"
+								/>{" "}
+								Shape Sorting Adventure!{" "}
+								<Icon
+									icon="fluent-emoji:direct-hit"
+									className="inline w-7 h-7 ml-1 align-middle"
+								/>
 							</h2>
-							<Star className="text-yellow-400 animate-spin" size={28} />
 						</div>
 						<p className="text-base md:text-lg font-semibold text-purple-700 text-center mb-1">
-							🌟 Drag each colorful shape to its matching outline! 🌟
+							<Icon
+								icon="twemoji:bullseye"
+								className="inline w-6 h-6 mr-1 align-middle"
+							/>
+							Drag each colorful shape to its matching outline!
+							<Icon
+								icon="twemoji:bullseye"
+								className="inline w-6 h-6 ml-1 align-middle"
+							/>
 						</p>
 						<div className="flex items-center justify-center gap-2 mb-2">
 							<div className="bg-white rounded-full px-4 py-1 shadow border border-purple-200">
 								<span className="text-sm font-bold text-purple-600">
-									Progress: {completedCount} / {shapes.length} ✨
+									Progress: {completedCount} / {shapes.length}{" "}
+									<Icon
+										icon="fluent-emoji:sparkles"
+										className="inline w-4 h-4 align-middle"
+									/>
 								</span>
 							</div>
 						</div>
@@ -352,7 +394,7 @@ export default function GentlePuzzle() {
 					{/* Pick Area */}
 					<div>
 						<h3 className="text-lg font-bold text-center mb-2 text-purple-700">
-							🎨 Pick a Shape to Drag! 🎨
+							Pick a Shape to Drag!
 						</h3>
 						<div className="flex flex-wrap justify-center gap-6 p-2">
 							{shapes.map((shape) =>
@@ -361,7 +403,13 @@ export default function GentlePuzzle() {
 										<button
 											draggable
 											aria-label={`Drag ${shape.label}`}
-											onDragStart={() => setDragging(shape.id)}
+											onDragStart={() => {
+												setDragging(shape.id);
+												try {
+													const audio = new Audio(GRAB_SOUND);
+													audio.play().catch(() => {});
+												} catch {}
+											}}
 											onDragEnd={() => setDragging(null)}
 											className="cursor-grab active:cursor-grabbing focus:outline-none bg-transparent border-none p-2 rounded-2xl hover:bg-white/50 transition-all duration-300"
 											type="button"
@@ -383,7 +431,12 @@ export default function GentlePuzzle() {
 										key={shape.id}
 										className="w-24 h-24 flex items-center justify-center"
 									>
-										<div className="text-3xl animate-pulse">✨</div>
+										<div className="text-3xl animate-pulse">
+											<Icon
+												icon="fluent-emoji:sparkles"
+												className="inline w-8 h-8"
+											/>
+										</div>
 									</div>
 								),
 							)}
@@ -393,7 +446,7 @@ export default function GentlePuzzle() {
 					{/* Drop Area */}
 					<div>
 						<h3 className="text-lg font-bold text-center mb-2 text-purple-700">
-							🎯 Drop Shapes Here! 🎯
+							Drop Shapes Here!
 						</h3>
 						<div className="flex flex-wrap justify-center gap-6 p-2">
 							{shapes.map((shape) => (
@@ -438,13 +491,32 @@ export default function GentlePuzzle() {
 				{success && (
 					<div className="text-center mb-4 animate-bounce">
 						<div className="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl p-6 shadow-2xl border-4 border-white">
-							<div className="text-4xl mb-2">🎉</div>
-							<div className="text-2xl font-black mb-2">FANTASTIC JOB! 🌟</div>
+							<div className="text-4xl mb-2">
+								<Icon
+									icon="fluent-emoji:party-popper"
+									className="inline w-10 h-10"
+								/>
+							</div>
+							<div className="text-2xl font-black mb-2">
+								FANTASTIC JOB!{" "}
+								<Icon
+									icon="fluent-emoji:glowing-star"
+									className="inline w-7 h-7"
+								/>
+							</div>
 							<div className="text-lg font-bold">
-								You sorted all the shapes perfectly! 🎊
+								You sorted all the shapes perfectly!{" "}
+								<Icon
+									icon="fluent-emoji:confetti-ball"
+									className="inline w-7 h-7"
+								/>
 							</div>
 							<div className="flex justify-center gap-2 mt-2 text-xl">
-								⭐ 🎈 ⭐ 🎈 ⭐
+								<Icon icon="fluent-emoji:star" className="inline w-6 h-6" />{" "}
+								<Icon icon="fluent-emoji:balloon" className="inline w-6 h-6" />{" "}
+								<Icon icon="fluent-emoji:star" className="inline w-6 h-6" />{" "}
+								<Icon icon="fluent-emoji:balloon" className="inline w-6 h-6" />{" "}
+								<Icon icon="fluent-emoji:star" className="inline w-6 h-6" />
 							</div>
 						</div>
 					</div>
@@ -457,7 +529,15 @@ export default function GentlePuzzle() {
 						onClick={handleReset}
 						className="flex items-center gap-3 px-8 py-3 rounded-2xl bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white font-black text-lg shadow-2xl border-4 border-white hover:scale-105 transition-all duration-300 active:scale-95"
 					>
-						<RotateCcw size={20} />🔄 Try Again! 🔄
+						<Icon
+							icon="fluent-emoji:repeat-button"
+							className="inline w-6 h-6 mx-1"
+						/>
+						<RotateCcw size={20} /> Try Again!
+						<Icon
+							icon="fluent-emoji:repeat-button"
+							className="inline w-6 h-6 mx-1"
+						/>
 					</button>
 				</div>
 			</div>

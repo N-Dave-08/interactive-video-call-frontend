@@ -1,9 +1,12 @@
+import { Icon } from "@iconify/react";
 import { Sparkles, Star } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
 // You can replace this with your own pop sound asset
-const POP_SOUND = "/public/avatar-assets/sounds/click_select.mp3";
+const POP_SOUND = "/sound-effects/popping-bubbles/pop2.mp3";
+// Celebration sound asset
+const CELEBRATION_SOUND = "/sound-effects/yay-celebration.mp3";
 
 function randomBetween(min: number, max: number) {
 	return Math.random() * (max - min) + min;
@@ -63,6 +66,20 @@ export default function BubblePop() {
 			]);
 		}, 800);
 		return () => clearInterval(interval);
+	}, [gameOver]);
+
+	// Play celebration sound when game is finished
+	useEffect(() => {
+		if (gameOver) {
+			try {
+				const audio = new Audio(CELEBRATION_SOUND);
+				audio.play().catch(() => {});
+			} catch {
+				// Ignore audio errors
+			}
+		}
+		// Explicitly return void
+		return undefined;
 	}, [gameOver]);
 
 	// Remove bubbles that float out of view
@@ -157,20 +174,28 @@ export default function BubblePop() {
 					<div className="flex items-center gap-2 mb-4">
 						<Sparkles className="text-yellow-300 animate-spin" size={32} />
 						<h2 className="text-4xl font-black text-white drop-shadow-lg parent">
-							Bubble Pop Adventure! 🫧
+							Bubble Pop Adventure!{" "}
+							<Icon
+								icon="fluent-emoji:bubbles"
+								className="inline w-7 h-7 align-middle"
+							/>
 						</h2>
 						<Sparkles className="text-yellow-300 animate-spin" size={32} />
 					</div>
 
 					<div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border-4 border-white">
-						<p className="text-lg font-bold text-purple-600 text-center">
-							🎯 Pop the colorful bubbles! 🎯
+						<p className="text-lg font-bold text-purple-600 text-center flex items-center gap-2 justify-center">
+							<Icon icon="fluent-emoji:direct-hit" className="inline w-6 h-6" />{" "}
+							Pop the colorful bubbles!{" "}
+							<Icon icon="fluent-emoji:direct-hit" className="inline w-6 h-6" />
 						</p>
 					</div>
 
 					<div className="mt-4 bg-gradient-to-r from-green-400 to-blue-400 rounded-2xl px-8 py-4 shadow-lg border-4 border-white">
-						<div className="text-2xl font-black text-white text-center drop-shadow-md">
-							⭐ Score: {score} / {SCORE_GOAL} ⭐
+						<div className="text-2xl font-black text-white text-center drop-shadow-md flex items-center gap-2 justify-center">
+							<Icon icon="fluent-emoji:star" className="inline w-6 h-6" />{" "}
+							Score: {score} / {SCORE_GOAL}{" "}
+							<Icon icon="fluent-emoji:star" className="inline w-6 h-6" />
 						</div>
 						<div className="w-full bg-white/30 rounded-full h-3 mt-2">
 							<div
@@ -286,23 +311,35 @@ export default function BubblePop() {
 					{gameOver && (
 						<div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-yellow-300/95 to-pink-300/95 backdrop-blur-sm z-20 rounded-3xl border-4 border-white">
 							<div className="text-center space-y-4 animate-bounce">
-								<div className="text-6xl animate-pulse">🎉</div>
-								<div className="text-4xl font-black text-purple-600 drop-shadow-lg">
-									AMAZING! 🌟
+								<div className="text-6xl animate-pulse">
+									<Icon
+										icon="fluent-emoji:party-popper"
+										className="inline w-16 h-16"
+									/>
 								</div>
-								<div className="text-2xl font-bold text-blue-600">
-									You popped all {SCORE_GOAL} bubbles! 🫧
+								<div className="text-4xl font-black text-purple-600 drop-shadow-lg flex items-center gap-2 justify-center">
+									AMAZING!{" "}
+									<Icon
+										icon="fluent-emoji:glowing-star"
+										className="inline w-8 h-8"
+									/>
 								</div>
-								<div className="flex gap-2 text-3xl animate-pulse">
-									⭐ 🎊 ⭐ 🎊 ⭐
+								<div className="text-2xl font-bold text-blue-600 flex items-center gap-2 justify-center">
+									You popped all {SCORE_GOAL} bubbles!{" "}
+									<Icon
+										icon="fluent-emoji:bubbles"
+										className="inline w-7 h-7"
+									/>
 								</div>
 							</div>
 							<button
 								type="button"
 								onClick={handleReset}
-								className="mt-6 px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl font-black text-xl shadow-2xl border-4 border-white hover:scale-110 hover:rotate-3 transition-all duration-300 active:scale-95"
+								className="mt-6 px-8 py-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl font-black text-xl shadow-2xl border-4 border-white hover:scale-110 hover:rotate-3 transition-all duration-300 active:scale-95 flex items-center gap-2 justify-center"
 							>
-								🚀 Play Again! 🚀
+								<Icon icon="fluent-emoji:rocket" className="inline w-7 h-7" />{" "}
+								Play Again!{" "}
+								<Icon icon="fluent-emoji:rocket" className="inline w-7 h-7" />
 							</button>
 						</div>
 					)}
@@ -310,8 +347,10 @@ export default function BubblePop() {
 
 				{/* Fun footer message */}
 				<div className="mt-6 bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border-4 border-white">
-					<p className="text-lg font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-						🌈 Keep popping for fun! 🌈
+					<p className="text-lg font-bold text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2 justify-center">
+						<Icon icon="fluent-emoji:rainbow" className="inline w-7 h-7" /> Keep
+						popping for fun!{" "}
+						<Icon icon="fluent-emoji:rainbow" className="inline w-7 h-7" />
 					</p>
 				</div>
 			</div>
