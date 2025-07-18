@@ -1,5 +1,6 @@
 import { HeartHandshake, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import PrivacyProlicyModal from "./modals/privacy-policy-modal";
@@ -118,14 +119,14 @@ export default function Navbar() {
 								size="sm"
 								className={cn(isScrolled && "lg:hidden")}
 							>
-								<a href="/login">
+								<Link to="/login">
 									<span>Login</span>
-								</a>
+								</Link>
 							</Button>
 							<Button size="sm" className={cn(isScrolled && "lg:hidden")}>
-								<a href="/signup">
+								<Link to="/register">
 									<span>Sign Up</span>
-								</a>
+								</Link>
 							</Button>
 							<Button
 								size="sm"

@@ -1,78 +1,151 @@
-import { Copyright, HeartHandshake, Mail, Phone } from "lucide-react";
+import {
+	Copyright,
+	Facebook,
+	HeartHandshake,
+	Instagram,
+	Linkedin,
+	Mail,
+	MapPin,
+	Phone,
+	Twitter,
+} from "lucide-react";
 
 export default function Footer() {
 	return (
-		<footer className="text-white px-6 md:px-10 pt-10 pb-2 w-full">
-			<div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-10 md:gap-6 justify-between">
-				{/* Left: Logo and description */}
-				<div className="flex-1 min-w-[220px] flex flex-col items-start">
-					<div className="flex items-center gap-3 mb-3">
-						<HeartHandshake className="h-8 w-8" />
-						<span className="font-extrabold text-lg tracking-wide">
-							Prep Play
-						</span>
+		<footer className="bg-gray-900 text-white">
+			<div className="max-w-6xl mx-auto px-6 pt-16 pb-8">
+				<div className="grid md:grid-cols-4 gap-8 mb-12">
+					{/* Company Info */}
+					<div className="md:col-span-2">
+						<div className="flex items-center gap-3 mb-6">
+							<HeartHandshake className="h-8 w-8 text-indigo-400" />
+							<div>
+								<span className="font-bold text-xl">Prep Play</span>
+								<div className="text-sm text-gray-400">Consultancy</div>
+							</div>
+						</div>
+						<p className="text-gray-300 leading-relaxed mb-6 max-w-md">
+							Providing expert healthcare consultations and support for families
+							worldwide. Your trusted partner in maternal and child health.
+						</p>
+						<div className="flex gap-4">
+							<a
+								href="/"
+								className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors"
+							>
+								<Facebook className="w-5 h-5" />
+							</a>
+							<a
+								href="/"
+								className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors"
+							>
+								<Twitter className="w-5 h-5" />
+							</a>
+							<a
+								href="/"
+								className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors"
+							>
+								<Instagram className="w-5 h-5" />
+							</a>
+							<a
+								href="/"
+								className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-indigo-600 transition-colors"
+							>
+								<Linkedin className="w-5 h-5" />
+							</a>
+						</div>
 					</div>
-					<p className="text-sm text-white/80 leading-relaxed mb-4 max-w-xs">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-						eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-						ad minim veniam
-					</p>
-				</div>
-				{/* Center: Pages */}
-				<div className="flex-1 min-w-[180px] flex flex-col items-start">
-					<h4 className="font-bold mb-3 text-base">Pages</h4>
-					<ul className="space-y-2 text-sm">
-						<li>
-							<a
-								href="/"
-								className="hover:underline hover:text-accent transition-colors flex items-center gap-2"
-							>
-								<span>How it works</span>
-							</a>
-						</li>
-						<li>
-							<a
-								href="/"
-								className="hover:underline hover:text-accent transition-colors flex items-center gap-2"
-							>
-								<span>About</span>
-							</a>
-						</li>
-						<li>
-							<a
-								href="/"
-								className="hover:underline hover:text-accent transition-colors flex items-center gap-2"
-							>
-								<span>Privacy Policy</span>
-							</a>
-						</li>
-					</ul>
-				</div>
-				{/* Right: Contact */}
-				<div className="flex-1 min-w-[220px] flex flex-col items-start">
-					<div className="bg-white/10 border border-white/10 rounded-lg p-4 w-full">
-						<h4 className="font-bold mb-3 text-base">Contact Us!</h4>
-						<ul className="space-y-3 text-sm">
-							<li className="flex items-center gap-2">
-								<Phone className="size-4" />
-								<span>123 - 123 - 123</span>
+
+					{/* Quick Links */}
+					<div>
+						<h4 className="font-bold text-lg mb-6">Quick Links</h4>
+						<ul className="space-y-3">
+							<li>
+								<a
+									href="/"
+									className="text-gray-300 hover:text-white transition-colors"
+								>
+									How it works
+								</a>
 							</li>
-							<li className="flex items-center gap-2">
-								<Mail className="size-4" />
-								<span>example@gmail.com</span>
+							<li>
+								<a
+									href="/"
+									className="text-gray-300 hover:text-white transition-colors"
+								>
+									About Us
+								</a>
+							</li>
+							<li>
+								<a
+									href="/"
+									className="text-gray-300 hover:text-white transition-colors"
+								>
+									Services
+								</a>
+							</li>
+							<li>
+								<a
+									href="/"
+									className="text-gray-300 hover:text-white transition-colors"
+								>
+									Pricing
+								</a>
+							</li>
+							<li>
+								<a
+									href="/"
+									className="text-gray-300 hover:text-white transition-colors"
+								>
+									Privacy Policy
+								</a>
 							</li>
 						</ul>
 					</div>
+
+					{/* Contact Info */}
+					<div>
+						<h4 className="font-bold text-lg mb-6">Contact Us</h4>
+						<div className="space-y-4">
+							<div className="flex items-center gap-3">
+								<Phone className="w-5 h-5 text-indigo-400" />
+								<span className="text-gray-300">+1 (555) 123-4567</span>
+							</div>
+							<div className="flex items-center gap-3">
+								<Mail className="w-5 h-5 text-indigo-400" />
+								<span className="text-gray-300">hello@prepplay.com</span>
+							</div>
+							<div className="flex items-start gap-3">
+								<MapPin className="w-5 h-5 text-indigo-400 mt-1" />
+								<span className="text-gray-300">
+									123 Healthcare Ave
+									<br />
+									Medical District, NY 10001
+								</span>
+							</div>
+						</div>
+					</div>
 				</div>
-			</div>
-			{/* Bottom copyright */}
-			<div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-2 text-xs text-white/70 pt-6 border-t border-white/15 mt-8">
-				<span className="mb-1 md:mb-0">
-					&copy; {new Date().getFullYear()} Pre-Play. All rights reserved.
-				</span>
-				<div className="flex items-center gap-1">
-					<Copyright className="size-3" />
-					<span>Copyright</span>
+
+				{/* Bottom section */}
+				<div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+					<div className="flex items-center gap-2 text-gray-400">
+						<Copyright className="w-4 h-4" />
+						<span>
+							&copy; {new Date().getFullYear()} Prep Play. All rights reserved.
+						</span>
+					</div>
+					<div className="flex gap-6 text-sm text-gray-400">
+						<a href="/" className="hover:text-white transition-colors">
+							Terms of Service
+						</a>
+						<a href="/" className="hover:text-white transition-colors">
+							Privacy Policy
+						</a>
+						<a href="/" className="hover:text-white transition-colors">
+							Cookie Policy
+						</a>
+					</div>
 				</div>
 			</div>
 		</footer>

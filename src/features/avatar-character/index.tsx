@@ -1,33 +1,38 @@
-import { useState } from "react";
 import { TutorialCharacter } from "./character";
 
-export default function AvatarCharacter() {
-	const [isBottomRight, setIsBottomRight] = useState(false);
+export interface AvatarCharacterProps {
+	message: string;
+	showNext?: boolean;
+	showHint?: boolean;
+	onNext?: () => void;
+	onHint?: () => void;
+	bubblePosition?: "top" | "bottom" | "left" | "right";
+	size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+}
 
-	const handleNext = () => {
-		setIsBottomRight(true);
-	};
-
+export default function AvatarCharacter({
+	message,
+	showNext = false,
+	showHint = false,
+	onNext,
+	onHint,
+	bubblePosition = "left",
+	size = "2xl",
+}: AvatarCharacterProps) {
 	return (
-		<div
-			className={
-				isBottomRight
-					? "fixed bottom-10 right-10 z-50 flex items-end justify-end"
-					: "fixed inset-0 flex items-center justify-center z-50"
-			}
-			style={{ minHeight: "0" }}
-		>
+		<div className="pointer-events-auto">
 			<TutorialCharacter
 				name={""}
 				avatar="😃"
 				color="bg-indigo-300"
-				message={"Hello! Let's have some fun together."}
+				message={message}
 				type="hint"
-				bubblePosition={"left"}
-				size={isBottomRight ? "md" : "2xl"}
-				showNext={true}
-				onNext={handleNext}
-				showHint={true}
+				bubblePosition={bubblePosition}
+				size={size}
+				showNext={showNext}
+				onNext={onNext}
+				showHint={showHint}
+				onHint={onHint}
 				delay={200}
 			/>
 		</div>

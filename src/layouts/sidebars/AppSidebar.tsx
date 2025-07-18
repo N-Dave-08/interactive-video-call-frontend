@@ -7,10 +7,8 @@ import {
 	Pencil,
 	User,
 } from "lucide-react";
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
-
 import {
 	Sidebar,
 	SidebarContent,
@@ -24,60 +22,70 @@ import {
 	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
-import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
+// import { ChangeBackgroundSidebar } from "@/features/sidebar/change-background-sidebar";
+// import MusicPlayerSidebar from "@/features/sidebar/music-player-sidebar";
+import { useAuth } from "@/hooks/useAuth";
 
-// Menu items.
-const items = [
+// Menu items for client
+const clientItems = [
 	{
 		title: "Dashboard",
-		url: "/client/dashboard",
+		url: "/dashboard",
 		icon: LayoutDashboard,
 	},
 	{
 		title: "Profile",
-		url: "/client/profile",
+		url: "/profile",
 		icon: User,
 	},
 	{
 		title: "Schedule",
-		url: "/client/schedule",
+		url: "/schedule",
 		icon: Calendar,
 	},
 	{
 		title: "Mini Games",
-		url: "/client/mini-games",
+		url: "/mini-games",
 		icon: Gamepad,
 	},
 	{
 		title: "Drawing Pad",
-		url: "/client/drawing-pad",
+		url: "/drawing-pad",
 		icon: Pencil,
 	},
 	{
 		title: "Sessions",
-		url: "/client/sessions",
+		url: "/sessions",
 		icon: LibraryBig,
 	},
 ];
 
-const data = {
-	user: {
-		name: "example",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
+// Menu items for admin
+const adminItems = [
+	{
+		title: "Dashboard",
+		url: "/dashboard",
+		icon: LayoutDashboard,
 	},
-};
+	{
+		title: "Users",
+		url: "/users",
+		icon: User,
+	},
+];
 
-export default function ClientSidebar() {
-	const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
+export default function AppSidebar() {
+	// const [bgUrl, setBgUrl] = useState("/mountain-01.jpg");
 	const location = useLocation();
+	const { user } = useAuth();
+
+	const items = user?.role === "admin" ? adminItems : clientItems;
 
 	return (
 		<Sidebar>
 			<div
-				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none"
-				style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
+				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none bg-primary"
+				// style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
 			/>
 			<SidebarHeader>
 				<SidebarMenu>
@@ -88,7 +96,9 @@ export default function ClientSidebar() {
 						>
 							<div>
 								<HeartHandshake className="!size-5 text-primary z-50" />
-								<span className="text-base font-semibold z-50">Prep Play</span>
+								<span className="text-base font-semibold z-50">
+									{user?.role === "admin" ? "Admin Panel" : "Prep Play"}
+								</span>
 							</div>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
@@ -122,9 +132,15 @@ export default function ClientSidebar() {
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter>
-				<ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
-				<MusicPlayerSidebar className="border-none" />
-				<NavUser user={data.user} />
+				{/* <ChangeBackgroundSidebar setBgUrl={setBgUrl} currentBg={bgUrl} />
+				<MusicPlayerSidebar className="border-none" /> */}
+				<NavUser
+					user={{
+						name: user ? `${user.first_name} ${user.last_name}` : "No name",
+						email: user?.email || "no email",
+						avatar: "/avatars/shadcn.jpg",
+					}}
+				/>
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>

@@ -33,26 +33,24 @@ export function TutorialCharacter({
 	showHint = false,
 	onNext,
 	onHint,
-	speed = 40,
+	// speed = 40,
 	delay = 500,
 	className = "",
-	interactive = true,
+	// interactive = true,
 }: TutorialCharacterProps) {
-	const [isComplete, setIsComplete] = useState(false);
 	const [showButtons, setShowButtons] = useState(false);
-	const [showBubble, setShowBubble] = useState(true); // Show bubble immediately
+	const [showBubble] = useState(true); // Show bubble immediately
 	const [hasMounted, setHasMounted] = useState(false);
 
-	const handleComplete = () => {
-		setIsComplete(true);
-		setTimeout(() => setShowButtons(true), 300);
-	};
+	// const handleComplete = () => {
+	// 	setIsComplete(true);
+	// 	setTimeout(() => setShowButtons(true), 300);
+	// };
 
 	// Auto-show buttons after a delay
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			setIsComplete(true);
-			setTimeout(() => setShowButtons(true), 300);
+			setShowButtons(true);
 		}, delay + 1500); // Show buttons 1.5 seconds after component mounts
 
 		return () => clearTimeout(timer);
