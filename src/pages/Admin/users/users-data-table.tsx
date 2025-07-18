@@ -62,6 +62,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import SpinnerLoading from "@/components/ui/spinner-loading";
 import {
 	Table,
 	TableBody,
@@ -782,11 +783,7 @@ export function DataTable({
 					</TableBody>
 				</Table>
 				{/* Optional: overlay spinner */}
-				{loading && (
-					<div className="absolute inset-0 flex items-center justify-center bg-white/60 z-10">
-						<div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary" />
-					</div>
-				)}
+				{loading && <SpinnerLoading />}
 			</div>
 
 			{/* Pagination */}

@@ -20,7 +20,15 @@ interface SelectedParts {
 	[key: string]: { pain: boolean; touch: boolean };
 }
 
-const BodyMap: React.FC = () => {
+interface BodyMapProps {
+	onBodyPartClick?: (partId: string, view: "front" | "back") => void;
+	onSelectionChange?: (front: SelectedParts, back: SelectedParts) => void;
+}
+
+const BodyMap: React.FC<BodyMapProps> = ({
+	onBodyPartClick,
+	onSelectionChange,
+}) => {
 	const [frontSelectedParts, setFrontSelectedParts] = useState<SelectedParts>(
 		{},
 	);
@@ -183,14 +191,24 @@ const BodyMap: React.FC = () => {
 			view === "front" ? setFrontSelectedParts : setBackSelectedParts;
 		setSelected((prev) => {
 			const current = prev[partId] || { pain: false, touch: false };
-			return {
+			const updated = {
 				...prev,
 				[partId]: {
 					pain: mode === "pain" ? !current.pain : current.pain,
 					touch: mode === "touch" ? !current.touch : current.touch,
 				},
 			};
+			// Call onSelectionChange with updated state
+			if (onSelectionChange) {
+				if (view === "front") {
+					onSelectionChange(updated, backSelectedParts);
+				} else {
+					onSelectionChange(frontSelectedParts, updated);
+				}
+			}
+			return updated;
 		});
+		if (onBodyPartClick) onBodyPartClick(partId, view);
 	};
 
 	const clearAll = (): void => {

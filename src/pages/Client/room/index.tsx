@@ -1,4 +1,4 @@
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
 	Outlet,
@@ -8,9 +8,10 @@ import {
 	useSearchParams,
 } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
-import { Skeleton } from "@/components/ui/skeleton";
+import SpinnerLoading from "@/components/ui/spinner-loading";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
+import Stepper from "@/pages/Client/room/Stepper";
 import Stage1ChildData from "@/pages/Client/room/stages/Stage1ChildData";
 import Stage2AvatarData from "@/pages/Client/room/stages/Stage2AvatarData";
 import Stage3VideoMinigames from "@/pages/Client/room/stages/Stage3VideoMinigames";
@@ -18,7 +19,6 @@ import Stage4Other from "@/pages/Client/room/stages/Stage4Other";
 import Stage5EmotionalExpressions from "@/pages/Client/room/stages/Stage5EmotionalExpressions";
 import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNotesTags";
 import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
-import VerticalStepper from "@/pages/Client/room/VerticalStepper";
 import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types/sessions";
 
@@ -103,6 +103,9 @@ export default function Room() {
 						birthday: session.child_data.birthday ?? "",
 					});
 				}
+				if (session?.emotional_expression?.selected_feelings?.[0]) {
+					setEmotion(session.emotional_expression.selected_feelings[0]);
+				}
 				setInitialLoading(false);
 			} catch (err) {
 				console.error("Failed to restore session step:", err);
@@ -119,6 +122,9 @@ export default function Room() {
 		return saved === "true";
 	});
 
+	// Stepper hover state for Framer Motion
+	const [stepperHovered, setStepperHovered] = useState(false);
+
 	// Example state for form fields
 	const [childData, setChildData] = useState({
 		first_name: "",
@@ -133,15 +139,18 @@ export default function Room() {
 		clothes: "/avatar-assets/clothes/boy-uniform.png",
 		background: "/avatar-assets/bg/bg3.jpg",
 	});
-	const [emotion, setEmotion] = useState("neutral");
+	const [emotion, setEmotion] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [sessionNotes, setSessionNotes] = useState("");
 	const [tagsInput, setTagsInput] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
+	const [bodyMapAnnotations, setBodyMapAnnotations] = useState<string[]>([]);
+	const [drawingData, setDrawingData] = useState<string>("");
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
+		localStorage.removeItem("stage1-current-step"); // Clear stepper state for new session
 		setShowChildForm(true);
 		localStorage.setItem("showChildForm", "true");
 	};
@@ -282,6 +291,79 @@ export default function Room() {
 		}
 	};
 
+	// Handler to update emotion and persist to backend
+	const handleEmotionChange = async (newEmotion: string) => {
+		setEmotion(newEmotion);
+		if (session_id && user) {
+			try {
+				await updateSession(session_id, {
+					emotional_expression: {
+						method: "feeling",
+						drawing_data: "",
+						selected_feelings: [newEmotion],
+						body_map_annotations: [],
+					},
+				});
+			} catch (err) {
+				// Optionally handle error
+				console.error("Failed to update emotion:", err);
+			}
+		}
+	};
+
+	interface SelectedParts {
+		[key: string]: { pain: boolean; touch: boolean };
+	}
+
+	const handleBodyMapChange = async (
+		front: SelectedParts,
+		back: SelectedParts,
+	) => {
+		// Build string annotations like 'upperBack:pain'
+		const annotations: string[] = [];
+		for (const [part, sel] of Object.entries(front)) {
+			if (sel.pain) annotations.push(`${part}:pain`);
+			if (sel.touch) annotations.push(`${part}:touch`);
+		}
+		for (const [part, sel] of Object.entries(back)) {
+			if (sel.pain) annotations.push(`${part}:pain`);
+			if (sel.touch) annotations.push(`${part}:touch`);
+		}
+		setBodyMapAnnotations(annotations);
+		if (session_id && user) {
+			try {
+				await updateSession(session_id, {
+					emotional_expression: {
+						method: "bodymap",
+						drawing_data: drawingData,
+						selected_feelings: [emotion],
+						body_map_annotations: annotations,
+					},
+				});
+			} catch (err) {
+				console.error("Failed to update body map:", err);
+			}
+		}
+	};
+
+	const handleDrawingChange = async (drawingBase64: string) => {
+		setDrawingData(drawingBase64);
+		if (session_id && user) {
+			try {
+				await updateSession(session_id, {
+					emotional_expression: {
+						method: "drawing",
+						drawing_data: drawingBase64,
+						selected_feelings: [emotion],
+						body_map_annotations: bodyMapAnnotations, // now string[]
+					},
+				});
+			} catch (err) {
+				console.error("Failed to update drawing:", err);
+			}
+		}
+	};
+
 	useEffect(() => {
 		if (!showChildForm && step === 0) {
 			setQuestion("Hello! Let's have some fun together.");
@@ -303,22 +385,8 @@ export default function Room() {
 			<Outlet />
 			{!isMiniGameRoute && (
 				<>
-					{/* Skeleton Loader for initial loading */}
-					{initialLoading && (
-						<div className="flex flex-col items-center justify-center h-full w-full p-8">
-							<Skeleton className="w-2/3 h-8 mb-6" /> {/* Stepper skeleton */}
-							<div className="flex flex-row gap-8 w-full">
-								<Skeleton className="w-1/3 h-96 rounded-2xl" />{" "}
-								{/* Avatar/side skeleton */}
-								<div className="flex-1 flex flex-col gap-4">
-									<Skeleton className="w-full h-12 rounded-xl" />
-									<Skeleton className="w-full h-8 rounded-xl" />
-									<Skeleton className="w-full h-8 rounded-xl" />
-									<Skeleton className="w-full h-32 rounded-xl" />
-								</div>
-							</div>
-						</div>
-					)}
+					{/* Spinner Loader for initial loading */}
+					{initialLoading && <SpinnerLoading />}
 					{/* Error state */}
 					{!initialLoading && loadError && (
 						<div className="flex flex-col items-center justify-center h-full w-full p-8">
@@ -329,18 +397,34 @@ export default function Room() {
 					{!initialLoading && !loadError && (
 						<>
 							{/* Left: Vertical Stepper Overlay */}
-							<div className="fixed top-0 left-0 right-0 z-50 group">
-								<div className="bg-white/95 backdrop-blur-sm border-b border-white/20 shadow-lg transform -translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+							<div className="fixed top-0 left-0 right-0 z-50">
+								<motion.div
+									initial={{ y: "-100%" }}
+									animate={{ y: stepperHovered ? "0%" : "-100%" }}
+									transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
+									style={{ width: "100%" }}
+								>
 									<div className="max-w-4xl mx-auto px-8 py-4">
-										<VerticalStepper
-											steps={steps}
-											currentStep={step}
-											direction="horizontal"
-										/>
+										<Stepper steps={steps} currentStep={step} />
 									</div>
-								</div>
-								{/* Hover trigger area */}
-								<div className="h-4 bg-transparent"></div>
+								</motion.div>
+								{/* Hover trigger area (accessible) */}
+								<button
+									className="h-4 bg-transparent w-full p-0 m-0 border-none outline-none"
+									style={{
+										position: "absolute",
+										top: 0,
+										left: 0,
+										right: 0,
+										zIndex: 51,
+										cursor: "pointer",
+									}}
+									onMouseEnter={() => setStepperHovered(true)}
+									onMouseLeave={() => setStepperHovered(false)}
+									aria-label="Show stepper navigation"
+									tabIndex={0}
+									type="button"
+								/>
 							</div>
 							{/* Right: Form Content */}
 							<main className="flex-1 ml-0 flex flex-col p-8 h-10/12">
@@ -409,11 +493,13 @@ export default function Room() {
 								{step === 4 && (
 									<Stage5EmotionalExpressions
 										value={emotion}
-										onChange={setEmotion}
+										onChange={handleEmotionChange}
 										onNext={handleEmotionalExpressionsNext}
 										onBack={() => setStep(3)}
 										loading={loading}
 										error={error || undefined}
+										onBodyMapChange={handleBodyMapChange}
+										onDrawingComplete={handleDrawingChange}
 									/>
 								)}
 								{step === 5 && (

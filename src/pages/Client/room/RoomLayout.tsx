@@ -14,7 +14,7 @@ export default function RoomLayout({
 		<AvatarProvider>
 			<main className="h-screen w-full relative">
 				<div
-					className="absolute inset-0 bg-cover bg-center pointer-events-none z-0"
+					className="fixed inset-0 bg-cover bg-center pointer-events-none z-0"
 					style={{ backgroundImage: `url(${bgUrl})` }}
 				/>
 				<div className="relative z-10">{children}</div>

@@ -39,6 +39,16 @@ function getStatusColor(hasEndTime: boolean) {
 		: "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200";
 }
 
+function formatBodyMapAnnotation(annotation: string) {
+	const [part, type] = annotation.split(":");
+	// Convert camelCase or PascalCase to spaced words
+	const partLabel = part
+		.replace(/([A-Z])/g, " $1")
+		.replace(/^./, (str) => str.toUpperCase());
+	const typeLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
+	return `${partLabel.trim()}${typeLabel ? ` (${typeLabel})` : ""}`;
+}
+
 export default function SessionDetailPage() {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -279,7 +289,7 @@ export default function SessionDetailPage() {
 															className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 transition-colors"
 															variant="outline"
 														>
-															{annotation.replace(/_/g, " ")}
+															{formatBodyMapAnnotation(annotation)}
 														</Badge>
 													),
 												)

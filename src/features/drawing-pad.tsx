@@ -22,7 +22,15 @@ const colors = [
 	"#FFC0CB",
 ];
 
-export default function DrawingPad() {
+interface DrawingPadProps {
+	onComplete?: (drawingData: string) => void;
+	markCompleteTrigger?: boolean;
+}
+
+export default function DrawingPad({
+	onComplete,
+	markCompleteTrigger,
+}: DrawingPadProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [currentColor, setCurrentColor] = useState("#000000");
@@ -114,6 +122,19 @@ export default function DrawingPad() {
 		link.href = canvas.toDataURL();
 		link.click();
 	}, []);
+
+	const getBase64 = useCallback(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return "";
+		return canvas.toDataURL("image/png");
+	}, []);
+
+	// Call onComplete when markCompleteTrigger changes to true
+	useEffect(() => {
+		if (markCompleteTrigger && onComplete) {
+			onComplete(getBase64());
+		}
+	}, [markCompleteTrigger, getBase64, onComplete]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
