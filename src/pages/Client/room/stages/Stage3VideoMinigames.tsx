@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, GamepadIcon, Play } from "lucide-react";
 import { useEffect } from "react";
@@ -47,33 +48,33 @@ export default function Stage3VideoMinigames({
 			description: "Watch exciting educational videos",
 			icon: Play,
 			color: "from-purple-400 to-pink-400",
-			emoji: "🎬",
+			emoji: <Icon icon="fluent-emoji:clapper-board" className="text-2xl" />,
 		},
 		{
 			title: "Mini Games",
 			description: "Play interactive learning games",
 			icon: GamepadIcon,
 			color: "from-teal-400 to-blue-400",
-			emoji: "🎮",
+			emoji: <Icon icon="fluent-emoji:video-game" className="text-2xl" />,
 		},
 	];
 
 	const miniGames = [
 		{
 			name: "Flappy Bird",
-			icon: "🐦",
+			icon: <Icon icon="fluent-emoji:bird" className="text-5xl mb-4" />,
 		},
 		{
 			name: "Snake",
-			icon: "🐍",
+			icon: <Icon icon="fluent-emoji:snake" className="text-5xl mb-4" />,
 		},
 		{
 			name: "Gentle Puzzle",
-			icon: "🧩",
+			icon: <Icon icon="mdi:puzzle" className="text-5xl mb-4 text-green-400" />,
 		},
 		{
 			name: "Bubble Pop",
-			icon: "🫧",
+			icon: <Icon icon="fluent-emoji:bubbles" className="text-5xl mb-4" />,
 		},
 	];
 
@@ -142,7 +143,7 @@ export default function Stage3VideoMinigames({
 										/>
 										<Card className="relative flex flex-col items-center justify-center p-6 text-center rounded-3xl border-2 border-blue-200 group-hover:border-blue-400 bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300">
 											<CardContent className="p-0 flex flex-col items-center">
-												<span className="text-5xl mb-4">{game.icon}</span>
+												{game.icon}
 												<CardTitle className="text-xl font-extrabold text-gray-800">
 													{game.name}
 												</CardTitle>

@@ -244,9 +244,9 @@ export default function Room() {
 			await updateSession(session_id, {
 				emotional_expression: {
 					method: "drawing",
-					drawing_data: "base64encodedstringhere",
+					drawing_data: drawingData, // Use the actual drawing data
 					selected_feelings: [emotion],
-					body_map_annotations: [],
+					body_map_annotations: bodyMapAnnotations,
 				},
 				stage: "Stage 6",
 			});
@@ -292,24 +292,24 @@ export default function Room() {
 	};
 
 	// Handler to update emotion and persist to backend
-	const handleEmotionChange = async (newEmotion: string) => {
-		setEmotion(newEmotion);
-		if (session_id && user) {
-			try {
-				await updateSession(session_id, {
-					emotional_expression: {
-						method: "feeling",
-						drawing_data: "",
-						selected_feelings: [newEmotion],
-						body_map_annotations: [],
-					},
-				});
-			} catch (err) {
-				// Optionally handle error
-				console.error("Failed to update emotion:", err);
-			}
-		}
-	};
+	// const handleEmotionChange = async (newEmotion: string) => {
+	// 	setEmotion(newEmotion);
+	// 	if (session_id && user) {
+	// 		try {
+	// 			await updateSession(session_id, {
+	// 				emotional_expression: {
+	// 					method: "feeling",
+	// 					drawing_data: "",
+	// 					selected_feelings: [newEmotion],
+	// 					body_map_annotations: [],
+	// 				},
+	// 			});
+	// 		} catch (err) {
+	// 			// Optionally handle error
+	// 			console.error("Failed to update emotion:", err);
+	// 		}
+	// 	}
+	// };
 
 	interface SelectedParts {
 		[key: string]: { pain: boolean; touch: boolean };
@@ -346,23 +346,23 @@ export default function Room() {
 		}
 	};
 
-	const handleDrawingChange = async (drawingBase64: string) => {
-		setDrawingData(drawingBase64);
-		if (session_id && user) {
-			try {
-				await updateSession(session_id, {
-					emotional_expression: {
-						method: "drawing",
-						drawing_data: drawingBase64,
-						selected_feelings: [emotion],
-						body_map_annotations: bodyMapAnnotations, // now string[]
-					},
-				});
-			} catch (err) {
-				console.error("Failed to update drawing:", err);
-			}
-		}
-	};
+	// const handleDrawingChange = async (drawingBase64: string) => {
+	// 	setDrawingData(drawingBase64);
+	// 	if (session_id && user) {
+	// 		try {
+	// 			await updateSession(session_id, {
+	// 				emotional_expression: {
+	// 					method: "drawing",
+	// 					drawing_data: drawingBase64,
+	// 					selected_feelings: [emotion],
+	// 					body_map_annotations: bodyMapAnnotations, // now string[]
+	// 				},
+	// 			});
+	// 		} catch (err) {
+	// 			console.error("Failed to update drawing:", err);
+	// 		}
+	// 	}
+	// };
 
 	useEffect(() => {
 		if (!showChildForm && step === 0) {
@@ -427,7 +427,7 @@ export default function Room() {
 								/>
 							</div>
 							{/* Right: Form Content */}
-							<main className="flex-1 ml-0 flex flex-col p-8 h-10/12">
+							<main className="flex-1 ml-0 flex flex-col h-10/12">
 								{/* Avatar and speech bubble */}
 								{step !== 6 && (
 									<motion.div
@@ -493,13 +493,13 @@ export default function Room() {
 								{step === 4 && (
 									<Stage5EmotionalExpressions
 										value={emotion}
-										onChange={handleEmotionChange}
+										onChange={setEmotion}
 										onNext={handleEmotionalExpressionsNext}
 										onBack={() => setStep(3)}
 										loading={loading}
 										error={error || undefined}
 										onBodyMapChange={handleBodyMapChange}
-										onDrawingComplete={handleDrawingChange}
+										onDrawingComplete={setDrawingData} // Pass this to capture the drawing
 									/>
 								)}
 								{step === 5 && (

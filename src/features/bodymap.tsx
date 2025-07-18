@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { RotateCcw } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
@@ -258,6 +259,7 @@ const BodyMap: React.FC<BodyMapProps> = ({
 			{/* Mode Selection */}
 			<div className="flex gap-2 mb-4 justify-center">
 				<button
+					type="button"
 					onClick={() => setMode("pain")}
 					className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
 						mode === "pain"
@@ -265,9 +267,14 @@ const BodyMap: React.FC<BodyMapProps> = ({
 							: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 					}`}
 				>
-					😢 Pain/Hurt
+					<Icon
+						icon="fluent-emoji:crying-face"
+						className="inline w-5 h-5 mr-1 align-middle"
+					/>{" "}
+					Pain/Hurt
 				</button>
 				<button
+					type="button"
 					onClick={() => setMode("touch")}
 					className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
 						mode === "touch"
@@ -275,7 +282,11 @@ const BodyMap: React.FC<BodyMapProps> = ({
 							: "bg-gray-200 text-gray-700 hover:bg-gray-300"
 					}`}
 				>
-					✋ Touch
+					<Icon
+						icon="fluent-emoji:raised-hand"
+						className="inline w-5 h-5 mr-1 align-middle"
+					/>{" "}
+					Touch
 				</button>
 			</div>
 
@@ -413,6 +424,7 @@ const BodyMap: React.FC<BodyMapProps> = ({
 			{/* Controls */}
 			<div className="flex justify-between items-center mb-4">
 				<button
+					type="button"
 					onClick={clearAll}
 					className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
 				>
@@ -501,7 +513,17 @@ const BodyMap: React.FC<BodyMapProps> = ({
 											: "bg-green-100 text-green-800"
 									}`}
 								>
-									{type === "pain" ? "😢" : "✋"}
+									{type === "pain" ? (
+										<Icon
+											icon="fluent-emoji:crying-face"
+											className="inline w-4 h-4 align-middle"
+										/>
+									) : (
+										<Icon
+											icon="fluent-emoji:raised-hand"
+											className="inline w-4 h-4 align-middle"
+										/>
+									)}
 								</span>
 								<span>
 									{name} ({view})

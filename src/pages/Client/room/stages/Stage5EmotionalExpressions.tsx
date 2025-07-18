@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import {
 	ArrowLeft,
@@ -54,7 +55,12 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "happy",
 			label: "Happy",
-			emoji: "😊",
+			emoji: (
+				<Icon
+					icon="fluent-emoji:smiling-face-with-smiling-eyes"
+					className="text-4xl"
+				/>
+			),
 			color: "from-yellow-300 via-yellow-400 to-orange-400",
 			bgColor: "bg-yellow-100",
 			borderColor: "border-yellow-300",
@@ -62,7 +68,7 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "excited",
 			label: "Excited",
-			emoji: "🤩",
+			emoji: <Icon icon="fluent-emoji:star-struck" className="text-4xl" />,
 			color: "from-pink-300 via-pink-400 to-red-400",
 			bgColor: "bg-pink-100",
 			borderColor: "border-pink-300",
@@ -70,7 +76,7 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "calm",
 			label: "Calm",
-			emoji: "😌",
+			emoji: <Icon icon="fluent-emoji:relieved-face" className="text-4xl" />,
 			color: "from-blue-300 via-blue-400 to-cyan-400",
 			bgColor: "bg-blue-100",
 			borderColor: "border-blue-300",
@@ -78,7 +84,7 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "curious",
 			label: "Curious",
-			emoji: "🤔",
+			emoji: <Icon icon="fluent-emoji:thinking-face" className="text-4xl" />,
 			color: "from-purple-300 via-purple-400 to-violet-400",
 			bgColor: "bg-purple-100",
 			borderColor: "border-purple-300",
@@ -86,7 +92,12 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "proud",
 			label: "Proud",
-			emoji: "😎",
+			emoji: (
+				<Icon
+					icon="fluent-emoji:smiling-face-with-sunglasses"
+					className="text-4xl"
+				/>
+			),
 			color: "from-green-300 via-green-400 to-emerald-400",
 			bgColor: "bg-green-100",
 			borderColor: "border-green-300",
@@ -94,7 +105,12 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "nervous",
 			label: "Nervous",
-			emoji: "😰",
+			emoji: (
+				<Icon
+					icon="fluent-emoji:anxious-face-with-sweat"
+					className="text-4xl"
+				/>
+			),
 			color: "from-gray-300 via-gray-400 to-slate-400",
 			bgColor: "bg-gray-100",
 			borderColor: "border-gray-300",
@@ -102,7 +118,7 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "sad",
 			label: "Sad",
-			emoji: "😢",
+			emoji: <Icon icon="fluent-emoji:crying-face" className="text-4xl" />,
 			color: "from-blue-200 via-blue-300 to-blue-500",
 			bgColor: "bg-blue-50",
 			borderColor: "border-blue-200",
@@ -110,7 +126,7 @@ export default function Stage5EmotionalExpressions({
 		{
 			value: "angry",
 			label: "Angry",
-			emoji: "😠",
+			emoji: <Icon icon="fluent-emoji:angry-face" className="text-4xl" />,
 			color: "from-red-300 via-red-400 to-red-600",
 			bgColor: "bg-red-100",
 			borderColor: "border-red-300",
@@ -178,7 +194,11 @@ export default function Stage5EmotionalExpressions({
 								How are you feeling?
 							</h2>
 							<p className="text-gray-600 text-lg font-medium">
-								Pick the emoji that shows how you feel right now! ✨
+								Pick the emoji that shows how you feel right now!{" "}
+								<Icon
+									icon="fluent-emoji:sparkles"
+									className="inline w-5 h-5 align-middle"
+								/>
 							</p>
 						</motion.div>
 
@@ -206,7 +226,7 @@ export default function Stage5EmotionalExpressions({
 										}}
 										whileTap={{ scale: 0.95 }}
 										onClick={() => onChange(emotion.value)}
-										className={`p-6 rounded-3xl border-3 transition-all duration-300 relative overflow-hidden ${
+										className={`p-6 rounded-3xl border-3 transition-all duration-300 relative overflow-hidden min-h-[120px] flex flex-col items-center justify-center gap-2 ${
 											value === emotion.value
 												? `${emotion.borderColor} ${emotion.bgColor} shadow-xl transform scale-105`
 												: "border-gray-200 bg-white hover:border-pink-300 hover:bg-pink-25 shadow-md"
@@ -221,15 +241,12 @@ export default function Stage5EmotionalExpressions({
 												<Check className="w-4 h-4 text-white" />
 											</motion.div>
 										)}
-										<div className="text-center">
-											<motion.div
-												className="text-4xl mb-3"
-												whileHover={{ scale: 1.2, rotate: 10 }}
-												transition={{ type: "spring", stiffness: 300 }}
-											>
+										{/* Centered icon and label */}
+										<div className="flex flex-col items-center justify-center flex-1">
+											<div className="mb-2 flex items-center justify-center">
 												{emotion.emoji}
-											</motion.div>
-											<div className="text-sm font-bold text-gray-700">
+											</div>
+											<div className="text-sm font-bold text-gray-700 text-center">
 												{emotion.label}
 											</div>
 										</div>
@@ -256,24 +273,23 @@ export default function Stage5EmotionalExpressions({
 									>
 										<Sparkles className="w-5 h-5 text-purple-400" />
 									</motion.div>
-									<motion.div
-										className="text-5xl mb-3"
-										animate={{ scale: [1, 1.1, 1] }}
-										transition={{
-											duration: 2,
-											repeat: Number.POSITIVE_INFINITY,
-										}}
-									>
-										{emotions.find((e) => e.value === value)?.emoji}
-									</motion.div>
-									<p className="text-lg text-purple-700 font-bold">
-										You're feeling{" "}
-										<span className="text-pink-600">
-											{emotions
-												.find((e) => e.value === value)
-												?.label.toLowerCase()}
+									<p className="text-lg text-purple-700 font-bold flex items-center justify-center gap-4">
+										<span className="text-4xl">
+											{emotions.find((e) => e.value === value)?.emoji}
 										</span>
-										! That's perfectly okay! 💖
+										<span>
+											You're feeling{" "}
+											<span className="text-pink-600">
+												{emotions
+													.find((e) => e.value === value)
+													?.label.toLowerCase()}
+											</span>
+											! That's perfectly okay!{" "}
+											<Icon
+												icon="fluent-emoji:sparkling-heart"
+												className="inline w-5 h-5 align-middle"
+											/>
+										</span>
 									</p>
 								</div>
 							</motion.div>
@@ -289,7 +305,11 @@ export default function Stage5EmotionalExpressions({
 							className="mb-6"
 						>
 							<h3 className="text-2xl font-bold text-purple-600 mb-2">
-								Body Map Adventure! 🗺️
+								Body Map Adventure!{" "}
+								<Icon
+									icon="fluent-emoji:world-map"
+									className="inline w-7 h-7 mr-1 align-middle"
+								/>
 							</h3>
 							<p className="text-gray-600">
 								Show us where you feel things in your body!
@@ -323,7 +343,11 @@ export default function Stage5EmotionalExpressions({
 							className="mb-6"
 						>
 							<h3 className="text-2xl font-bold text-purple-600 mb-2">
-								Drawing Time! 🎨
+								Drawing Time!{" "}
+								<Icon
+									icon="fluent-emoji:artist-palette"
+									className="inline w-7 h-7 mr-1 align-middle"
+								/>
 							</h3>
 							<p className="text-gray-600">Draw how you're feeling today!</p>
 						</motion.div>
@@ -335,12 +359,16 @@ export default function Stage5EmotionalExpressions({
 							{!drawingPadComplete ? (
 								<motion.button
 									type="button"
-									className="mt-6 px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold text-lg border-3 border-pink-300 hover:from-pink-500 hover:to-purple-500 transition-all duration-300 shadow-lg"
+									className="mt-6 px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold text-lg border-3 border-pink-300 hover:from-pink-500 hover:to-purple-500 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
 									onClick={() => setDrawingPadComplete(true)}
 									whileHover={{ scale: 1.05, y: -2 }}
 									whileTap={{ scale: 0.95 }}
 								>
-									🎨 Mark Drawing as Complete!
+									<Icon
+										icon="fluent-emoji:artist-palette"
+										className="inline w-6 h-6 mr-1 align-middle"
+									/>
+									Mark Drawing as Complete!
 								</motion.button>
 							) : (
 								<motion.div
@@ -349,7 +377,11 @@ export default function Stage5EmotionalExpressions({
 									className="text-lg text-green-600 mt-4 flex items-center justify-center gap-2 font-bold"
 								>
 									<Check className="w-6 h-6 bg-green-100 rounded-full p-1" />
-									Drawing Complete! Amazing work! 🌟
+									Drawing Complete! Amazing work!{" "}
+									<Icon
+										icon="fluent-emoji:glowing-star"
+										className="inline w-5 h-5 align-middle"
+									/>
 								</motion.div>
 							)}
 						</div>
@@ -363,15 +395,30 @@ export default function Stage5EmotionalExpressions({
 	const tabs: {
 		id: "feelings" | "bodymap" | "drawingpad";
 		label: string;
-		emoji: string;
+		emoji: React.ReactNode;
 		complete: boolean;
 	}[] = [
-		{ id: "feelings", label: "Feelings", emoji: "😊", complete: !!value },
-		{ id: "bodymap", label: "Body Map", emoji: "🗺️", complete: bodyMapComplete },
+		{
+			id: "feelings",
+			label: "Feelings",
+			emoji: (
+				<Icon
+					icon="fluent-emoji:smiling-face-with-smiling-eyes"
+					className="text-xl"
+				/>
+			),
+			complete: !!value,
+		},
+		{
+			id: "bodymap",
+			label: "Body Map",
+			emoji: <Icon icon="fluent-emoji:world-map" className="text-xl" />,
+			complete: bodyMapComplete,
+		},
 		{
 			id: "drawingpad",
 			label: "Drawing",
-			emoji: "🎨",
+			emoji: <Icon icon="fluent-emoji:artist-palette" className="text-xl" />,
 			complete: drawingPadComplete,
 		},
 	];
@@ -442,7 +489,7 @@ export default function Stage5EmotionalExpressions({
 						<Button
 							type="button"
 							onClick={onNext}
-							className="px-8 py-4 text-lg font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-3 border-pink-400"
+							className="px-8 py-4 text-lg font-black bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 text-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border-3 border-pink-400 flex items-center justify-center gap-2"
 							disabled={!allComplete || loading}
 						>
 							{loading ? (
@@ -458,7 +505,17 @@ export default function Stage5EmotionalExpressions({
 							) : (
 								<ArrowRight className="w-6 h-6 mr-2" />
 							)}
-							{loading ? "Saving..." : "🎉 Share My Feelings!"}
+							{loading ? (
+								"Saving..."
+							) : (
+								<>
+									<Icon
+										icon="fluent-emoji:party-popper"
+										className="inline w-6 h-6 mr-2 align-middle"
+									/>
+									Share My Feelings!
+								</>
+							)}
 						</Button>
 					</motion.div>
 				</div>

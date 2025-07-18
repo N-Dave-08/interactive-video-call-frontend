@@ -233,6 +233,19 @@ export default function SessionDetailPage() {
 											</span>
 										</div>
 									</div>
+									{session.emotional_expression.drawing_data && (
+										<div className="mt-2">
+											<img
+												src={session.emotional_expression.drawing_data}
+												alt="User Drawing"
+												style={{
+													maxWidth: "100%",
+													borderRadius: "8px",
+													border: "1px solid #eee",
+												}}
+											/>
+										</div>
+									)}
 								</div>
 
 								<Separator />

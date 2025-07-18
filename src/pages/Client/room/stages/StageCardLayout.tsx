@@ -14,10 +14,10 @@ export default function StageCardLayout({
 }: StageCardLayoutProps) {
 	return (
 		<Card
-			className={`bg-white/60 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden flex flex-col h-full w-3/4 mx-auto ${cardClassName}`}
+			className={`bg-white/60 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden flex flex-col h-full w-3/4 mx-auto my-4 ${cardClassName}`}
 		>
 			<CardContent
-				className={`py-4 px-10 flex-1 flex flex-col justify-between ${cardContentClassName}`}
+				className={`px-10 flex-1 flex flex-col justify-between ${cardContentClassName}`}
 			>
 				{children}
 			</CardContent>
