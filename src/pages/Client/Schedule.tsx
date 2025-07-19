@@ -1,3 +1,13 @@
+import CalendarSchedule from "@/features/CalendarSchedule";
+import { useAuth } from "@/hooks/useAuth";
+
 export default function SchedulePage() {
-	return <div>Schedule</div>;
+	const { user } = useAuth();
+
+	return (
+		<div>
+			Schedule
+			<CalendarSchedule socialWorkerId={user?.id || ""} />
+		</div>
+	);
 }
