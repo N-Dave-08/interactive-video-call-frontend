@@ -26,6 +26,7 @@ import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import SpinnerLoading from "@/components/ui/spinner-loading";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
 import type { Session } from "@/types/sessions";
@@ -157,11 +158,7 @@ export default function SessionCalendar({
 	};
 
 	if (loading) {
-		return (
-			<div className="flex items-center justify-center h-64">
-				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-			</div>
-		);
+		return <SpinnerLoading />;
 	}
 
 	if (error) {
