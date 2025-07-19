@@ -73,7 +73,7 @@ export default function SessionCalendar({
 		return sessions.filter((session) => {
 			try {
 				return isSameDay(parseISO(session.start_time), date);
-			} catch (e) {
+			} catch {
 				console.error("Invalid date format for session:", session.start_time);
 				return false;
 			}
@@ -86,7 +86,7 @@ export default function SessionCalendar({
 		return sessions.filter((session) => {
 			try {
 				return isWithinInterval(parseISO(session.start_time), { start, end });
-			} catch (e) {
+			} catch {
 				console.error("Invalid date format for session:", session.start_time);
 				return false;
 			}
@@ -98,7 +98,7 @@ export default function SessionCalendar({
 		return sessions.filter((session) => {
 			try {
 				return isFuture(parseISO(session.start_time));
-			} catch (e) {
+			} catch {
 				console.error("Invalid date format for session:", session.start_time);
 				return false;
 			}
@@ -122,7 +122,7 @@ export default function SessionCalendar({
 	const formatSessionTime = (dateString: string): string => {
 		try {
 			return format(parseISO(dateString), "h:mm a");
-		} catch (e) {
+		} catch {
 			console.error("Invalid date format:", dateString);
 			return "";
 		}
@@ -228,7 +228,8 @@ export default function SessionCalendar({
 								const isSelected = selectedDate && isSameDay(day, selectedDate);
 								const isCurrentMonth = isSameMonth(day, currentDate);
 								return (
-									<div
+									<button
+										type="button"
 										key={day.toISOString()}
 										className={cn(
 											"min-h-[100px] p-1 border rounded-lg cursor-pointer transition-colors hover:bg-accent/50",
@@ -269,7 +270,7 @@ export default function SessionCalendar({
 												</div>
 											)}
 										</div>
-									</div>
+									</button>
 								);
 							})}
 						</div>

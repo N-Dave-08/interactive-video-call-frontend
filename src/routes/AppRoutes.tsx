@@ -10,7 +10,7 @@ import ClientDashboard from "@/pages/Client/dashboard";
 import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/room";
 import RoomLayout from "@/pages/Client/room/RoomLayout";
-import SchedulePage from "@/pages/Client/Schedule";
+import SchedulePage from "@/pages/Client/schedule";
 import SessionsPage from "@/pages/Client/sessions";
 import SessionDetailPage from "@/pages/Client/sessions/session-detail";
 import LandingPage from "@/pages/Landing";
