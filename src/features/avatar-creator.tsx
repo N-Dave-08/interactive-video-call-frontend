@@ -71,26 +71,14 @@ export default function AvatarCreator({
 		audio.play().catch(() => {}); // Ignore errors if audio fails
 	};
 
-	// useEffect(() => {
-	// 	const audio = new Audio("/avatar-assets/sounds/you_made_it.mp3");
-	// 	audio.play().catch(() => {}); // Ignore errors if audio fails
-	// }, []);
-
 	// Default values from your options
 	const defaultHead = "/avatar-assets/heads/default-head-clear.png";
 	const defaultHair = "/avatar-assets/hairs/HairB1.png";
 	const defaultExpression = "/avatar-assets/expressions/F1.png";
 	const defaultClothes = "/avatar-assets/clothes/boy-uniform.png";
 
-	// Remove internal state for selectedHead, selectedHair, selectedExpression, selectedClothes, selectedBackground
-	// Use props instead
-	// Update handleOptionSelect, handleRandomize, handleReset, handleNextBackground, handlePrevBackground to call onChange with new values
-
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [activeTab, setActiveTab] = useState("head");
-
-	// Remove internal state for selectedBackground
-	// Use props instead
 
 	useEffect(() => {
 		const timer = setTimeout(() => setIsLoaded(true), 100);
@@ -208,28 +196,6 @@ export default function AvatarCreator({
 			/>
 
 			<div className="relative z-10 max-w-7xl mx-auto px-6">
-				{/* Header */}
-				{/* <div
-					className={`text-center mb-8 transition-all duration-1000 ease-out ${
-						isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-					}`}
-				>
-					<div className="flex items-center justify-center gap-2 mb-2">
-						<div className="w-7 h-7 bg-slate-700 rounded-full flex items-center justify-center">
-							<Palette className="w-3 h-3 text-white" />
-						</div>
-						<span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
-							PREP PLAY AVATAR CREATOR
-						</span>
-					</div>
-					<h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2 leading-tight">
-						Create our Avatar!
-					</h1>
-					<p className="text-base text-slate-600 max-w-2xl mx-auto">
-						Create a cool and unique character using our easy and fun tools!
-					</p>
-				</div> */}
-
 				<div className="grid lg:grid-cols-10 gap-8">
 					{/* Avatar Preview - Left Side (60%) */}
 					<div
@@ -241,15 +207,6 @@ export default function AvatarCreator({
 					>
 						<Card className="bg-transparent border-none shadow-none overflow-hidden sticky top-8 h-full">
 							<CardContent className="p-4 flex flex-col h-full">
-								{/* <div className="text-center mb-4 flex flex-col justify-center items-center w-full ">
-									<h3 className="text-lg font-bold text-slate-900 mb-1">
-										Your Avatar
-									</h3>
-									<p className="text-xs text-slate-500">
-										Live Preview
-									</p>
-								</div> */}
-								{/* Smaller Avatar Preview */}
 								<div className="flex-1 flex items-center justify-center">
 									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-4 shadow-inner border border-white/30 w-full max-w-xs">
 										<div className="relative w-full aspect-square mx-auto">
@@ -450,7 +407,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3">
+										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
 											{headOptions.map((head, index) => (
 												<motion.button
 													key={head.id}
@@ -514,7 +471,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3">
+										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
 											{hairOptions.map((hair, index) => (
 												<motion.button
 													key={hair.id}
@@ -578,7 +535,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3">
+										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
 											{expressionOptions.map((expression, index) => (
 												<motion.button
 													key={expression.id}
@@ -647,7 +604,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3">
+										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
 											{clothesOptions.map((clothes, index) => (
 												<motion.button
 													key={clothes.id}
