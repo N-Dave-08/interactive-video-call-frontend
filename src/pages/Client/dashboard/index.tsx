@@ -1,14 +1,13 @@
 import {
-	Activity,
-	Calendar,
 	CheckCircle,
 	ChevronRight,
 	Clock,
 	FileText,
 	MoreVertical,
 	TrendingUp,
-	Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,123 +19,55 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
-// Sample data based on your JSON
-const sessionsData = [
-	{
-		session_id: "99e9263f-d865-4ade-b0d1-556598ecdc68",
-		title: "Behavioral Assessment Session",
-		start_time: "2025-07-20T14:00:00.000Z",
-		end_time: null,
-		child_data: {
-			age: 12,
-			birthday: "07/03/2025",
-			last_name: "Johnson",
-			first_name: "Emma",
-		},
-		emotional_expression: {
-			selected_feelings: ["anxious", "hopeful"],
-			body_map_annotations: [],
-		},
-		session_notes: "",
-		tags: ["Assessment", "Behavioral"],
-		status: "in_progress",
-		stage: "Stage 4",
-		user: {
-			first_name: "Dr. Sarah",
-			last_name: "Wilson",
-		},
-	},
-	{
-		session_id: "4b06db4d-d963-4563-8a3a-f77c29602f6d",
-		title: "Play Therapy Session",
-		start_time: "2025-07-20T10:30:00.000Z",
-		end_time: null,
-		child_data: {
-			age: 6,
-			birthday: "07/08/2019",
-			last_name: "Martinez",
-			first_name: "Lucas",
-		},
-		emotional_expression: {
-			selected_feelings: ["happy", "excited"],
-			body_map_annotations: [],
-		},
-		session_notes: "",
-		tags: ["Play Therapy", "Development"],
-		status: "in_progress",
-		stage: "Stage 3",
-		user: {
-			first_name: "Dr. Sarah",
-			last_name: "Wilson",
-		},
-	},
-	{
-		session_id: "baf78bb5-d313-4ca6-b904-39322c480718",
-		title: "Family Counseling Session",
-		start_time: "2025-07-19T15:30:00.000Z",
-		end_time: "2025-07-19T16:30:00.000Z",
-		child_data: {
-			age: 14,
-			birthday: "07/01/2011",
-			last_name: "Thompson",
-			first_name: "Alex",
-		},
-		emotional_expression: {
-			selected_feelings: ["nervous", "relieved"],
-			body_map_annotations: ["upperBack:tension"],
-		},
-		session_notes:
-			"Significant progress in communication skills. Family dynamics showing improvement with structured activities.",
-		tags: ["Family Therapy", "Communication"],
-		status: "completed",
-		stage: "Completion",
-		user: {
-			first_name: "Dr. Sarah",
-			last_name: "Wilson",
-		},
-	},
-	{
-		session_id: "affe5541-4e66-4080-9310-597bd0ac3858",
-		title: "Individual Therapy Session",
-		start_time: "2025-07-18T13:00:00.000Z",
-		end_time: "2025-07-18T14:00:00.000Z",
-		child_data: {
-			age: 10,
-			birthday: "07/01/2015",
-			last_name: "Davis",
-			first_name: "Maya",
-		},
-		emotional_expression: {
-			selected_feelings: ["confident", "calm"],
-			body_map_annotations: [],
-		},
-		session_notes:
-			"Excellent session with breakthrough in self-expression techniques.",
-		tags: ["Individual", "Cognitive"],
-		status: "completed",
-		stage: "Completion",
-		user: {
-			first_name: "Dr. Sarah",
-			last_name: "Wilson",
-		},
-	},
-];
+import SpinnerLoading from "@/components/ui/spinner-loading";
+import { useAuth } from "@/hooks/useAuth";
+import type { Session } from "@/types";
 
 export default function Dashboard() {
-	const totalSessions = sessionsData.length;
-	const activeSessions = sessionsData.filter(
-		(s) => s.status === "in_progress",
-	).length;
-	const completedSessions = sessionsData.filter(
-		(s) => s.status === "completed",
-	).length;
-	const todaySessions = sessionsData.filter((s) => {
-		const today = new Date().toDateString();
-		return new Date(s.start_time).toDateString() === today;
-	}).length;
+	const { user } = useAuth();
+	const [sessions, setSessions] = useState<Session[]>([]);
+	const [counts, setCounts] = useState<{
+		scheduled: number;
+		in_progress: number;
+		completed: number;
+		archived: number;
+		rescheduled: number;
+	}>({
+		scheduled: 0,
+		in_progress: 0,
+		completed: 0,
+		archived: 0,
+		rescheduled: 0,
+	});
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState("");
 
-	const completionRate = Math.round((completedSessions / totalSessions) * 100);
+	useEffect(() => {
+		if (!user) {
+			setLoading(false);
+			return;
+		}
+		const fetchData = async () => {
+			try {
+				const response = await fetchSessionsBySocialWorkerId(user.id);
+				setSessions(response.data);
+				setCounts(response.counts);
+			} catch {
+				setError("Failed to load sessions.");
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchData();
+	}, [user]);
+
+	const totalSessions = sessions.length;
+	const completedSessions = counts.completed;
+
+	const completionRate =
+		totalSessions > 0
+			? Math.round((completedSessions / totalSessions) * 100)
+			: 0;
 
 	const formatTime = (dateString: string) => {
 		return new Date(dateString).toLocaleTimeString("en-US", {
@@ -167,12 +98,32 @@ export default function Dashboard() {
 		return `${firstName[0]}${lastName[0]}`;
 	};
 
+	if (loading) {
+		return (
+			<div className="flex justify-center items-center h-96">
+				<SpinnerLoading />
+			</div>
+		);
+	}
+
+	if (error) {
+		return <div className="text-center text-red-500 py-10">{error}</div>;
+	}
+
+	if (!user) {
+		return (
+			<div className="text-center text-slate-500 py-10">
+				Please log in to view your dashboard.
+			</div>
+		);
+	}
+
 	return (
 		<>
 			{/* Header */}
-			<div className="mb-8">
+			<div className="mb-4">
 				<h1 className="text-3xl font-bold text-slate-900 mb-2">
-					Good afternoon, Dr. Wilson
+					Good afternoon, {user?.first_name} {user?.last_name}
 				</h1>
 				<p className="text-slate-600">
 					Here's what's happening with your sessions today.
@@ -184,23 +135,23 @@ export default function Dashboard() {
 				{/* Welcome Card */}
 				<div className="col-span-4">
 					<Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
-						<CardHeader className="pb-4">
+						<CardHeader>
 							<CardTitle className="text-xl font-semibold text-slate-900">
 								Today's Overview
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-6">
-							<div className="space-y-4">
+							<div>
 								<div className="flex items-center justify-between">
 									<span className="text-slate-600">Sessions scheduled</span>
 									<span className="text-2xl font-bold text-blue-600">
-										{todaySessions}
+										{counts.scheduled}
 									</span>
 								</div>
 								<div className="flex items-center justify-between">
 									<span className="text-slate-600">Active sessions</span>
 									<span className="text-lg font-semibold text-amber-600">
-										{activeSessions}
+										{counts.in_progress}
 									</span>
 								</div>
 							</div>
@@ -246,7 +197,7 @@ export default function Dashboard() {
 										In Progress
 									</p>
 									<p className="text-3xl font-bold text-slate-900">
-										{activeSessions}
+										{counts.in_progress}
 									</p>
 								</div>
 								<div className="h-12 w-12 bg-amber-100 rounded-xl flex items-center justify-center">
@@ -254,9 +205,9 @@ export default function Dashboard() {
 								</div>
 							</div>
 							<div className="mt-4">
-								<Progress value={60} className="h-2" />
+								<Progress value={completionRate} className="h-2" />
 								<span className="text-sm text-slate-500 mt-1">
-									60% completion rate
+									{completionRate}% completion rate
 								</span>
 							</div>
 						</CardContent>
@@ -270,7 +221,7 @@ export default function Dashboard() {
 										Completed
 									</p>
 									<p className="text-3xl font-bold text-slate-900">
-										{completedSessions}
+										{counts.completed}
 									</p>
 								</div>
 								<div className="h-12 w-12 bg-emerald-100 rounded-xl flex items-center justify-center">
@@ -306,9 +257,9 @@ export default function Dashboard() {
 						</CardHeader>
 						<CardContent className="p-0">
 							<div className="divide-y divide-slate-100">
-								{sessionsData
+								{sessions
 									.filter((session) => session.status === "in_progress")
-									.map((session, index) => (
+									.map((session) => (
 										<div
 											key={session.session_id}
 											className="p-6 hover:bg-slate-50 transition-colors"
@@ -341,9 +292,9 @@ export default function Dashboard() {
 													</div>
 												</div>
 												<div className="flex items-center space-x-3">
-													{session.tags.map((tag, tagIndex) => (
+													{session.tags.map((tag) => (
 														<Badge
-															key={tagIndex}
+															key={tag}
 															variant="secondary"
 															className="bg-slate-100 text-slate-600"
 														>
@@ -378,7 +329,7 @@ export default function Dashboard() {
 						</CardHeader>
 						<CardContent className="p-0">
 							<div className="divide-y divide-slate-100">
-								{sessionsData.slice(0, 4).map((session, index) => (
+								{sessions.slice(0, 4).map((session) => (
 									<div
 										key={session.session_id}
 										className="p-4 hover:bg-slate-50 transition-colors"

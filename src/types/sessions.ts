@@ -49,6 +49,13 @@ export interface SessionsListResponse {
 	success: boolean;
 	message: string;
 	data: Session[];
+	counts: {
+		scheduled: number;
+		in_progress: number;
+		completed: number;
+		archived: number;
+		rescheduled: number;
+	};
 }
 
 export interface ChildData {
