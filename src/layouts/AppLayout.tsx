@@ -8,7 +8,7 @@ export default function AppLayout() {
 			<AppSidebar />
 			<main className="flex-1 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
 				<SidebarTrigger />
-				<div className="container mx-auto py-8 px-4">
+				<div className="w-full px-6">
 					<Outlet />
 				</div>
 			</main>
