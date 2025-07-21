@@ -40,7 +40,7 @@ const BodyMap: React.FC<BodyMapProps> = ({
 
 	// Define body parts for front and back views
 	const frontBodyParts: BodyPart[] = [
-		{ id: "leftEye", name: "Left Eye", cx: 95, cy: 57, r: 5 },
+		{ id: "leftEye", name: "Left Eye", cx: 85, cy: 90, r: 5 },
 		{ id: "rightEye", name: "Right Eye", cx: 105, cy: 57, r: 5 },
 		{ id: "leftEar", name: "Left Ear", cx: 80, cy: 60, r: 7 },
 		{ id: "rightEar", name: "Right Ear", cx: 120, cy: 60, r: 7 },
@@ -257,83 +257,94 @@ const BodyMap: React.FC<BodyMapProps> = ({
 				<div className="flex flex-row gap-16 items-center justify-center">
 					{/* Front View */}
 					<div className="flex flex-col items-center">
-						<svg
-							width="200"
-							height="360"
-							viewBox="0 0 200 360"
-							className="border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200"
-						>
-							<title>Front Body Map</title>
-							<defs>
-								<linearGradient
-									id="dualGradient"
-									x1="0%"
-									y1="0%"
-									x2="100%"
-									y2="0%"
-								>
-									<stop offset="50%" stopColor="#ef4444" />
-									<stop offset="50%" stopColor="#10b981" />
-								</linearGradient>
-							</defs>
-							{frontBodyParts.map((part) => (
-								<g key={part.id}>
-									{part.cx ? (
-										<circle
-											cx={part.cx}
-											cy={part.cy}
-											r={part.r}
-											fill={getPartFill(part.id, "front")}
-											stroke={getPartStroke(part.id, "front")}
-											strokeWidth="2"
-											className="cursor-pointer hover:opacity-80 transition-all duration-150"
-											onClick={() => handlePartClick(part.id, "front")}
-											role="button"
-											tabIndex={0}
-											aria-label={
-												frontBodyParts.find((p) => p.id === part.id)?.name ||
-												part.id
-											}
-											onKeyDown={(e) => {
-												if (e.key === "Enter" || e.key === " ")
-													handlePartClick(part.id, "front");
-											}}
-										/>
-									) : (
-										<rect
-											x={part.x}
-											y={part.y}
-											width={part.width}
-											height={part.height}
-											rx="5"
-											fill={getPartFill(part.id, "front")}
-											stroke={getPartStroke(part.id, "front")}
-											strokeWidth="2"
-											className="cursor-pointer hover:opacity-80 transition-all duration-150"
-											onClick={() => handlePartClick(part.id, "front")}
-											role="button"
-											tabIndex={0}
-											aria-label={
-												frontBodyParts.find((p) => p.id === part.id)?.name ||
-												part.id
-											}
-											onKeyDown={(e) => {
-												if (e.key === "Enter" || e.key === " ")
-													handlePartClick(part.id, "front");
-											}}
-										/>
-									)}
-								</g>
-							))}
-							<circle
-								cx="100"
-								cy="60"
-								r="25"
-								fill="none"
-								stroke="#374151"
-								strokeWidth="1"
+						<div className="relative w-[280px] h-[360px] border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200">
+							{/* Body map image as background */}
+							<img
+								src="/body-map/boy-front.png"
+								alt="Body Map Front"
+								className="absolute top-0 left-0 w-full h-full object-contain select-none pointer-events-none"
+								draggable={false}
 							/>
-						</svg>
+							{/* Overlay SVG for interactive parts */}
+							<svg
+								width="200"
+								height="360"
+								viewBox="0 0 200 360"
+								className="absolute top-0 left-0 w-full h-full"
+								style={{ pointerEvents: "none" }}
+							>
+								<title>Front Body Map</title>
+								<defs>
+									<linearGradient
+										id="dualGradient"
+										x1="0%"
+										y1="0%"
+										x2="100%"
+										y2="0%"
+									>
+										<stop offset="50%" stopColor="#ef4444" />
+										<stop offset="50%" stopColor="#10b981" />
+									</linearGradient>
+								</defs>
+								{frontBodyParts.map((part) => (
+									<g key={part.id} style={{ pointerEvents: "auto" }}>
+										{part.cx ? (
+											<circle
+												cx={part.cx}
+												cy={part.cy}
+												r={part.r}
+												fill={getPartFill(part.id, "front")}
+												stroke={getPartStroke(part.id, "front")}
+												strokeWidth="2"
+												className="cursor-pointer hover:opacity-80 transition-all duration-150"
+												onClick={() => handlePartClick(part.id, "front")}
+												role="button"
+												tabIndex={0}
+												aria-label={
+													frontBodyParts.find((p) => p.id === part.id)?.name ||
+													part.id
+												}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ")
+														handlePartClick(part.id, "front");
+												}}
+											/>
+										) : (
+											<rect
+												x={part.x}
+												y={part.y}
+												width={part.width}
+												height={part.height}
+												rx="5"
+												fill={getPartFill(part.id, "front")}
+												stroke={getPartStroke(part.id, "front")}
+												strokeWidth="2"
+												className="cursor-pointer hover:opacity-80 transition-all duration-150"
+												onClick={() => handlePartClick(part.id, "front")}
+												role="button"
+												tabIndex={0}
+												aria-label={
+													frontBodyParts.find((p) => p.id === part.id)?.name ||
+													part.id
+												}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ")
+														handlePartClick(part.id, "front");
+												}}
+											/>
+										)}
+									</g>
+								))}
+								<circle
+									cx="100"
+									cy="60"
+									r="25"
+									fill="none"
+									stroke="#374151"
+									strokeWidth="1"
+								/>
+							</svg>
+						</div>
 						<span className="mt-2 text-blue-700 font-semibold text-sm tracking-wide">
 							Front
 						</span>
