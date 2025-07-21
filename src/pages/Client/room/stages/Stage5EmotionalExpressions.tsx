@@ -319,18 +319,8 @@ export default function Stage5EmotionalExpressions({
 							<BodyMap
 								onBodyPartClick={() => setBodyMapComplete(true)}
 								onSelectionChange={onBodyMapChange}
+								onSkip={() => setBodyMapComplete(true)}
 							/>
-							<Button
-								type="button"
-								variant="outline"
-								className="mt-4"
-								onClick={() => {
-									setBodyMapComplete(true);
-									if (onBodyMapChange) onBodyMapChange({}, {});
-								}}
-							>
-								Skip Body Map
-							</Button>
 						</div>
 					</div>
 				);
@@ -435,7 +425,7 @@ export default function Stage5EmotionalExpressions({
 					<div className="flex-1">{renderTabContent()}</div>
 
 					{/* Playful Tabs */}
-					<div className="mt-8">
+					<div>
 						<div className="flex justify-center gap-2">
 							{tabs.map((tab) => (
 								<motion.button
@@ -468,7 +458,7 @@ export default function Stage5EmotionalExpressions({
 				</div>
 
 				{/* Navigation Buttons */}
-				<div className="flex justify-between items-center mt-8">
+				<div className="flex justify-between items-center">
 					<Button
 						type="button"
 						variant="outline"

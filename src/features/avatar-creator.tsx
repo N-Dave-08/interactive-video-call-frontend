@@ -195,7 +195,7 @@ export default function AvatarCreator({
 				position="top-60 left-20"
 			/>
 
-			<div className="relative z-10 max-w-7xl mx-auto px-6">
+			<div className="relative z-10 max-w-7xl mx-auto px-6 h-full">
 				<div className="grid lg:grid-cols-10 gap-8">
 					{/* Avatar Preview - Left Side (60%) */}
 					<div

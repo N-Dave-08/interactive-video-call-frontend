@@ -98,6 +98,13 @@ export default function Dashboard() {
 		return `${firstName[0]}${lastName[0]}`;
 	};
 
+	const getGreeting = () => {
+		const hour = new Date().getHours();
+		if (hour < 12) return "Good morning";
+		if (hour < 18) return "Good afternoon";
+		return "Good evening";
+	};
+
 	if (loading) {
 		return (
 			<div className="flex justify-center items-center h-96">
@@ -123,7 +130,7 @@ export default function Dashboard() {
 			{/* Header */}
 			<div className="mb-4">
 				<h1 className="text-3xl font-bold text-slate-900 mb-2">
-					Good afternoon, {user?.first_name} {user?.last_name}
+					{getGreeting()}, {user?.first_name} {user?.last_name}
 				</h1>
 				<p className="text-slate-600">
 					Here's what's happening with your sessions today.

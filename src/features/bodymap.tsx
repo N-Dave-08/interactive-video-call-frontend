@@ -24,11 +24,13 @@ interface SelectedParts {
 interface BodyMapProps {
 	onBodyPartClick?: (partId: string, view: "front" | "back") => void;
 	onSelectionChange?: (front: SelectedParts, back: SelectedParts) => void;
+	onSkip?: () => void; // <-- add this
 }
 
 const BodyMap: React.FC<BodyMapProps> = ({
 	onBodyPartClick,
 	onSelectionChange,
+	onSkip,
 }) => {
 	const [frontSelectedParts, setFrontSelectedParts] = useState<SelectedParts>(
 		{},
@@ -237,302 +239,312 @@ const BodyMap: React.FC<BodyMapProps> = ({
 		return selection.pain ? "#dc2626" : "#059669";
 	};
 
-	const selectedCount: number =
-		Object.entries(frontSelectedParts).reduce(
-			(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
-			0,
-		) +
-		Object.entries(backSelectedParts).reduce(
-			(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
-			0,
-		);
+	// const selectedCount: number =
+	// 	Object.entries(frontSelectedParts).reduce(
+	// 		(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
+	// 		0,
+	// 	) +
+	// 	Object.entries(backSelectedParts).reduce(
+	// 		(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
+	// 		0,
+	// 	);
 
 	return (
-		<div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-			<div className="text-center mb-6">
-				<h2 className="text-2xl font-bold text-gray-800 mb-2">Body Map</h2>
-				<p className="text-gray-600">
-					Tap on body parts to show where you feel something
-				</p>
-			</div>
-
-			{/* Mode Selection */}
-			<div className="flex gap-2 mb-4 justify-center">
-				<button
-					type="button"
-					onClick={() => setMode("pain")}
-					className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-						mode === "pain"
-							? "bg-red-500 text-white"
-							: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-					}`}
-				>
-					<Icon
-						icon="fluent-emoji:crying-face"
-						className="inline w-5 h-5 mr-1 align-middle"
-					/>{" "}
-					Pain/Hurt
-				</button>
-				<button
-					type="button"
-					onClick={() => setMode("touch")}
-					className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-						mode === "touch"
-							? "bg-green-500 text-white"
-							: "bg-gray-200 text-gray-700 hover:bg-gray-300"
-					}`}
-				>
-					<Icon
-						icon="fluent-emoji:raised-hand"
-						className="inline w-5 h-5 mr-1 align-middle"
-					/>{" "}
-					Touch
-				</button>
-			</div>
-
-			{/* Body SVGs (Front and Back Side by Side) */}
-			<div className="flex justify-center gap-8 mb-4">
-				{/* Front View */}
-				<div>
-					<h3 className="text-center font-semibold text-gray-800 mb-2">
-						Front View
-					</h3>
-					<svg
-						width="200"
-						height="360"
-						viewBox="0 0 200 360"
-						className="border rounded-lg bg-blue-50"
-					>
-						<defs>
-							<linearGradient
-								id="dualGradient"
-								x1="0%"
-								y1="0%"
-								x2="100%"
-								y2="0%"
-							>
-								<stop offset="50%" stopColor="#ef4444" />
-								<stop offset="50%" stopColor="#10b981" />
-							</linearGradient>
-						</defs>
-						{frontBodyParts.map((part) => (
-							<g key={part.id}>
-								{part.cx ? (
-									<circle
-										cx={part.cx}
-										cy={part.cy}
-										r={part.r}
-										fill={getPartFill(part.id, "front")}
-										stroke={getPartStroke(part.id, "front")}
-										strokeWidth="2"
-										className="cursor-pointer hover:opacity-80 transition-opacity"
-										onClick={() => handlePartClick(part.id, "front")}
-									/>
-								) : (
-									<rect
-										x={part.x}
-										y={part.y}
-										width={part.width}
-										height={part.height}
-										rx="5"
-										fill={getPartFill(part.id, "front")}
-										stroke={getPartStroke(part.id, "front")}
-										strokeWidth="2"
-										className="cursor-pointer hover:opacity-80 transition-opacity"
-										onClick={() => handlePartClick(part.id, "front")}
-									/>
-								)}
-							</g>
-						))}
-						{/* Simple head outline for context */}
-						<circle
-							cx="100"
-							cy="60"
-							r="25"
-							fill="none"
-							stroke="#374151"
-							strokeWidth="1"
-						/>
-					</svg>
-				</div>
-
-				{/* Back View */}
-				<div>
-					<h3 className="text-center font-semibold text-gray-800 mb-2">
-						Back View
-					</h3>
-					<svg
-						width="200"
-						height="360"
-						viewBox="0 0 200 360"
-						className="border rounded-lg bg-blue-50"
-					>
-						<defs>
-							<linearGradient
-								id="dualGradient"
-								x1="0%"
-								y1="0%"
-								x2="100%"
-								y2="0%"
-							>
-								<stop offset="50%" stopColor="#ef4444" />
-								<stop offset="50%" stopColor="#10b981" />
-							</linearGradient>
-						</defs>
-						{backBodyParts.map((part) => (
-							<g key={part.id}>
-								{part.cx ? (
-									<circle
-										cx={part.cx}
-										cy={part.cy}
-										r={part.r}
-										fill={getPartFill(part.id, "back")}
-										stroke={getPartStroke(part.id, "back")}
-										strokeWidth="2"
-										className="cursor-pointer hover:opacity-80 transition-opacity"
-										onClick={() => handlePartClick(part.id, "back")}
-									/>
-								) : (
-									<rect
-										x={part.x}
-										y={part.y}
-										width={part.width}
-										height={part.height}
-										rx="5"
-										fill={getPartFill(part.id, "back")}
-										stroke={getPartStroke(part.id, "back")}
-										strokeWidth="2"
-										className="cursor-pointer hover:opacity-80 transition-opacity"
-										onClick={() => handlePartClick(part.id, "back")}
-									/>
-								)}
-							</g>
-						))}
-						{/* Simple head outline for context */}
-						<circle
-							cx="100"
-							cy="60"
-							r="25"
-							fill="none"
-							stroke="#374151"
-							strokeWidth="1"
-						/>
-					</svg>
-				</div>
-			</div>
-
-			{/* Controls */}
-			<div className="flex justify-between items-center mb-4">
-				<button
-					type="button"
-					onClick={clearAll}
-					className="flex items-center gap-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-				>
-					<RotateCcw size={16} />
-					Clear All
-				</button>
-				<div className="text-sm text-gray-600">
-					Selected: {selectedCount} sensation{selectedCount !== 1 ? "s" : ""}
-				</div>
-			</div>
-
-			{/* Legend */}
-			<div className="bg-gray-50 p-4 rounded-lg">
-				<h3 className="font-semibold text-gray-800 mb-2">How to use:</h3>
-				<div className="space-y-2 text-sm">
-					<div className="flex items-center gap-2">
-						<div className="w-4 h-4 bg-red-400 rounded border"></div>
-						<span>Red = Pain or hurt</span>
-					</div>
-					<div className="flex items-center gap-2">
-						<div className="w-4 h-4 bg-green-400 rounded border"></div>
-						<span>Green = Touch or contact</span>
-					</div>
-					<div className="flex items-center gap-2">
-						<div className="w-4 h-4 bg-gradient-to-r from-red-400 to-green-400 rounded border"></div>
-						<span>Red/Green = Both Pain and Touch</span>
-					</div>
-					<div className="flex items-center gap-2">
-						<div className="w-4 h-4 bg-gray-200 rounded border"></div>
-						<span>Gray = No selection</span>
-					</div>
-				</div>
-			</div>
-
-			{/* Selected Parts Summary */}
-			{selectedCount > 0 && (
-				<div className="mt-4 bg-blue-50 p-4 rounded-lg">
-					<h3 className="font-semibold text-blue-800 mb-2">Selected Areas:</h3>
-					<div className="space-y-1">
-						{[
-							...Object.entries(frontSelectedParts)
-								.filter(([_, sel]) => sel.pain || sel.touch)
-								.flatMap(([partId, sel]) => {
-									const part = frontBodyParts.find((p) => p.id === partId);
-									const entries: {
-										partId: string;
-										type: string;
-										view: string;
-									}[] = [];
-									if (sel.pain)
-										entries.push({ partId, type: "pain", view: "Front" });
-									if (sel.touch)
-										entries.push({ partId, type: "touch", view: "Front" });
-									return entries.map((entry) => ({
-										...entry,
-										name: part?.name,
-									}));
-								}),
-							...Object.entries(backSelectedParts)
-								.filter(([_, sel]) => sel.pain || sel.touch)
-								.flatMap(([partId, sel]) => {
-									const part = backBodyParts.find((p) => p.id === partId);
-									const entries: {
-										partId: string;
-										type: string;
-										view: string;
-									}[] = [];
-									if (sel.pain)
-										entries.push({ partId, type: "pain", view: "Back" });
-									if (sel.touch)
-										entries.push({ partId, type: "touch", view: "Back" });
-									return entries.map((entry) => ({
-										...entry,
-										name: part?.name,
-									}));
-								}),
-						].map(({ partId, type, view, name }) => (
-							<div
-								key={`${view}-${partId}-${type}`}
-								className="flex items-center gap-2 text-sm"
-							>
-								<span
-									className={`px-2 py-1 rounded text-xs font-medium ${
-										type === "pain"
-											? "bg-red-100 text-red-800"
-											: "bg-green-100 text-green-800"
-									}`}
+		<div className="flex flex-row h-full border rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-blue-50 via-white to-green-50">
+			{/* Left: Body Map Area */}
+			<div className="flex-1 flex flex-col items-center justify-center bg-white/80 p-8">
+				<p className="text-gray-500 text-base">Tap a body part to select</p>
+				<div className="flex flex-row gap-16 items-center justify-center">
+					{/* Front View */}
+					<div className="flex flex-col items-center">
+						<svg
+							width="200"
+							height="360"
+							viewBox="0 0 200 360"
+							className="border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200"
+						>
+							<title>Front Body Map</title>
+							<defs>
+								<linearGradient
+									id="dualGradient"
+									x1="0%"
+									y1="0%"
+									x2="100%"
+									y2="0%"
 								>
-									{type === "pain" ? (
-										<Icon
-											icon="fluent-emoji:crying-face"
-											className="inline w-4 h-4 align-middle"
+									<stop offset="50%" stopColor="#ef4444" />
+									<stop offset="50%" stopColor="#10b981" />
+								</linearGradient>
+							</defs>
+							{frontBodyParts.map((part) => (
+								<g key={part.id}>
+									{part.cx ? (
+										<circle
+											cx={part.cx}
+											cy={part.cy}
+											r={part.r}
+											fill={getPartFill(part.id, "front")}
+											stroke={getPartStroke(part.id, "front")}
+											strokeWidth="2"
+											className="cursor-pointer hover:opacity-80 transition-all duration-150"
+											onClick={() => handlePartClick(part.id, "front")}
+											role="button"
+											tabIndex={0}
+											aria-label={
+												frontBodyParts.find((p) => p.id === part.id)?.name ||
+												part.id
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ")
+													handlePartClick(part.id, "front");
+											}}
 										/>
 									) : (
-										<Icon
-											icon="fluent-emoji:raised-hand"
-											className="inline w-4 h-4 align-middle"
+										<rect
+											x={part.x}
+											y={part.y}
+											width={part.width}
+											height={part.height}
+											rx="5"
+											fill={getPartFill(part.id, "front")}
+											stroke={getPartStroke(part.id, "front")}
+											strokeWidth="2"
+											className="cursor-pointer hover:opacity-80 transition-all duration-150"
+											onClick={() => handlePartClick(part.id, "front")}
+											role="button"
+											tabIndex={0}
+											aria-label={
+												frontBodyParts.find((p) => p.id === part.id)?.name ||
+												part.id
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ")
+													handlePartClick(part.id, "front");
+											}}
 										/>
 									)}
-								</span>
-								<span>
-									{name} ({view})
-								</span>
-							</div>
-						))}
+								</g>
+							))}
+							<circle
+								cx="100"
+								cy="60"
+								r="25"
+								fill="none"
+								stroke="#374151"
+								strokeWidth="1"
+							/>
+						</svg>
+						<span className="mt-2 text-blue-700 font-semibold text-sm tracking-wide">
+							Front
+						</span>
+					</div>
+					{/* Back View */}
+					<div className="flex flex-col items-center">
+						<svg
+							width="200"
+							height="360"
+							viewBox="0 0 200 360"
+							className="border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200"
+						>
+							<title>Back Body Map</title>
+							<defs>
+								<linearGradient
+									id="dualGradient"
+									x1="0%"
+									y1="0%"
+									x2="100%"
+									y2="0%"
+								>
+									<stop offset="50%" stopColor="#ef4444" />
+									<stop offset="50%" stopColor="#10b981" />
+								</linearGradient>
+							</defs>
+							{backBodyParts.map((part) => (
+								<g key={part.id}>
+									{part.cx ? (
+										<circle
+											cx={part.cx}
+											cy={part.cy}
+											r={part.r}
+											fill={getPartFill(part.id, "back")}
+											stroke={getPartStroke(part.id, "back")}
+											strokeWidth="2"
+											className="cursor-pointer hover:opacity-80 transition-all duration-150"
+											onClick={() => handlePartClick(part.id, "back")}
+											role="button"
+											tabIndex={0}
+											aria-label={
+												backBodyParts.find((p) => p.id === part.id)?.name ||
+												part.id
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ")
+													handlePartClick(part.id, "back");
+											}}
+										/>
+									) : (
+										<rect
+											x={part.x}
+											y={part.y}
+											width={part.width}
+											height={part.height}
+											rx="5"
+											fill={getPartFill(part.id, "back")}
+											stroke={getPartStroke(part.id, "back")}
+											strokeWidth="2"
+											className="cursor-pointer hover:opacity-80 transition-all duration-150"
+											onClick={() => handlePartClick(part.id, "back")}
+											role="button"
+											tabIndex={0}
+											aria-label={
+												backBodyParts.find((p) => p.id === part.id)?.name ||
+												part.id
+											}
+											onKeyDown={(e) => {
+												if (e.key === "Enter" || e.key === " ")
+													handlePartClick(part.id, "back");
+											}}
+										/>
+									)}
+								</g>
+							))}
+							<circle
+								cx="100"
+								cy="60"
+								r="25"
+								fill="none"
+								stroke="#374151"
+								strokeWidth="1"
+							/>
+						</svg>
+						<span className="mt-2 text-blue-700 font-semibold text-sm tracking-wide">
+							Back
+						</span>
 					</div>
 				</div>
-			)}
+			</div>
+
+			{/* Right: Controls and Output Panel */}
+			<div className="w-[340px] flex flex-col border-l bg-gradient-to-b from-blue-100/60 via-white to-green-100/60">
+				{/* Top: Mode Buttons and How to Use */}
+				<div className="p-6 border-b flex flex-col gap-4">
+					<div className="flex gap-3 mb-1 justify-end">
+						<button
+							type="button"
+							onClick={() => setMode("pain")}
+							className={`flex items-center gap-2 px-5 py-2 rounded-full border text-base font-semibold shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-pink-300 ${mode === "pain" ? "bg-pink-500 text-white scale-105" : "bg-white text-gray-700 hover:bg-pink-100"}`}
+						>
+							<Icon icon="fluent-emoji:crying-face" className="w-5 h-5" />
+							Hurt
+						</button>
+						<button
+							type="button"
+							onClick={() => setMode("touch")}
+							className={`flex items-center gap-2 px-5 py-2 rounded-full border text-base font-semibold shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-green-300 ${mode === "touch" ? "bg-green-500 text-white scale-105" : "bg-white text-gray-700 hover:bg-green-100"}`}
+						>
+							<Icon icon="fluent-emoji:raised-hand" className="w-5 h-5" />
+							Touch
+						</button>
+						<button
+							type="button"
+							onClick={clearAll}
+							className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition-all duration-150 text-base font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+							aria-label="Clear selections"
+						>
+							<RotateCcw size={20} className="mr-1" />
+						</button>
+					</div>
+				</div>
+				{/* Bottom: Output Area */}
+				<div className="flex-1 p-6 flex flex-col">
+					<div className="flex-1 flex items-center justify-center">
+						<div className="w-full h-full bg-white/90 border border-gray-200 rounded-2xl shadow-inner flex flex-col items-center justify-start text-gray-700 text-base font-medium px-4 py-4 overflow-y-auto max-h-[350px]">
+							{Object.values(frontSelectedParts).every(
+								(sel) => !sel.pain && !sel.touch,
+							) &&
+							Object.values(backSelectedParts).every(
+								(sel) => !sel.pain && !sel.touch,
+							) ? (
+								<div className="flex flex-col items-center justify-center h-full text-gray-400 text-lg">
+									<Icon
+										icon="fluent-emoji:thinking-face"
+										className="w-8 h-8 mb-2"
+									/>
+									No body parts selected yet.
+									{typeof onSelectionChange === "function" && (
+										<button
+											type="button"
+											className="mt-6 px-5 py-2 rounded-full border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-all duration-150 text-base font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
+											onClick={() => {
+												onSelectionChange?.({}, {});
+												onSkip?.();
+											}}
+										>
+											Skip Body Map
+										</button>
+									)}
+								</div>
+							) : (
+								<div className="w-full">
+									{["Front", "Back"].map((view) => {
+										const selectedParts =
+											view === "Front" ? frontSelectedParts : backSelectedParts;
+										const bodyParts =
+											view === "Front" ? frontBodyParts : backBodyParts;
+										const entries = Object.entries(selectedParts).filter(
+											([_, sel]) => sel.pain || sel.touch,
+										);
+										if (entries.length === 0) return null;
+										return (
+											<div key={view} className="mb-4">
+												<div className="font-bold text-blue-700 text-lg mb-2">
+													{view}
+												</div>
+												<div className="flex flex-col gap-2">
+													{entries.flatMap(([partId, sel]) => {
+														const part = bodyParts.find((p) => p.id === partId);
+														const chips = [];
+														if (sel.pain)
+															chips.push({
+																type: "pain",
+																color: "bg-red-100 text-red-800",
+																icon: "fluent-emoji:crying-face",
+																label: "Hurt",
+															});
+														if (sel.touch)
+															chips.push({
+																type: "touch",
+																color: "bg-green-100 text-green-800",
+																icon: "fluent-emoji:raised-hand",
+																label: "Touch",
+															});
+														return chips.map((chip) => (
+															<div
+																key={partId + chip.type}
+																className="flex items-center gap-2 text-base"
+															>
+																<span
+																	className={`inline-flex items-center gap-1 px-2 py-1 rounded-full font-semibold ${chip.color}`}
+																>
+																	<Icon icon={chip.icon} className="w-5 h-5" />
+																	{chip.label}
+																</span>
+																<span className="ml-1 text-gray-700">
+																	{part?.name}
+																</span>
+															</div>
+														));
+													})}
+												</div>
+											</div>
+										);
+									})}
+								</div>
+							)}
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };

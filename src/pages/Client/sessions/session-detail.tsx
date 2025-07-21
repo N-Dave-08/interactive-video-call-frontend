@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
 	ArrowLeft,
 	Cake,
@@ -8,7 +9,6 @@ import {
 	Palette,
 	Tag,
 	Target,
-	User,
 	UserCheck,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,27 +21,28 @@ import type { Session } from "@/types/sessions";
 function getStageColor(stage: string) {
 	switch (stage.toLowerCase()) {
 		case "stage 1":
-			return "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 border-blue-200";
+			return "bg-blue-100 text-blue-700 border-blue-300";
 		case "stage 2":
-			return "bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 border-emerald-200";
+			return "bg-emerald-100 text-emerald-700 border-emerald-300";
 		case "stage 3":
-			return "bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 border-amber-200";
+			return "bg-amber-100 text-amber-700 border-amber-300";
 		case "stage 4":
-			return "bg-gradient-to-r from-purple-50 to-purple-100 text-purple-700 border-purple-200";
+			return "bg-purple-100 text-purple-700 border-purple-300";
+		case "stage 5":
+			return "bg-indigo-100 text-indigo-700 border-indigo-300";
 		default:
-			return "bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 border-gray-200";
+			return "bg-gray-100 text-gray-700 border-gray-300";
 	}
 }
 
 function getStatusColor(hasEndTime: boolean) {
 	return hasEndTime
-		? "bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 border-green-200"
-		: "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border-blue-200";
+		? "bg-green-100 text-green-700 border-green-300"
+		: "bg-blue-100 text-blue-700 border-blue-300";
 }
 
 function formatBodyMapAnnotation(annotation: string) {
 	const [part, type] = annotation.split(":");
-	// Convert camelCase or PascalCase to spaced words
 	const partLabel = part
 		.replace(/([A-Z])/g, " $1")
 		.replace(/^./, (str) => str.toUpperCase());
@@ -84,13 +85,16 @@ export default function SessionDetailPage() {
 
 	if (!session) {
 		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="bg-white/80 p-8 rounded-xl shadow-lg text-center">
+			<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-700 text-gray-100">
+				<div className="bg-white/10 p-8 rounded-3xl shadow-lg text-center border border-white/20">
 					<h1 className="text-2xl font-bold mb-4">Session Detail</h1>
-					<p className="text-red-500">
+					<p className="text-red-400">
 						No session data found. Please navigate from the sessions list.
 					</p>
-					<Button onClick={() => navigate(-1)} className="mt-4">
+					<Button
+						onClick={() => navigate(-1)}
+						className="mt-4 bg-white/10 border-gray-600 text-white"
+					>
 						<ArrowLeft className="h-4 w-4 mr-2" /> Back to Sessions
 					</Button>
 				</div>
@@ -99,109 +103,247 @@ export default function SessionDetailPage() {
 	}
 
 	return (
-		<div className="min-h-screen ">
-			<div className="max-w-4xl mx-auto p-6">
-				{/* Header */}
-				<div className="mb-8">
-					<Button
-						variant="outline"
-						size="lg"
-						className="mb-6 bg-white/80 hover:bg-white border-gray-200 shadow-sm transition-all hover:shadow-md"
-						onClick={() => navigate(-1)}
-					>
-						<ArrowLeft className="h-4 w-4 mr-2" />
-						Back to Sessions
-					</Button>
+		<div className="min-h-screen text-gray-900 p-6 md:p-12 flex flex-col items-center">
+			<div className="w-full max-w-6xl mx-auto space-y-8">
+				{/* Top Back Button */}
+				<Button
+					variant="outline"
+					size="lg"
+					className="bg-white hover:bg-blue-50 border-gray-200 text-blue-700 shadow-lg transition-all hover:shadow-xl"
+					onClick={() => navigate(-1)}
+				>
+					<ArrowLeft className="h-4 w-4 mr-2" />
+					Back to Sessions
+				</Button>
 
-					<div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-							<div className="space-y-3">
-								<h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-									{session.title}
-								</h1>
-								<div className="flex flex-wrap items-center gap-3">
-									{session.stage && (
-										<div className="flex items-center gap-2">
-											<Target className="h-4 w-4 text-gray-500" />
-											<Badge
-												className={`px-3 py-1 font-medium ${getStageColor(session.stage)}`}
-											>
-												{session.stage.toUpperCase()}
-											</Badge>
+				{/* Main Content Grid */}
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+					{/* Left Column: Avatar and Child Info */}
+					<div className="lg:col-span-1 flex flex-col items-center space-y-6">
+						{/* Avatar Card */}
+						<Card className="w-full bg-white/90 backdrop-blur-md border border-blue-100 shadow-xl p-6 flex flex-col items-center relative overflow-hidden rounded-3xl">
+							<div className="absolute inset-0 bg-gradient-to-br from-blue-100/40 to-purple-100/40 animate-pulse rounded-3xl" />
+							<CardContent className="space-y-4 w-full z-10">
+								<div className="flex items-center justify-center mb-4">
+									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-4 shadow-inner border border-white/30 w-full max-w-xs">
+										<div className="relative w-full aspect-square mx-auto">
+											{session.avatar_data?.background &&
+												session.avatar_data?.background !== "default" && (
+													<img
+														src={session.avatar_data.background}
+														className="absolute inset-0 object-cover h-full w-full brightness-75 rounded-lg"
+														alt="Avatar background"
+													/>
+												)}
+											{session.avatar_data?.clothes &&
+												session.avatar_data?.clothes !== "default" && (
+													<motion.img
+														src={session.avatar_data.clothes}
+														className="absolute inset-0 w-full h-full object-contain top-[-10px]"
+														alt="Avatar clothes"
+														animate={{ scale: [1, 1.02, 1] }}
+														transition={{
+															duration: 3,
+															repeat: Infinity,
+															ease: "easeInOut",
+														}}
+													/>
+												)}
+											{session.avatar_data?.head &&
+												session.avatar_data?.head !== "default" && (
+													<motion.div
+														className="absolute inset-0 w-full h-full"
+														style={{ transformOrigin: "bottom center" }}
+														animate={{ y: [0, -3, 0] }}
+														transition={{
+															duration: 2,
+															repeat: Infinity,
+															ease: "easeInOut",
+														}}
+													>
+														<img
+															src={session.avatar_data.head}
+															className="w-full h-full object-contain"
+															alt="Avatar head"
+														/>
+													</motion.div>
+												)}
+											{session.avatar_data?.hair &&
+												session.avatar_data?.hair !== "default" && (
+													<motion.div
+														className="absolute inset-0 w-full h-full"
+														style={{ transformOrigin: "bottom center" }}
+														animate={{ y: [0, -3, 0] }}
+														transition={{
+															duration: 2,
+															repeat: Infinity,
+															ease: "easeInOut",
+														}}
+													>
+														<img
+															src={session.avatar_data.hair}
+															className="w-full h-full object-contain"
+															alt="Avatar hair"
+														/>
+													</motion.div>
+												)}
+											{session.avatar_data?.expression &&
+												session.avatar_data?.expression !== "default" && (
+													<motion.div
+														className="absolute inset-0 w-full h-full"
+														style={{ transformOrigin: "bottom center" }}
+														animate={{ y: [0, -3, 0] }}
+														transition={{
+															duration: 2,
+															repeat: Infinity,
+															ease: "easeInOut",
+														}}
+													>
+														<img
+															src={session.avatar_data.expression}
+															className="w-full h-full object-contain"
+															alt="Avatar expression"
+														/>
+													</motion.div>
+												)}
+											{(!session.avatar_data?.background ||
+												session.avatar_data?.background === "default") &&
+												(!session.avatar_data?.clothes ||
+													session.avatar_data?.clothes === "default") &&
+												(!session.avatar_data?.head ||
+													session.avatar_data?.head === "default") &&
+												(!session.avatar_data?.hair ||
+													session.avatar_data?.hair === "default") &&
+												(!session.avatar_data?.expression ||
+													session.avatar_data?.expression === "default") && (
+													<div className="flex items-center justify-center w-full h-full text-gray-400 text-lg font-medium">
+														No avatar yet
+													</div>
+												)}
 										</div>
-									)}
-									<Badge
-										className={`px-3 py-1 font-medium ${getStatusColor(!!session.end_time)}`}
-									>
-										{session.end_time ? "Completed" : "In Progress"}
-									</Badge>
+									</div>
 								</div>
-							</div>
-
-							<div className="text-right space-y-1">
-								<div className="text-sm text-gray-600">Session ID</div>
-								<div className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
-									{session.session_id}
+								<div className="text-center">
+									<h3 className="font-bold text-2xl text-blue-900">
+										{session.child_data.first_name}{" "}
+										{session.child_data.last_name}
+									</h3>
+									<p className="text-blue-700 text-lg">
+										Age {session.child_data.age}
+									</p>
+									<div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
+										<Cake className="h-5 w-5 text-pink-400" />
+										<span className="text-sm">
+											{formatDate(session.child_data.birthday)}
+										</span>
+									</div>
 								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+							</CardContent>
+						</Card>
 
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-					{/* Main Content */}
-					<div className="lg:col-span-2 space-y-6">
-						{/* Session Timeline */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+						{/* Interviewer Card */}
+						<Card className="w-full bg-white/90 backdrop-blur-md border border-green-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<Clock className="h-5 w-5 text-blue-600" />
+								<CardTitle className="flex items-center gap-2 text-lg text-green-700">
+									<UserCheck className="h-5 w-5 text-green-400" />
+									Conducted By
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="text-center">
+									<div className="w-16 h-16 bg-gradient-to-br from-green-200 to-emerald-200 rounded-full mx-auto mb-2 flex items-center justify-center text-green-800 text-xl font-bold">
+										{session.user.first_name[0]}
+										{session.user.last_name[0]}
+									</div>
+									<div className="font-medium text-green-900 text-lg">
+										{session.user.first_name} {session.user.last_name}
+									</div>
+									<div className="text-sm text-green-600 mt-1">
+										Social Worker
+									</div>
+								</div>
+							</CardContent>
+						</Card>
+					</div>
+
+					{/* Right Column: Session Details */}
+					<div className="lg:col-span-2 space-y-6">
+						{/* Session Title, ID, Status */}
+						<Card className="bg-white/90 backdrop-blur-md border border-blue-100 shadow-xl p-6 rounded-3xl">
+							<CardHeader className="pb-4">
+								<CardTitle className="text-2xl font-bold text-blue-900">
+									{session.title}
+								</CardTitle>
+							</CardHeader>
+							<CardContent className="flex flex-wrap items-center gap-3">
+								{session.stage && (
+									<Badge
+										className={`px-3 py-1 font-medium ${getStageColor(session.stage)}`}
+									>
+										<Target className="h-4 w-4 mr-2" />
+										{session.stage.toUpperCase()}
+									</Badge>
+								)}
+								<Badge
+									className={`px-3 py-1 font-medium ${getStatusColor(!!session.end_time)}`}
+								>
+									{session.end_time ? "Completed" : "In Progress"}
+								</Badge>
+								<div className="ml-auto text-sm text-blue-400">
+									Session ID:{" "}
+									<span className="font-mono bg-blue-50 px-2 py-1 rounded">
+										{session.session_id}
+									</span>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Session Timeline */}
+						<Card className="bg-white/90 backdrop-blur-md border border-blue-100 shadow-xl p-6 rounded-3xl">
+							<CardHeader className="pb-4">
+								<CardTitle className="flex items-center gap-2 text-lg text-blue-700">
+									<Clock className="h-5 w-5 text-blue-400" />
 									Session Timeline
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
-								<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-									<div className="flex items-center gap-3 mb-2">
-										<Calendar className="h-4 w-4 text-blue-600" />
-										<span className="font-semibold text-blue-900">
-											Start Time
-										</span>
+								<div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+									<div className="flex items-center gap-3 mb-2 text-blue-700">
+										<Calendar className="h-4 w-4" />
+										<span className="font-semibold">Start Time</span>
 									</div>
-									<div className="ml-7 space-y-1">
+									<div className="ml-7 space-y-1 text-blue-900">
 										<div className="text-sm font-medium">
 											{formatDate(session.start_time)}
 										</div>
-										<div className="text-sm text-gray-600">
+										<div className="text-sm text-blue-400">
 											{formatTime(session.start_time)}
 										</div>
 									</div>
 								</div>
-
 								{session.end_time ? (
-									<div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
-										<div className="flex items-center gap-3 mb-2">
-											<Clock className="h-4 w-4 text-green-600" />
-											<span className="font-semibold text-green-900">
-												End Time
-											</span>
+									<div className="bg-green-50 rounded-xl p-4 border border-green-100">
+										<div className="flex items-center gap-3 mb-2 text-green-700">
+											<Clock className="h-4 w-4" />
+											<span className="font-semibold">End Time</span>
 										</div>
-										<div className="ml-7 space-y-1">
+										<div className="ml-7 space-y-1 text-green-900">
 											<div className="text-sm font-medium">
 												{formatDate(session.end_time)}
 											</div>
-											<div className="text-sm text-gray-600">
+											<div className="text-sm text-green-400">
 												{formatTime(session.end_time)}
 											</div>
 											{calculateDuration() && (
-												<div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full inline-block">
+												<div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded-full inline-block mt-2">
 													Duration: {calculateDuration()}
 												</div>
 											)}
 										</div>
 									</div>
 								) : (
-									<div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl p-4 border border-gray-200">
-										<div className="flex items-center gap-3 text-gray-500">
+									<div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+										<div className="flex items-center gap-3 text-gray-400">
 											<Clock className="h-4 w-4" />
 											<span className="italic">Session in progress...</span>
 										</div>
@@ -211,22 +353,22 @@ export default function SessionDetailPage() {
 						</Card>
 
 						{/* Emotional Expression */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+						<Card className="bg-white/90 backdrop-blur-md border border-pink-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<Heart className="h-5 w-5 text-pink-600" />
+								<CardTitle className="flex items-center gap-2 text-lg text-pink-700">
+									<Heart className="h-5 w-5 text-pink-400" />
 									Emotional Expression
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="space-y-3">
 									<div>
-										<span className="text-sm font-medium text-gray-700 mb-2 block">
+										<span className="text-sm font-medium text-pink-700 mb-2 block">
 											Drawing Data
 										</span>
-										<div className="flex items-center gap-2">
-											<Palette className="h-4 w-4 text-purple-600" />
-											<span className="text-sm text-gray-600">
+										<div className="flex items-center gap-2 text-pink-400">
+											<Palette className="h-4 w-4 text-purple-400" />
+											<span className="text-sm">
 												{session.emotional_expression.drawing_data
 													? "Available"
 													: "None"}
@@ -234,25 +376,19 @@ export default function SessionDetailPage() {
 										</div>
 									</div>
 									{session.emotional_expression.drawing_data && (
-										<div className="mt-2">
+										<div className="mt-2 bg-pink-50 p-4 rounded-xl border border-pink-100">
 											<img
 												src={session.emotional_expression.drawing_data}
 												alt="User Drawing"
-												style={{
-													maxWidth: "100%",
-													borderRadius: "8px",
-													border: "1px solid #eee",
-												}}
+												className="max-w-full rounded-lg border border-pink-200"
 											/>
 										</div>
 									)}
 								</div>
-
-								<Separator />
-
+								<Separator className="bg-pink-100" />
 								<div className="space-y-3">
 									<div>
-										<span className="text-sm font-medium text-gray-700 mb-2 block">
+										<span className="text-sm font-medium text-pink-700 mb-2 block">
 											Selected Feelings
 										</span>
 										<div className="flex flex-wrap gap-2">
@@ -262,7 +398,7 @@ export default function SessionDetailPage() {
 													(feeling) => (
 														<Badge
 															key={feeling}
-															className="bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 transition-colors"
+															className="bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200 transition-colors"
 															variant="outline"
 														>
 															{feeling}
@@ -270,15 +406,14 @@ export default function SessionDetailPage() {
 													),
 												)
 											) : (
-												<span className="text-gray-400 italic">
+												<span className="text-pink-300 italic">
 													None selected
 												</span>
 											)}
 										</div>
 									</div>
-
 									<div>
-										<span className="text-sm font-medium text-gray-700 mb-2 block">
+										<span className="text-sm font-medium text-pink-700 mb-2 block">
 											Body Map Annotations
 										</span>
 										<div className="flex flex-wrap gap-2">
@@ -288,7 +423,7 @@ export default function SessionDetailPage() {
 													(annotation) => (
 														<Badge
 															key={annotation}
-															className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100 transition-colors"
+															className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200 transition-colors"
 															variant="outline"
 														>
 															{formatBodyMapAnnotation(annotation)}
@@ -296,7 +431,7 @@ export default function SessionDetailPage() {
 													),
 												)
 											) : (
-												<span className="text-gray-400 italic">
+												<span className="text-pink-300 italic">
 													No annotations
 												</span>
 											)}
@@ -307,137 +442,33 @@ export default function SessionDetailPage() {
 						</Card>
 
 						{/* Session Notes */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+						<Card className="bg-white/90 backdrop-blur-md border border-indigo-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<MessageSquare className="h-5 w-5 text-indigo-600" />
+								<CardTitle className="flex items-center gap-2 text-lg text-indigo-700">
+									<MessageSquare className="h-5 w-5 text-indigo-400" />
 									Session Notes
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border-l-4 border-indigo-400">
-									<p className="text-gray-700 leading-relaxed">
+								<div className="bg-indigo-50 rounded-xl p-6 border-l-4 border-indigo-300 text-indigo-900">
+									<p className="leading-relaxed">
 										{session.session_notes?.trim() ? (
 											session.session_notes
 										) : (
-											<span className="text-gray-400 italic">No notes yet</span>
+											<span className="text-indigo-300 italic">
+												No notes yet
+											</span>
 										)}
 									</p>
-								</div>
-							</CardContent>
-						</Card>
-					</div>
-
-					{/* Sidebar */}
-					<div className="space-y-6">
-						{/* Child Information */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
-							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<User className="h-5 w-5 text-blue-600" />
-									Child Information
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div className="text-center pb-4 border-b border-gray-100">
-									<div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-xl font-bold">
-										{session.child_data.first_name[0]}
-										{session.child_data.last_name[0]}
-									</div>
-									<h3 className="font-semibold text-lg text-gray-900">
-										{session.child_data.first_name}{" "}
-										{session.child_data.last_name}
-									</h3>
-									<p className="text-sm text-gray-600">
-										Age {session.child_data.age}
-									</p>
-								</div>
-
-								<div className="space-y-3">
-									<div className="flex items-center gap-3">
-										<Cake className="h-4 w-4 text-pink-500" />
-										<div>
-											<div className="text-xs text-gray-500 uppercase tracking-wide">
-												Birthday
-											</div>
-											<div className="text-sm font-medium">
-												{formatDate(session.child_data.birthday)}
-											</div>
-										</div>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-
-						{/* Avatar Data */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
-							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<User className="h-5 w-5 text-purple-600" />
-									Avatar
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-3">
-								{/* Avatar Visual Preview */}
-								<div className="flex items-center justify-center mb-2">
-									<div className="relative bg-white/40 backdrop-blur-sm rounded-2xl p-2 shadow-inner border border-white/30 w-full max-w-[120px] aspect-square flex items-center justify-center">
-										{session.avatar_data?.background &&
-										session.avatar_data?.background !== "default" &&
-										session.avatar_data?.clothes &&
-										session.avatar_data?.clothes !== "default" &&
-										session.avatar_data?.head &&
-										session.avatar_data?.head !== "default" &&
-										session.avatar_data?.hair &&
-										session.avatar_data?.hair !== "default" &&
-										session.avatar_data?.expression &&
-										session.avatar_data?.expression !== "default" ? (
-											<>
-												{/* Background */}
-												<img
-													src={session.avatar_data.background}
-													className="absolute inset-0 object-cover h-full w-full brightness-75 rounded-lg"
-													alt="Avatar background"
-												/>
-												{/* Clothes */}
-												<img
-													src={session.avatar_data.clothes}
-													className="absolute inset-0 w-full h-full object-contain top-[-10px]"
-													alt="Avatar clothes"
-												/>
-												{/* Head */}
-												<img
-													src={session.avatar_data.head}
-													className="absolute inset-0 w-full h-full object-contain"
-													alt="Avatar head"
-												/>
-												{/* Hair */}
-												<img
-													src={session.avatar_data.hair}
-													className="absolute inset-0 w-full h-full object-contain"
-													alt="Avatar hair"
-												/>
-												{/* Expression */}
-												<img
-													src={session.avatar_data.expression}
-													className="absolute inset-0 w-full h-full object-contain"
-													alt="Avatar expression"
-												/>
-											</>
-										) : (
-											<div className="flex items-center justify-center w-full h-full text-gray-400 text-sm font-medium">
-												No avatar yet
-											</div>
-										)}
-									</div>
 								</div>
 							</CardContent>
 						</Card>
 
 						{/* Tags */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
+						<Card className="bg-white/90 backdrop-blur-md border border-orange-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<Tag className="h-5 w-5 text-orange-600" />
+								<CardTitle className="flex items-center gap-2 text-lg text-orange-700">
+									<Tag className="h-5 w-5 text-orange-400" />
 									Tags
 								</CardTitle>
 							</CardHeader>
@@ -448,38 +479,14 @@ export default function SessionDetailPage() {
 											<Badge
 												key={tag}
 												variant="outline"
-												className="bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 transition-colors"
+												className="bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200 transition-colors"
 											>
 												{tag.replace(/_/g, " ")}
 											</Badge>
 										))
 									) : (
-										<span className="text-gray-400 italic">No tags</span>
+										<span className="text-orange-300 italic">No tags</span>
 									)}
-								</div>
-							</CardContent>
-						</Card>
-
-						{/* Interviewer */}
-						<Card className="bg-white/70 backdrop-blur-sm border-white/20 shadow-lg">
-							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg">
-									<UserCheck className="h-5 w-5 text-green-600" />
-									Conducted By
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="text-center">
-									<div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mx-auto mb-2 flex items-center justify-center text-white font-bold">
-										{session.user.first_name[0]}
-										{session.user.last_name[0]}
-									</div>
-									<div className="font-medium text-gray-900">
-										{session.user.first_name} {session.user.last_name}
-									</div>
-									<div className="text-xs text-gray-500 mt-1">
-										Social Worker
-									</div>
 								</div>
 							</CardContent>
 						</Card>
@@ -487,7 +494,7 @@ export default function SessionDetailPage() {
 				</div>
 
 				{/* Footer Meta Info */}
-				<Card className="mt-8 bg-white/50 backdrop-blur-sm border-white/20">
+				<Card className="bg-white/90 backdrop-blur-md border border-gray-100 shadow-xl p-6 rounded-3xl">
 					<CardContent className="pt-6">
 						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
 							<div>
@@ -511,19 +518,6 @@ export default function SessionDetailPage() {
 						</div>
 					</CardContent>
 				</Card>
-
-				{/* Bottom Back Button */}
-				<div className="mt-8 text-center">
-					<Button
-						variant="outline"
-						size="lg"
-						className="bg-white/80 hover:bg-white border-gray-200 shadow-sm transition-all hover:shadow-md"
-						onClick={() => navigate(-1)}
-					>
-						<ArrowLeft className="h-4 w-4 mr-2" />
-						Back to Sessions
-					</Button>
-				</div>
 			</div>
 		</div>
 	);

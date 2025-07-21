@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Calendar, Heart, Sparkles, Star, User } from "lucide-react";
+import { Calendar, Heart, Sparkles, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Calendar as BirthdayCalendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -39,24 +39,15 @@ export default function Stage1ChildData({
 		return savedStep ? Number(savedStep) : 0;
 	});
 
+	// Only show first and last name together in the first step
 	const inputFields = [
 		{
-			id: "first_name",
-			label: "What's your first name?",
-			placeholder: "Type your awesome first name here!",
-			icon: User,
+			id: "name",
+			label: "What's your name?",
+			placeholder: "Type your first and last name!",
 			color: "from-pink-400 via-rose-400 to-red-400",
 			bgColor: "from-pink-50 to-rose-50",
 			iconify: "fluent-emoji:waving-hand",
-		},
-		{
-			id: "last_name",
-			label: "What's your last name?",
-			placeholder: "And your super cool last name!",
-			icon: User,
-			color: "from-purple-400 via-violet-400 to-indigo-400",
-			bgColor: "from-purple-50 to-violet-50",
-			iconify: "fluent-emoji:performing-arts",
 		},
 		{
 			id: "age",
@@ -86,10 +77,19 @@ export default function Stage1ChildData({
 	}, [currentStep, setQuestion, inputFields[currentStep].label]);
 
 	const currentField = inputFields[currentStep];
+	const currentValue =
+		currentStep === 0
+			? value.first_name && value.last_name
+				? value.first_name + " " + value.last_name
+				: ""
+			: value[currentField.id as keyof ChildData];
+	const isFirstStep = currentStep === 0;
 	const isLastStep = currentStep === inputFields.length - 1;
-	const currentValue = value[currentField.id as keyof ChildData];
 
 	const handleContinue = () => {
+		if (isFirstStep) {
+			if (!value.first_name || !value.last_name) return;
+		}
 		if (!isLastStep) {
 			setCurrentStep((prev) => prev + 1);
 		} else {
@@ -147,6 +147,38 @@ export default function Stage1ChildData({
 	);
 
 	const renderField = () => {
+		if (currentStep === 0) {
+			return (
+				<div className="flex flex-col md:flex-row gap-6">
+					<div className="relative flex-1">
+						<div className="absolute inset-0 bg-gradient-to-r from-pink-50 to-rose-50 rounded-3xl blur opacity-30" />
+						<Input
+							id="first_name"
+							type="text"
+							placeholder="Type your first name here!"
+							value={value.first_name}
+							onChange={(e) =>
+								onChange({ ...value, first_name: e.target.value })
+							}
+							className="relative pl-6 pr-6 py-8 font-bold text-2xl border-3 border-gray-200 rounded-3xl bg-white/90 backdrop-blur-sm focus:border-purple-400 focus:ring-6 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300 shadow-lg"
+						/>
+					</div>
+					<div className="relative flex-1">
+						<div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-violet-50 rounded-3xl blur opacity-30" />
+						<Input
+							id="last_name"
+							type="text"
+							placeholder="Type your last name here!"
+							value={value.last_name}
+							onChange={(e) =>
+								onChange({ ...value, last_name: e.target.value })
+							}
+							className="relative pl-6 pr-6 py-8 font-bold text-2xl border-3 border-gray-200 rounded-3xl bg-white/90 backdrop-blur-sm focus:border-purple-400 focus:ring-6 focus:ring-purple-100 transition-all duration-300 hover:border-purple-300 shadow-lg"
+						/>
+					</div>
+				</div>
+			);
+		}
 		if (currentField.id === "birthday") {
 			let selectedDate: Date | undefined;
 			if (currentValue) {
@@ -242,7 +274,11 @@ export default function Stage1ChildData({
 								},
 							}}
 						>
-							<Icon icon={currentField.iconify} className="w-14 h-14" />
+							{currentStep === 0 ? (
+								<Icon icon="fluent-emoji:waving-hand" className="w-14 h-14" />
+							) : currentField.icon ? (
+								<currentField.icon className="w-14 h-14 text-white" />
+							) : null}
 						</motion.div>
 						<h2 className="text-4xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent mb-4">
 							Tell me about yourself!{" "}
@@ -273,20 +309,24 @@ export default function Stage1ChildData({
 										className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-3xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
 									/>
 									<div className="relative flex items-center">
-										<motion.div
-											className={`absolute left-6 z-10 w-12 h-12 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center shadow-lg`}
-											initial={{ scale: 0, rotate: -180 }}
-											animate={{ scale: 1, rotate: 0 }}
-											transition={{
-												type: "spring",
-												stiffness: 200,
-												damping: 10,
-												delay: 0.4,
-											}}
-											whileHover={{ scale: 1.1, rotate: 10 }}
-										>
-											<currentField.icon className="w-6 h-6 text-white" />
-										</motion.div>
+										{currentStep !== 0 && (
+											<motion.div
+												className={`absolute left-6 z-10 w-12 h-12 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center shadow-lg`}
+												initial={{ scale: 0, rotate: -180 }}
+												animate={{ scale: 1, rotate: 0 }}
+												transition={{
+													type: "spring",
+													stiffness: 200,
+													damping: 10,
+													delay: 0.4,
+												}}
+												whileHover={{ scale: 1.1, rotate: 10 }}
+											>
+												{currentField.icon ? (
+													<currentField.icon className="w-6 h-6 text-white" />
+												) : null}
+											</motion.div>
+										)}
 										<div className="w-full">{renderField()}</div>
 									</div>
 								</div>
@@ -303,7 +343,12 @@ export default function Stage1ChildData({
 						<motion.button
 							type="button"
 							onClick={handleContinue}
-							disabled={!currentValue || loading}
+							disabled={
+								loading ||
+								(isFirstStep
+									? !value.first_name || !value.last_name
+									: !currentValue)
+							}
 							className="flex items-center px-10 py-5 text-xl font-black bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none border-3 border-purple-300"
 							whileTap={{ scale: 0.95 }}
 							whileHover={{ y: -3 }}
