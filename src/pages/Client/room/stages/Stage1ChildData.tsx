@@ -48,6 +48,7 @@ export default function Stage1ChildData({
 			color: "from-pink-400 via-rose-400 to-red-400",
 			bgColor: "from-pink-50 to-rose-50",
 			iconify: "fluent-emoji:waving-hand",
+			audio: "/ai-voiced/what-is-your-name.mp3",
 		},
 		{
 			id: "age",
@@ -58,6 +59,7 @@ export default function Stage1ChildData({
 			bgColor: "from-blue-50 to-cyan-50",
 			type: "number",
 			iconify: "fluent-emoji:balloon",
+			audio: "/ai-voiced/tell-me-your-age.mp3",
 		},
 		{
 			id: "birthday",
@@ -68,8 +70,18 @@ export default function Stage1ChildData({
 			bgColor: "from-green-50 to-emerald-50",
 			type: "date",
 			iconify: "fluent-emoji:birthday-cake",
+			audio: "/ai-voiced/when-is-your-bday.mp3",
 		},
 	];
+
+	useEffect(() => {
+		const audio = new Audio(inputFields[currentStep].audio);
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+
+		return () => {
+			audio.pause();
+		};
+	}, [currentStep]);
 
 	useEffect(() => {
 		localStorage.setItem("stage1-current-step", String(currentStep));

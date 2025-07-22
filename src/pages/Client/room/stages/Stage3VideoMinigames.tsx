@@ -28,6 +28,11 @@ export default function Stage3VideoMinigames({
 	const showGamesPanel = currentPanel === "games";
 
 	useEffect(() => {
+		const audio = new Audio("/ai-voiced/stage3.mp3");
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+	}, []);
+
+	useEffect(() => {
 		setQuestion("Ready for some video and minigames?");
 	}, [setQuestion]);
 

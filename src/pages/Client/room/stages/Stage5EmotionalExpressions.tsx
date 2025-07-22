@@ -51,6 +51,29 @@ export default function Stage5EmotionalExpressions({
 	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
 	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
 
+	const tabAudios = {
+		feelings: "/ai-voiced/tell-me-how-you-feel.mp3",
+		bodymap: "/ai-voiced/body-map.mp3",
+		drawingpad: "/ai-voiced/draw-something.mp3",
+	};
+
+	const selectAudio = () => {
+		const audio = new Audio(
+			"/sound-effects/body-map&select-expressions/select.mp3",
+		);
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+	};
+
+	useEffect(() => {
+		const audio = new Audio(tabAudios[currentTab]);
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+
+		// Cleanup function to stop audio if component unmounts
+		return () => {
+			audio.pause();
+		};
+	}, [currentTab]);
+
 	const emotions = [
 		{
 			value: "happy",
@@ -225,7 +248,10 @@ export default function Stage5EmotionalExpressions({
 											boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
 										}}
 										whileTap={{ scale: 0.95 }}
-										onClick={() => onChange(emotion.value)}
+										onClick={() => {
+											onChange(emotion.value);
+											selectAudio();
+										}}
 										className={`p-6 rounded-3xl border-3 transition-all duration-300 relative overflow-hidden min-h-[120px] flex flex-col items-center justify-center gap-2 ${
 											value === emotion.value
 												? `${emotion.borderColor} ${emotion.bgColor} shadow-xl transform scale-105`

@@ -28,6 +28,11 @@ export default function Stage4Other({
 		{ emoji: "🎪", label: "Puzzle 4", completed: false },
 	];
 
+	useEffect(() => {
+		const audio = new Audio("/ai-voiced/stage4.mp3");
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+	}, []);
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 50 }}
