@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { queryUsers, type UserQueryParams } from "@/api/users";
 import type { User } from "@/types/user";
 import { DataTable } from "./users-data-table";
 
 export default function UsersPage() {
-	const [data, setData] = useState<User[]>([]);
-	const [total, setTotal] = useState(0);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	// Query params state
 	const [search, setSearch] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -27,33 +24,25 @@ export default function UsersPage() {
 		return () => clearTimeout(handler);
 	}, [search]);
 
-	const fetchData = useCallback(() => {
-		setLoading(true);
-		const params: UserQueryParams = {
-			search: debouncedSearch,
-			role,
-			condition,
-			place_of_assignment: placeOfAssignment,
-			page,
-			rowsPerPage,
-		};
-		queryUsers(params)
-			.then((res) => {
-				setData(res.data);
-				setTotal(res.total ?? 0);
-				setLoading(false);
-			})
-			.catch(() => {
-				setError("Failed to fetch users");
-				setLoading(false);
-			});
-	}, [debouncedSearch, role, condition, placeOfAssignment, page, rowsPerPage]);
+	const params: UserQueryParams = {
+		search: debouncedSearch,
+		role,
+		condition,
+		place_of_assignment: placeOfAssignment,
+		page,
+		rowsPerPage,
+	};
 
-	useEffect(() => {
-		fetchData();
-	}, [fetchData]);
+	const {
+		data: queryData,
+		isLoading: loading,
+		error,
+	} = useQuery<{ data: User[]; total: number }, Error>({
+		queryKey: ["users", params],
+		queryFn: () => queryUsers(params),
+	});
 
-	if (error) return <div>{error}</div>;
+	if (error) return <div>{error.message || "Failed to fetch users"}</div>;
 
 	return (
 		<>
@@ -64,8 +53,8 @@ export default function UsersPage() {
 				</p>
 			</div>
 			<DataTable
-				data={data}
-				total={total}
+				data={queryData?.data || []}
+				total={queryData?.total || 0}
 				search={search}
 				setSearch={setSearch}
 				role={role}

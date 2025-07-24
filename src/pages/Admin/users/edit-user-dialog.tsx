@@ -1,6 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { updateUserInfo } from "@/api/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,14 +51,12 @@ interface EditUserDialogProps {
 	};
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (id: string, data: EditUserData) => Promise<void>;
 }
 
 export function EditUserDialog({
 	user,
 	open,
 	onOpenChange,
-	onSave,
 }: EditUserDialogProps) {
 	const [formData, setFormData] = useState<EditUserData>({
 		first_name: user.first_name,
@@ -73,7 +73,21 @@ export function EditUserDialog({
 			| "blocked",
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	const [isLoading, setIsLoading] = useState(false);
+	const queryClient = useQueryClient();
+
+	const { mutate: editUser, isPending } = useMutation({
+		mutationFn: async (data: EditUserData) => {
+			await updateUserInfo(user.id, data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["users"] });
+			toast.success("User updated successfully");
+			onOpenChange(false);
+		},
+		onError: () => {
+			toast.error("Failed to update user");
+		},
+	});
 
 	const handleInputChange = (field: keyof EditUserData, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
@@ -107,17 +121,7 @@ export function EditUserDialog({
 			toast.error("Please fix the errors in the form");
 			return;
 		}
-
-		setIsLoading(true);
-		try {
-			await onSave(user.id, formData);
-			toast.success("User updated successfully");
-			onOpenChange(false);
-		} catch {
-			toast.error("Failed to update user");
-		} finally {
-			setIsLoading(false);
-		}
+		editUser(formData);
 	};
 
 	return (
@@ -318,12 +322,12 @@ export function EditUserDialog({
 					<Button
 						variant="outline"
 						onClick={() => onOpenChange(false)}
-						disabled={isLoading}
+						disabled={isPending}
 					>
 						Cancel
 					</Button>
-					<Button onClick={handleSave} disabled={isLoading}>
-						{isLoading ? "Saving..." : "Save Changes"}
+					<Button onClick={handleSave} disabled={isPending}>
+						{isPending ? "Saving..." : "Save Changes"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

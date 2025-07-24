@@ -1,6 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { createUser } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -29,6 +31,7 @@ const addUserSchema = z.object({
 	place_of_assignment: z.string().min(1, "Place of assignment is required"),
 	role: z.enum(["admin", "social_worker"]),
 	condition: z.literal("pending"),
+	password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type AddUserData = z.infer<typeof addUserSchema>;
@@ -36,14 +39,9 @@ type AddUserData = z.infer<typeof addUserSchema>;
 interface AddUserDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onSave: (data: AddUserData) => Promise<void>;
 }
 
-export function AddUserDialog({
-	open,
-	onOpenChange,
-	onSave,
-}: AddUserDialogProps) {
+export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
 	const [formData, setFormData] = useState<AddUserData>({
 		first_name: "",
 		last_name: "",
@@ -53,9 +51,35 @@ export function AddUserDialog({
 		place_of_assignment: "",
 		role: "social_worker",
 		condition: "pending",
+		password: "",
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
-	const [isLoading, setIsLoading] = useState(false);
+	const queryClient = useQueryClient();
+
+	const { mutate: addUser, isPending } = useMutation({
+		mutationFn: async (data: AddUserData) => {
+			await createUser(data);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["users"] });
+			toast.success("User created successfully");
+			setFormData({
+				first_name: "",
+				last_name: "",
+				username: "",
+				email: "",
+				phone_number: "",
+				place_of_assignment: "",
+				role: "social_worker",
+				condition: "pending",
+				password: "",
+			});
+			onOpenChange(false);
+		},
+		onError: () => {
+			toast.error("Failed to create user");
+		},
+	});
 
 	const handleInputChange = (field: keyof AddUserData, value: string) => {
 		setFormData((prev) => ({ ...prev, [field]: value }));
@@ -89,28 +113,7 @@ export function AddUserDialog({
 			toast.error("Please fix the errors in the form");
 			return;
 		}
-
-		setIsLoading(true);
-		try {
-			await onSave(formData);
-			toast.success("User created successfully");
-			// Reset form
-			setFormData({
-				first_name: "",
-				last_name: "",
-				username: "",
-				email: "",
-				phone_number: "",
-				place_of_assignment: "",
-				role: "social_worker",
-				condition: "pending",
-			});
-			onOpenChange(false);
-		} catch (error) {
-			toast.error("Failed to create user");
-		} finally {
-			setIsLoading(false);
-		}
+		addUser(formData);
 	};
 
 	const handleCancel = () => {
@@ -124,6 +127,7 @@ export function AddUserDialog({
 			place_of_assignment: "",
 			role: "social_worker",
 			condition: "pending",
+			password: "",
 		});
 		setErrors({});
 		onOpenChange(false);
@@ -213,6 +217,21 @@ export function AddUserDialog({
 						/>
 					</div>
 
+					<div className="space-y-2">
+						<Label htmlFor="password">Password *</Label>
+						<Input
+							id="password"
+							type="password"
+							value={formData.password}
+							onChange={(e) => handleInputChange("password", e.target.value)}
+							className={errors.password ? "border-red-500" : ""}
+							placeholder="Enter password"
+						/>
+						{errors.password && (
+							<p className="text-sm text-red-500">{errors.password}</p>
+						)}
+					</div>
+
 					{/* Place of Assignment and Role side by side */}
 					<div className="grid grid-cols-2 gap-4">
 						<div className="space-y-2">
@@ -253,7 +272,7 @@ export function AddUserDialog({
 							<Select
 								value={formData.role}
 								onValueChange={(value) =>
-									handleInputChange("role", value as any)
+									handleInputChange("role", value as "admin" | "social_worker")
 								}
 							>
 								<SelectTrigger
@@ -289,11 +308,11 @@ export function AddUserDialog({
 				</div>
 
 				<DialogFooter>
-					<Button variant="outline" onClick={handleCancel} disabled={isLoading}>
+					<Button variant="outline" onClick={handleCancel} disabled={isPending}>
 						Cancel
 					</Button>
-					<Button onClick={handleSave} disabled={isLoading}>
-						{isLoading ? "Creating..." : "Create User"}
+					<Button onClick={handleSave} disabled={isPending}>
+						{isPending ? "Creating..." : "Create User"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

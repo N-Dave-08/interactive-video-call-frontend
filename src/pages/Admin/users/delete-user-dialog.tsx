@@ -1,6 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Trash2, UserX } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
+import { deleteUser } from "@/api/users";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,28 +27,31 @@ interface DeleteUserDialogProps {
 	};
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-	onDelete: (id: string) => Promise<void>;
 }
 
 export function DeleteUserDialog({
 	user,
 	open,
 	onOpenChange,
-	onDelete,
 }: DeleteUserDialogProps) {
-	const [isLoading, setIsLoading] = useState(false);
+	const queryClient = useQueryClient();
 
-	const handleDelete = async () => {
-		setIsLoading(true);
-		try {
-			await onDelete(user.id);
+	const { mutate: removeUser, isPending } = useMutation({
+		mutationFn: async () => {
+			await deleteUser(user.id);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["users"] });
 			toast.success("User deleted successfully");
 			onOpenChange(false);
-		} catch (error) {
+		},
+		onError: () => {
 			toast.error("Failed to delete user");
-		} finally {
-			setIsLoading(false);
-		}
+		},
+	});
+
+	const handleDelete = async () => {
+		removeUser();
 	};
 
 	const getRoleBadge = (role: string) => {
@@ -185,17 +189,17 @@ export function DeleteUserDialog({
 					<Button
 						variant="outline"
 						onClick={() => onOpenChange(false)}
-						disabled={isLoading}
+						disabled={isPending}
 					>
 						Cancel
 					</Button>
 					<Button
 						variant="destructive"
 						onClick={handleDelete}
-						disabled={isLoading}
+						disabled={isPending}
 						className="gap-2"
 					>
-						{isLoading ? (
+						{isPending ? (
 							<>
 								<UserX className="h-4 w-4" />
 								Deleting...

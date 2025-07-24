@@ -1,3 +1,4 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	type ColumnFiltersState,
@@ -71,7 +72,6 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import type { AddUserData, EditUserData } from "@/schemas";
 import type { User } from "@/types";
 import { AddUserDialog } from "./add-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
@@ -250,46 +250,66 @@ const columns: ColumnDef<User>[] = [
 		cell: ({ row, table }) => {
 			const value = row.original.condition;
 			const id = row.original.id;
-
-			const handleChange = async (newCondition: string) => {
-				try {
-					await updateUserCondition(id, newCondition); // Call backend API
+			const queryClient = useQueryClient();
+			const { mutate: updateCondition, isPending } = useMutation({
+				mutationFn: async (newCondition: string) => {
+					await updateUserCondition(id, newCondition);
+				},
+				onSuccess: (_data, newCondition) => {
+					queryClient.invalidateQueries({ queryKey: ["users"] });
 					(
 						table.options.meta as {
 							onConditionChange?: (id: string, condition: string) => void;
 						}
 					)?.onConditionChange?.(id, newCondition);
 					toast.success(`User status updated to ${newCondition}`);
-				} catch (err) {
+				},
+				onError: (err) => {
 					toast.error(
 						`Failed to update user status: ${err instanceof Error ? err.message : "Unknown error"}`,
 					);
-				}
+				},
+			});
+
+			const handleChange = (newCondition: string) => {
+				updateCondition(newCondition);
 			};
 
 			return (
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-auto p-0 hover:bg-transparent">
+						<Button
+							variant="ghost"
+							className="h-auto p-0 hover:bg-transparent"
+							disabled={isPending}
+						>
 							{getConditionBadge(value)}
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="start">
-						<DropdownMenuItem onClick={() => handleChange("approved")}>
-							{" "}
-							<CheckCircle className="h-4 w-4 mr-2 text-green-600" /> Approve{" "}
+						<DropdownMenuItem
+							onClick={() => handleChange("approved")}
+							disabled={isPending}
+						>
+							<CheckCircle className="h-4 w-4 mr-2 text-green-600" /> Approve
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handleChange("pending")}>
-							{" "}
-							<Clock className="h-4 w-4 mr-2 text-yellow-600" /> Pending{" "}
+						<DropdownMenuItem
+							onClick={() => handleChange("pending")}
+							disabled={isPending}
+						>
+							<Clock className="h-4 w-4 mr-2 text-yellow-600" /> Pending
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handleChange("rejected")}>
-							{" "}
-							<XCircle className="h-4 w-4 mr-2 text-red-600" /> Reject{" "}
+						<DropdownMenuItem
+							onClick={() => handleChange("rejected")}
+							disabled={isPending}
+						>
+							<XCircle className="h-4 w-4 mr-2 text-red-600" /> Reject
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => handleChange("blocked")}>
-							{" "}
-							<AlertCircle className="h-4 w-4 mr-2 text-gray-600" /> Block{" "}
+						<DropdownMenuItem
+							onClick={() => handleChange("blocked")}
+							disabled={isPending}
+						>
+							<AlertCircle className="h-4 w-4 mr-2 text-gray-600" /> Block
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -504,42 +524,6 @@ export function DataTable({
 
 	const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
 	const totalRowsCount = table.getFilteredRowModel().rows.length;
-
-	const handleSaveUser = async (id: string, data: EditUserData) => {
-		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		// Update the table data
-		setTableData((prev) =>
-			prev.map((user) => (user.id === id ? { ...user, ...data } : user)),
-		);
-	};
-
-	const handleAddUser = async (data: AddUserData) => {
-		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		// Create new user with generated ID and timestamps
-		const newUser: User = {
-			id: `user_${Date.now()}`, // Generate a unique ID
-			...data,
-			phone_number: data.phone_number || null,
-			password: data.password || "defaultPassword123", // Default password
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		};
-
-		// Add to table data
-		setTableData((prev) => [newUser, ...prev]);
-	};
-
-	const handleDeleteUser = async (id: string) => {
-		// Simulate API call
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		// Remove user from table data
-		setTableData((prev) => prev.filter((user) => user.id !== id));
-	};
 
 	return (
 		<div className="space-y-6">
@@ -859,16 +843,11 @@ export function DataTable({
 					user={editingUser}
 					open={editDialogOpen}
 					onOpenChange={setEditDialogOpen}
-					onSave={handleSaveUser}
 				/>
 			)}
 
 			{/* Add User Dialog */}
-			<AddUserDialog
-				open={addDialogOpen}
-				onOpenChange={setAddDialogOpen}
-				onSave={handleAddUser}
-			/>
+			<AddUserDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
 
 			{/* Delete User Dialog */}
 			{deletingUser && (
@@ -876,7 +855,6 @@ export function DataTable({
 					user={deletingUser}
 					open={deleteDialogOpen}
 					onOpenChange={setDeleteDialogOpen}
-					onDelete={handleDeleteUser}
 				/>
 			)}
 		</div>
