@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import {
 	ArrowLeft,
+	ArrowRight,
 	Cake,
 	Calendar,
 	Clock,
@@ -501,7 +502,7 @@ export default function SessionDetailPage() {
 
 				{/* Footer Meta Info */}
 				<Card className="bg-white/90 backdrop-blur-md border border-gray-100 shadow-xl p-6 rounded-3xl">
-					<CardContent className="pt-6">
+					<CardContent className="pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 						<div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
 							<div>
 								<div className="font-medium text-gray-700">
@@ -522,6 +523,16 @@ export default function SessionDetailPage() {
 								<div>{formatDate(session.updatedAt)}</div>
 							</div>
 						</div>
+						{/* Continue button for in-progress sessions */}
+						{!session.end_time && (
+							<Button
+								size="lg"
+								className="ml-auto rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
+								onClick={() => navigate(`/room/${session.session_id}`)}
+							>
+								Continue <ArrowRight className="h-4 w-4" />
+							</Button>
+						)}
 					</CardContent>
 				</Card>
 			</div>

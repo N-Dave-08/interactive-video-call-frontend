@@ -1,11 +1,14 @@
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, GamepadIcon, Play } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { fetchVideos } from "@/api/videos";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQuestionStore } from "@/store/questionStore";
+import type { Video } from "@/types/video";
 import StageCardLayout from "./StageCardLayout";
 
 export default function Stage3VideoMinigames({
@@ -27,6 +30,21 @@ export default function Stage3VideoMinigames({
 	const currentPanel = searchParams.get("panel") || "activities";
 	const showGamesPanel = currentPanel === "games";
 	const showVideosPanel = currentPanel === "videos";
+
+	const [videos, setVideos] = useState<Video[]>([]);
+	const [videosLoading, setVideosLoading] = useState(false);
+	const [videosError, setVideosError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (showVideosPanel) {
+			setVideosLoading(true);
+			setVideosError(null);
+			fetchVideos()
+				.then((res) => setVideos(res.data))
+				.catch((err) => setVideosError(err.message || "Failed to load videos"))
+				.finally(() => setVideosLoading(false));
+		}
+	}, [showVideosPanel]);
 
 	useEffect(() => {
 		const audio = new Audio("/ai-voiced/stage3.mp3");
@@ -84,33 +102,6 @@ export default function Stage3VideoMinigames({
 		},
 	];
 
-	const videos = [
-		{
-			title: "Meet Arnold",
-			description: "Lorem Ipsum",
-			thumbnail: "https://img.youtube.com/vi/ndvDzYmX15o/ndvDzYmX15o.jpg",
-			youtubeId: "ndvDzYmX15o",
-		},
-		{
-			title: "Meet Arnold",
-			description: "Lorem Ipsum",
-			thumbnail: "https://img.youtube.com/vi/bBKOoMH_fSw/bBKOoMH_fSw.jpg",
-			youtubeId: "bBKOoMH_fSw",
-		},
-		{
-			title: "Meet Arnold",
-			description: "Lorem Ipsum",
-			thumbnail: "https://img.youtube.com/vi/bTB3wSbi3Fs/hqdefault.jpg",
-			youtubeId: "bTB3wSbi3Fs",
-		},
-		{
-			title: "Meet Arnold",
-			description: "Lorem Ipsum",
-			thumbnail: "https://img.youtube.com/vi/drq97TJlMM0/drq97TJlMM0.jpg",
-			youtubeId: "drq97TJlMM0",
-		},
-	];
-
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 50 }}
@@ -148,51 +139,79 @@ export default function Stage3VideoMinigames({
 						<div className="text-center mb-4 text-2xl font-bold text-gray-800">
 							Choose a Video!
 						</div>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-							{videos.map((video) => (
-								<motion.div
-									key={video.title}
-									whileHover={{
-										scale: 1.05,
-										boxShadow:
-											"0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-									}}
-									whileTap={{ scale: 0.98 }}
-									transition={{
-										type: "spring",
-										stiffness: 300,
-										damping: 20,
-										duration: 0.3,
-									}}
-									className="relative group rounded-3xl"
-								>
-									{/* Glowing gradient blur background */}
+						{videosLoading ? (
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+								{Array.from({ length: 2 }).map((_, i) => (
 									<div
-										className={`absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-40 transition-opacity duration-300`}
-									/>
-									<Card className="relative flex flex-col items-center justify-center p-6 text-center rounded-3xl border-2 border-pink-200 group-hover:border-pink-400 bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300">
-										<CardContent className="p-0 flex flex-col items-center w-full">
-											<div className="aspect-[16/9] w-full mb-4">
-												<iframe
-													className="w-full h-full rounded-xl"
-													src={`https://www.youtube.com/embed/${video.youtubeId}`}
-													title={video.title}
-													frameBorder="0"
-													allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-													allowFullScreen
-												/>
-											</div>
-											<CardTitle className="text-xl font-extrabold text-gray-800">
-												{video.title}
-											</CardTitle>
-											<div className="text-gray-600 text-sm mt-1">
-												{video.description}
-											</div>
-										</CardContent>
-									</Card>
-								</motion.div>
-							))}
-						</div>
+										key={`video-skeleton-${i + 1}`}
+										className="relative group rounded-3xl"
+									>
+										<div className="absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-40 transition-opacity duration-300" />
+										<Card className="relative flex flex-col items-center justify-center p-6 text-center rounded-3xl border-2 border-pink-200 group-hover:border-pink-400 bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300">
+											<CardContent className="p-0 flex flex-col items-center w-full">
+												<Skeleton className="aspect-[16/9] w-full mb-4 rounded-xl" />
+												<Skeleton className="h-6 w-3/4 mb-2 rounded" />
+												<Skeleton className="h-4 w-1/2" />
+											</CardContent>
+										</Card>
+									</div>
+								))}
+							</div>
+						) : videosError ? (
+							<div className="col-span-2 text-center text-red-500 py-8">
+								{videosError}
+							</div>
+						) : videos.length === 0 ? (
+							<div className="col-span-2 text-center text-gray-400 py-8">
+								No videos found.
+							</div>
+						) : (
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+								{videos.map((video: Video) => (
+									<motion.div
+										key={video.id}
+										whileHover={{
+											scale: 1.05,
+											boxShadow:
+												"0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+										}}
+										whileTap={{ scale: 0.98 }}
+										transition={{
+											type: "spring",
+											stiffness: 300,
+											damping: 20,
+											duration: 0.3,
+										}}
+										className="relative group rounded-3xl"
+									>
+										{/* Glowing gradient blur background */}
+										<div
+											className={`absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-40 transition-opacity duration-300`}
+										/>
+										<Card className="relative flex flex-col items-center justify-center p-6 text-center rounded-3xl border-2 border-pink-200 group-hover:border-pink-400 bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300">
+											<CardContent className="p-0 flex flex-col items-center w-full">
+												<div className="aspect-[16/9] w-full mb-4">
+													<iframe
+														className="w-full h-full rounded-xl"
+														src={video.link}
+														title={video.title}
+														frameBorder="0"
+														allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+														allowFullScreen
+													/>
+												</div>
+												<CardTitle className="text-xl font-extrabold text-gray-800">
+													{video.title}
+												</CardTitle>
+												<div className="text-gray-600 text-sm mt-1">
+													{/* Optionally show createdAt or description here */}
+												</div>
+											</CardContent>
+										</Card>
+									</motion.div>
+								))}
+							</div>
+						)}
 						<Button
 							variant="link"
 							className="mt-6 text-lg font-semibold text-gray-600 hover:text-gray-800"

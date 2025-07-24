@@ -766,7 +766,6 @@ export function DataTable({
 						)}
 					</TableBody>
 				</Table>
-				{/* Optional: overlay spinner */}
 				{loading && <SpinnerLoading />}
 			</div>
 

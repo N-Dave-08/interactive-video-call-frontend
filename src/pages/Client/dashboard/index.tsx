@@ -7,6 +7,7 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +26,7 @@ import type { Session } from "@/types";
 
 export default function Dashboard() {
 	const { user } = useAuth();
+	const navigate = useNavigate();
 	const [sessions, setSessions] = useState<Session[]>([]);
 	const [counts, setCounts] = useState<{
 		scheduled: number;
@@ -164,7 +166,10 @@ export default function Dashboard() {
 									</span>
 								</div>
 							</div>
-							<Button className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm">
+							<Button
+								className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm"
+								onClick={() => navigate("/schedule")}
+							>
 								<CheckCircle className="h-4 w-4 mr-2" />
 								View Schedule
 							</Button>
@@ -269,9 +274,15 @@ export default function Dashboard() {
 								{sessions
 									.filter((session) => session.status === "in_progress")
 									.map((session) => (
-										<div
+										<button
 											key={session.session_id}
-											className="p-6 hover:bg-slate-50 transition-colors"
+											type="button"
+											className="w-full text-left p-6 hover:bg-slate-50 transition-colors cursor-pointer bg-transparent border-0"
+											onClick={() =>
+												navigate(`/sessions/${session.session_id}`, {
+													state: { session },
+												})
+											}
 										>
 											<div className="flex items-center justify-between">
 												<div className="flex items-center space-x-4">
@@ -322,7 +333,7 @@ export default function Dashboard() {
 													</Badge>
 												</div>
 											</div>
-										</div>
+										</button>
 									))}
 							</div>
 						</CardContent>
@@ -343,9 +354,15 @@ export default function Dashboard() {
 						<CardContent className="p-0">
 							<div className="divide-y divide-slate-100">
 								{sessions.slice(0, 4).map((session) => (
-									<div
+									<button
 										key={session.session_id}
-										className="p-4 hover:bg-slate-50 transition-colors"
+										type="button"
+										className="w-full text-left p-4 hover:bg-slate-50 transition-colors cursor-pointer bg-transparent border-0"
+										onClick={() =>
+											navigate(`/sessions/${session.session_id}`, {
+												state: { session },
+											})
+										}
 									>
 										<div className="flex items-center space-x-3">
 											<Avatar className="h-10 w-10">
@@ -369,13 +386,14 @@ export default function Dashboard() {
 											</div>
 											<ChevronRight className="h-4 w-4 text-slate-400" />
 										</div>
-									</div>
+									</button>
 								))}
 							</div>
 							<div className="p-4 border-t border-slate-100">
 								<Button
 									variant="ghost"
 									className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+									onClick={() => navigate("/sessions")}
 								>
 									View all sessions
 									<ChevronRight className="h-4 w-4 ml-1" />
