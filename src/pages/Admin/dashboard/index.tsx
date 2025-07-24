@@ -9,6 +9,7 @@ import {
 	UserCheck,
 	Users,
 } from "lucide-react";
+import { fetchActivities } from "@/api/activities";
 import { queryUsers } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,39 +19,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-
-// Sample data
-const recentActivity = [
-	// You may want to fetch this from an API in the future
-	{
-		id: "1",
-		user: "John Smith",
-		action: "Account approved",
-		time: "2 hours ago",
-		type: "approval",
-	},
-	{
-		id: "2",
-		user: "Sarah Johnson",
-		action: "New registration",
-		time: "4 hours ago",
-		type: "registration",
-	},
-	{
-		id: "3",
-		user: "Michael Brown",
-		action: "Profile updated",
-		time: "6 hours ago",
-		type: "update",
-	},
-	{
-		id: "4",
-		user: "Emily Davis",
-		action: "Password reset",
-		time: "1 day ago",
-		type: "security",
-	},
-];
+import type { Activity as ActivityType } from "@/types/activity";
 
 export default function AdminDashboard() {
 	// Fetch user statistics from the backend
@@ -60,15 +29,26 @@ export default function AdminDashboard() {
 		select: (res) => res.statistics,
 	});
 
+	// Fetch activities
+	const {
+		data: activities,
+		isLoading: isLoadingActivities,
+		error: activitiesError,
+	} = useQuery({
+		queryKey: ["recent-activities"],
+		queryFn: fetchActivities,
+	});
+
 	const getActivityIcon = (type: string) => {
 		switch (type) {
 			case "approval":
-				return <UserCheck className="h-4 w-4 text-green-600" />;
-			case "registration":
+			case "registered":
 				return <Users className="h-4 w-4 text-blue-600" />;
+			case "create":
+				return <CheckCircle className="h-4 w-4 text-green-600" />;
 			case "update":
 				return <Settings className="h-4 w-4 text-orange-600" />;
-			case "security":
+			case "delete":
 				return <Bell className="h-4 w-4 text-red-600" />;
 			default:
 				return <Activity className="h-4 w-4 text-gray-600" />;
@@ -209,23 +189,29 @@ export default function AdminDashboard() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="p-6">
-						<div className="space-y-4">
-							{recentActivity.map((activity) => (
-								<div key={activity.id} className="flex items-start space-x-3">
-									<div className="flex-shrink-0 mt-1">
-										{getActivityIcon(activity.type)}
+						<div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+							{isLoadingActivities ? (
+								<div>Loading activities...</div>
+							) : activitiesError ? (
+								<div className="text-red-600">Failed to load activities</div>
+							) : (
+								activities?.map((activity: ActivityType) => (
+									<div key={activity.id} className="flex items-start space-x-3">
+										<div className="flex-shrink-0 mt-1">
+											{getActivityIcon(activity.type)}
+										</div>
+										<div className="flex-1 min-w-0">
+											<p className="text-sm font-medium text-gray-900">
+												{activity.user}
+											</p>
+											<p className="text-sm text-gray-600">{activity.action}</p>
+											<p className="text-xs text-gray-400 mt-1">
+												{new Date(activity.createdAt).toLocaleString()}
+											</p>
+										</div>
 									</div>
-									<div className="flex-1 min-w-0">
-										<p className="text-sm font-medium text-gray-900">
-											{activity.user}
-										</p>
-										<p className="text-sm text-gray-600">{activity.action}</p>
-										<p className="text-xs text-gray-400 mt-1">
-											{activity.time}
-										</p>
-									</div>
-								</div>
-							))}
+								))
+							)}
 						</div>
 						<Button variant="ghost" size="sm" className="w-full mt-4">
 							View all activity
