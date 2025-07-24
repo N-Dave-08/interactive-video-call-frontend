@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
 	Outlet,
 	useMatch,
@@ -21,6 +21,7 @@ import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNote
 import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types/sessions";
+import { debounce } from "lodash";
 
 const steps = [
 	"Child Data",
@@ -265,17 +266,6 @@ export default function Room() {
 		}
 	};
 
-	const handleTagsInputChange = (val: string) => {
-		// Parse tags from input
-		const parsedTags = val
-			.split(",")
-			.map((tag) => tag.trim())
-			.filter(Boolean);
-		// Only keep unique tags
-		const uniqueTags = Array.from(new Set(parsedTags));
-		setTags(uniqueTags);
-		setTagsInput(val); // Keep the raw input for display
-	};
 
 	const handleSessionNotesNext = async () => {
 		if (!user || !session_id) return;
@@ -297,60 +287,37 @@ export default function Room() {
 		}
 	};
 
-	// Handler to update emotion and persist to backend
-	// const handleEmotionChange = async (newEmotion: string) => {
-	// 	setEmotion(newEmotion);
+
+	// const handleBodyMapChange = async (
+	// 	front: SelectedParts,
+	// 	back: SelectedParts,
+	// ) => {
+	// 	// Build string annotations like 'upperBack:pain'
+	// 	const annotations: string[] = [];
+	// 	for (const [part, sel] of Object.entries(front)) {
+	// 		if (sel.pain) annotations.push(`${part}:pain`);
+	// 		if (sel.touch) annotations.push(`${part}:touch`);
+	// 	}
+	// 	for (const [part, sel] of Object.entries(back)) {
+	// 		if (sel.pain) annotations.push(`${part}:pain`);
+	// 		if (sel.touch) annotations.push(`${part}:touch`);
+	// 	}
+	// 	setBodyMapAnnotations(annotations);
 	// 	if (session_id && user) {
 	// 		try {
 	// 			await updateSession(session_id, {
 	// 				emotional_expression: {
-	// 					method: "feeling",
-	// 					drawing_data: "",
-	// 					selected_feelings: [newEmotion],
-	// 					body_map_annotations: [],
+	// 					method: "bodymap",
+	// 					drawing_data: drawingData,
+	// 					selected_feelings: [emotion],
+	// 					body_map_annotations: annotations,
 	// 				},
 	// 			});
 	// 		} catch (err) {
-	// 			// Optionally handle error
-	// 			console.error("Failed to update emotion:", err);
+	// 			console.error("Failed to update body map:", err);
 	// 		}
 	// 	}
 	// };
-
-	interface SelectedParts {
-		[key: string]: { pain: boolean; touch: boolean };
-	}
-
-	const handleBodyMapChange = async (
-		front: SelectedParts,
-		back: SelectedParts,
-	) => {
-		// Build string annotations like 'upperBack:pain'
-		const annotations: string[] = [];
-		for (const [part, sel] of Object.entries(front)) {
-			if (sel.pain) annotations.push(`${part}:pain`);
-			if (sel.touch) annotations.push(`${part}:touch`);
-		}
-		for (const [part, sel] of Object.entries(back)) {
-			if (sel.pain) annotations.push(`${part}:pain`);
-			if (sel.touch) annotations.push(`${part}:touch`);
-		}
-		setBodyMapAnnotations(annotations);
-		if (session_id && user) {
-			try {
-				await updateSession(session_id, {
-					emotional_expression: {
-						method: "bodymap",
-						drawing_data: drawingData,
-						selected_feelings: [emotion],
-						body_map_annotations: annotations,
-					},
-				});
-			} catch (err) {
-				console.error("Failed to update body map:", err);
-			}
-		}
-	};
 
 	// const handleDrawingChange = async (drawingBase64: string) => {
 	// 	setDrawingData(drawingBase64);
@@ -370,6 +337,110 @@ export default function Room() {
 	// 	}
 	// };
 
+	// Debounced save functions for each stage
+	const debouncedSaveChildData = useRef(
+		debounce(async (data) => {
+			if (session_id && user) {
+				await updateSession(session_id, {
+					child_data: {
+						...data,
+						age: Number(data.age),
+						gender: data.gender,
+					},
+				});
+			}
+		}, 400),
+	).current;
+	const debouncedSaveAvatarData = useRef(
+		debounce(async (data) => {
+			if (session_id && user) {
+				await updateSession(session_id, {
+					avatar_data: data,
+				});
+			}
+		}, 400),
+	).current;
+	const debouncedSaveEmotionalExpression = useRef(
+		debounce(async (emotion, drawingData, bodyMapAnnotations) => {
+			if (session_id && user) {
+				await updateSession(session_id, {
+					emotional_expression: {
+						method: "drawing",
+						drawing_data: drawingData,
+						selected_feelings: [emotion],
+						body_map_annotations: bodyMapAnnotations,
+					},
+				});
+			}
+		}, 400),
+	).current;
+	const debouncedSaveSessionNotesTags = useRef(
+		debounce(async (notes, tags) => {
+			if (session_id && user) {
+				await updateSession(session_id, {
+					session_notes: notes,
+					tags: tags,
+				});
+			}
+		}, 400),
+	).current;
+
+	// Stage 1: Save on change
+	const handleChildDataChange = (data: typeof childData) => {
+		setChildData(data);
+		debouncedSaveChildData(data);
+	};
+	// Stage 2: Save on change
+	const handleAvatarDataChange = (data: typeof avatarData) => {
+		setAvatarData(data);
+		debouncedSaveAvatarData(data);
+	};
+	// Stage 5: Save on change (emotion, drawing, bodymap)
+	const handleEmotionChange = (val: string) => {
+		setEmotion(val);
+		debouncedSaveEmotionalExpression(val, drawingData, bodyMapAnnotations);
+	};
+	const handleDrawingDataChange = (drawingBase64: string) => {
+		setDrawingData(drawingBase64);
+		debouncedSaveEmotionalExpression(
+			emotion,
+			drawingBase64,
+			bodyMapAnnotations,
+		);
+	};
+	const handleBodyMapChangePersist = async (
+		front: Record<string, { pain: boolean; touch: boolean }>,
+		back: Record<string, { pain: boolean; touch: boolean }>
+	) => {
+		// Build string annotations like 'upperBack:pain'
+		const annotations: string[] = [];
+		for (const [part, sel] of Object.entries(front) as [string, { pain: boolean; touch: boolean }][]) {
+			if (sel.pain) annotations.push(`${part}:pain`);
+			if (sel.touch) annotations.push(`${part}:touch`);
+		}
+		for (const [part, sel] of Object.entries(back) as [string, { pain: boolean; touch: boolean }][]) {
+			if (sel.pain) annotations.push(`${part}:pain`);
+			if (sel.touch) annotations.push(`${part}:touch`);
+		}
+		setBodyMapAnnotations(annotations);
+		debouncedSaveEmotionalExpression(emotion, drawingData, annotations);
+	};
+	// Stage 6: Save on change
+	const handleSessionNotesChange = (val: string) => {
+		setSessionNotes(val);
+		debouncedSaveSessionNotesTags(val, tags);
+	};
+	const handleTagsInputChangePersist = (val: string) => {
+		const parsedTags = val
+			.split(",")
+			.map((tag) => tag.trim())
+			.filter(Boolean);
+		const uniqueTags = Array.from(new Set(parsedTags));
+		setTags(uniqueTags);
+		setTagsInput(val);
+		debouncedSaveSessionNotesTags(sessionNotes, uniqueTags);
+	};
+
 	useEffect(() => {
 		if (!showChildForm && step === 0) {
 			setQuestion("Hello! Let's have some fun together.");
@@ -385,6 +456,39 @@ export default function Room() {
 			}
 		}
 	}, [step, searchParams, setSearchParams]);
+
+	// Add Back handlers for each stage
+	const handleChildDataBack = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 1" });
+		setStep(0);
+		setShowChildForm(true);
+	};
+	const handleAvatarDataBack = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 2" });
+		setStep(1);
+	};
+	const handleVideoMinigamesBack = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 3" });
+		setStep(2);
+	};
+	const handleStage4Back = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 4" });
+		setStep(3);
+	};
+	const handleEmotionalExpressionsBack = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 5" });
+		setStep(4);
+	};
+	const handleSessionNotesBack = async () => {
+		if (!user || !session_id) return;
+		await updateSession(session_id, { stage: "Stage 6" });
+		setStep(5);
+	};
 
 	return (
 		<div className="h-screen">
@@ -461,7 +565,7 @@ export default function Room() {
 								{step === 0 && showChildForm && (
 									<Stage1ChildData
 										value={childData}
-										onChange={setChildData}
+										onChange={handleChildDataChange}
 										onNext={handleChildDataNext}
 										loading={loading}
 										error={error || undefined}
@@ -470,12 +574,9 @@ export default function Room() {
 								{step === 1 && (
 									<Stage2AvatarData
 										value={avatarData}
-										onChange={setAvatarData}
+										onChange={handleAvatarDataChange}
 										onNext={handleAvatarDataNext}
-										onBack={() => {
-											setStep(0);
-											setShowChildForm(true);
-										}}
+										onBack={handleChildDataBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -483,7 +584,7 @@ export default function Room() {
 								{step === 2 && (
 									<Stage3VideoMinigames
 										onNext={handleVideoMinigamesNext}
-										onBack={() => setStep(1)}
+										onBack={handleAvatarDataBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -491,7 +592,7 @@ export default function Room() {
 								{step === 3 && (
 									<Stage4Other
 										onNext={handleStage4Next}
-										onBack={() => setStep(2)}
+										onBack={handleVideoMinigamesBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -499,13 +600,13 @@ export default function Room() {
 								{step === 4 && (
 									<Stage5EmotionalExpressions
 										value={emotion}
-										onChange={setEmotion}
+										onChange={handleEmotionChange}
 										onNext={handleEmotionalExpressionsNext}
-										onBack={() => setStep(3)}
+										onBack={handleStage4Back}
 										loading={loading}
 										error={error || undefined}
-										onBodyMapChange={handleBodyMapChange}
-										onDrawingComplete={setDrawingData}
+										onBodyMapChange={handleBodyMapChangePersist}
+										onDrawingComplete={handleDrawingDataChange}
 										gender={
 											childData.gender === "female" ||
 											childData.gender === "girl"
@@ -518,10 +619,10 @@ export default function Room() {
 									<Stage6SessionNotesTags
 										notes={sessionNotes}
 										tagsInput={tagsInput}
-										onNotesChange={setSessionNotes}
-										onTagsInputChange={handleTagsInputChange}
+										onNotesChange={handleSessionNotesChange}
+										onTagsInputChange={handleTagsInputChangePersist}
 										onNext={handleSessionNotesNext}
-										onBack={() => setStep(4)}
+										onBack={handleEmotionalExpressionsBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -529,7 +630,7 @@ export default function Room() {
 								{step === 6 && (
 									<Stage7Completion
 										childName={childData.first_name}
-										onBack={() => setStep(5)}
+										onBack={handleSessionNotesBack}
 									/>
 								)}
 							</main>
