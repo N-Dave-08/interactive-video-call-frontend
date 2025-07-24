@@ -12,13 +12,7 @@ import {
 import { fetchActivities } from "@/api/activities";
 import { queryUsers } from "@/api/users";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Activity as ActivityType } from "@/types/activity";
 
 export default function AdminDashboard() {
@@ -184,9 +178,6 @@ export default function AdminDashboard() {
 						<CardTitle className="text-lg font-semibold text-gray-900">
 							Recent Activity
 						</CardTitle>
-						<CardDescription className="text-gray-600">
-							Latest system updates
-						</CardDescription>
 					</CardHeader>
 					<CardContent className="p-6">
 						<div className="space-y-4 max-h-96 overflow-y-auto pr-2">
