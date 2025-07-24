@@ -25,7 +25,6 @@ import {
 	Columns,
 	Download,
 	Edit,
-	Eye,
 	Filter,
 	GripVertical,
 	Mail,
@@ -51,7 +50,6 @@ import {
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -73,6 +71,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import type { User } from "@/types";
+import type { UserPagination, UserStatistics } from "@/types/user";
 import { AddUserDialog } from "./add-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
@@ -362,19 +361,10 @@ const columns: ColumnDef<User>[] = [
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-48">
-						<DropdownMenuItem>
-							<Eye className="h-4 w-4 mr-2" />
-							View Details
-						</DropdownMenuItem>
 						<DropdownMenuItem onClick={handleEdit}>
 							<Edit className="h-4 w-4 mr-2" />
 							Edit User
 						</DropdownMenuItem>
-						<DropdownMenuItem>
-							<Mail className="h-4 w-4 mr-2" />
-							Send Email
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							className="text-destructive focus:text-destructive"
 							onClick={handleDelete}
@@ -394,6 +384,8 @@ const columns: ColumnDef<User>[] = [
 interface DataTableProps {
 	data: User[];
 	total: number;
+	statistics: UserStatistics;
+	pagination: UserPagination;
 	search: string;
 	setSearch: (v: string) => void;
 	role: string | undefined;
@@ -412,6 +404,8 @@ interface DataTableProps {
 export function DataTable({
 	data,
 	total,
+	statistics,
+	pagination,
 	search,
 	setSearch,
 	condition,
@@ -547,7 +541,9 @@ export function DataTable({
 						<Shield className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">{tableData.length}</div>
+						<div className="text-2xl font-bold">
+							{statistics ? statistics.totalUsers : tableData.length}
+						</div>
 					</CardContent>
 				</Card>
 				<Card>
@@ -557,7 +553,9 @@ export function DataTable({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-green-600">
-							{tableData.filter((u) => u.condition === "approved").length}
+							{statistics
+								? statistics.approvedCount
+								: tableData.filter((u) => u.condition === "approved").length}
 						</div>
 					</CardContent>
 				</Card>
@@ -568,7 +566,9 @@ export function DataTable({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-yellow-600">
-							{tableData.filter((u) => u.condition === "pending").length}
+							{statistics
+								? statistics.needForApprovalCount
+								: tableData.filter((u) => u.condition === "pending").length}
 						</div>
 					</CardContent>
 				</Card>
@@ -579,12 +579,12 @@ export function DataTable({
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold text-red-600">
-							{
-								tableData.filter(
-									(u) =>
-										u.condition === "rejected" || u.condition === "blocked",
-								).length
-							}
+							{statistics
+								? statistics.rejectedCount + statistics.blockedCount
+								: tableData.filter(
+										(u) =>
+											u.condition === "rejected" || u.condition === "blocked",
+									).length}
 						</div>
 					</CardContent>
 				</Card>
@@ -773,8 +773,18 @@ export function DataTable({
 			{/* Pagination */}
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 				<div className="text-sm text-muted-foreground">
-					Showing {(page - 1) * rowsPerPage + 1} to{" "}
-					{Math.min(page * rowsPerPage, total)} of {total} entries
+					Showing{" "}
+					{pagination
+						? (pagination.currentPage - 1) * pagination.rowsPerPage + 1
+						: (page - 1) * rowsPerPage + 1}{" "}
+					to{" "}
+					{pagination
+						? Math.min(
+								pagination.currentPage * pagination.rowsPerPage,
+								pagination.totalCount,
+							)
+						: Math.min(page * rowsPerPage, total)}{" "}
+					of {pagination ? pagination.totalCount : total} entries
 				</div>
 				<div className="flex items-center gap-6">
 					<div className="flex items-center gap-2">
@@ -782,7 +792,7 @@ export function DataTable({
 							Rows per page
 						</Label>
 						<Select
-							value={`${rowsPerPage}`}
+							value={`${pagination ? pagination.rowsPerPage : rowsPerPage}`}
 							onValueChange={(value) => setRowsPerPage(Number(value))}
 						>
 							<SelectTrigger className="w-20" id="rows-per-page">
@@ -802,34 +812,55 @@ export function DataTable({
 							variant="outline"
 							size="sm"
 							onClick={() => setPage(1)}
-							disabled={page === 1}
+							disabled={pagination ? pagination.currentPage === 1 : page === 1}
 						>
 							<ChevronsLeft className="h-4 w-4" />
 						</Button>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => setPage(page - 1)}
-							disabled={page === 1}
+							onClick={() =>
+								setPage((pagination ? pagination.currentPage : page) - 1)
+							}
+							disabled={pagination ? pagination.currentPage === 1 : page === 1}
 						>
 							<ChevronLeft className="h-4 w-4" />
 						</Button>
 						<div className="flex items-center gap-1 text-sm font-medium">
-							Page {page} of {Math.ceil(total / rowsPerPage)}
+							Page {pagination ? pagination.currentPage : page} of{" "}
+							{pagination
+								? pagination.totalPages
+								: Math.ceil(total / rowsPerPage)}
 						</div>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => setPage(page + 1)}
-							disabled={page >= Math.ceil(total / rowsPerPage)}
+							onClick={() =>
+								setPage((pagination ? pagination.currentPage : page) + 1)
+							}
+							disabled={
+								pagination
+									? pagination.currentPage >= pagination.totalPages
+									: page >= Math.ceil(total / rowsPerPage)
+							}
 						>
 							<ChevronRight className="h-4 w-4" />
 						</Button>
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => setPage(Math.ceil(total / rowsPerPage))}
-							disabled={page >= Math.ceil(total / rowsPerPage)}
+							onClick={() =>
+								setPage(
+									pagination
+										? pagination.totalPages
+										: Math.ceil(total / rowsPerPage),
+								)
+							}
+							disabled={
+								pagination
+									? pagination.currentPage >= pagination.totalPages
+									: page >= Math.ceil(total / rowsPerPage)
+							}
 						>
 							<ChevronsRight className="h-4 w-4" />
 						</Button>

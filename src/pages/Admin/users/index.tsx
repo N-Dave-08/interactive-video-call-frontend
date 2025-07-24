@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { queryUsers, type UserQueryParams } from "@/api/users";
-import type { User } from "@/types/user";
+import { queryUsers } from "@/api/users";
+import type { User, UserQueryParams } from "@/types/user";
 import { DataTable } from "./users-data-table";
 
 export default function UsersPage() {
@@ -37,12 +37,39 @@ export default function UsersPage() {
 		data: queryData,
 		isLoading: loading,
 		error,
-	} = useQuery<{ data: User[]; total: number }, Error>({
+	} = useQuery<
+		{
+			data: User[];
+			total: number;
+			statistics: import("@/types/user").UserStatistics;
+			pagination: import("@/types/user").UserPagination;
+		},
+		Error
+	>({
 		queryKey: ["users", params],
 		queryFn: () => queryUsers(params),
 	});
 
 	if (error) return <div>{error.message || "Failed to fetch users"}</div>;
+
+	const defaultStatistics = {
+		totalUsers: 0,
+		adminCount: 0,
+		socialWorkerCount: 0,
+		newThisWeek: 0,
+		approvedCount: 0,
+		approvalRate: 0,
+		rejectedCount: 0,
+		blockedCount: 0,
+		needForApprovalCount: 0,
+	};
+
+	const defaultPagination = {
+		currentPage: 1,
+		rowsPerPage: 10,
+		totalPages: 1,
+		totalCount: 0,
+	};
 
 	return (
 		<>
@@ -54,7 +81,9 @@ export default function UsersPage() {
 			</div>
 			<DataTable
 				data={queryData?.data || []}
-				total={queryData?.total || 0}
+				total={queryData?.pagination?.totalCount || queryData?.total || 0}
+				statistics={queryData?.statistics ?? defaultStatistics}
+				pagination={queryData?.pagination ?? defaultPagination}
 				search={search}
 				setSearch={setSearch}
 				role={role}

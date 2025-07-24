@@ -1,13 +1,9 @@
-import type { User } from "@/types/user";
-
-export interface UserQueryParams {
-	search?: string;
-	role?: string;
-	page?: number;
-	rowsPerPage?: number;
-	condition?: string;
-	place_of_assignment?: string;
-}
+import type {
+	User,
+	UserPagination,
+	UserQueryParams,
+	UserStatistics,
+} from "@/types/user";
 
 export async function fetchUsers(): Promise<User[]> {
 	const response = await fetch(
@@ -24,6 +20,8 @@ export async function fetchUsers(): Promise<User[]> {
 export async function queryUsers(params: UserQueryParams): Promise<{
 	data: User[];
 	total: number;
+	statistics: UserStatistics;
+	pagination: UserPagination;
 }> {
 	const url = new URL(`${import.meta.env.VITE_API_BASE_URL}/api/users/get`);
 	Object.entries(params).forEach(([key, value]) => {
@@ -32,18 +30,16 @@ export async function queryUsers(params: UserQueryParams): Promise<{
 		}
 	});
 
-	// Debug: log the full URL and params
-	// console.log("[queryUsers] Fetching:", url.toString(), "Params:", params);
-
 	const response = await fetch(url.toString());
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
 	}
 	const json = await response.json();
-	// Use pagination.totalCount for total
 	return {
 		data: json.data,
 		total: json.pagination?.totalCount ?? json.data.length,
+		statistics: json.statistics,
+		pagination: json.pagination,
 	};
 }
 

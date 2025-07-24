@@ -13,3 +13,31 @@ export interface User {
 	updatedAt: string;
 	avatar?: string;
 }
+
+export interface UserQueryParams {
+	search?: string;
+	role?: string;
+	page?: number;
+	rowsPerPage?: number;
+	condition?: string;
+	place_of_assignment?: string;
+}
+
+export interface UserStatistics {
+	totalUsers: number;
+	adminCount: number;
+	socialWorkerCount: number;
+	newThisWeek: number;
+	approvedCount: number;
+	approvalRate: number;
+	rejectedCount: number;
+	blockedCount: number;
+	needForApprovalCount: number;
+}
+
+export interface UserPagination {
+	currentPage: number;
+	rowsPerPage: number;
+	totalPages: number;
+	totalCount: number;
+}
