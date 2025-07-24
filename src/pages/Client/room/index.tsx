@@ -505,7 +505,13 @@ export default function Room() {
 										loading={loading}
 										error={error || undefined}
 										onBodyMapChange={handleBodyMapChange}
-										onDrawingComplete={setDrawingData} // Pass this to capture the drawing
+										onDrawingComplete={setDrawingData}
+										gender={
+											childData.gender === "female" ||
+											childData.gender === "girl"
+												? "female"
+												: "male"
+										}
 									/>
 								)}
 								{step === 5 && (

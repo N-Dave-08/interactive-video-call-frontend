@@ -30,6 +30,7 @@ export default function Stage5EmotionalExpressions({
 	error,
 	onBodyMapChange,
 	onDrawingComplete,
+	gender, // <-- add this
 }: {
 	value: string;
 	onChange: (val: string) => void;
@@ -39,6 +40,7 @@ export default function Stage5EmotionalExpressions({
 	error?: string;
 	onBodyMapChange?: (front: SelectedParts, back: SelectedParts) => void;
 	onDrawingComplete?: (drawingBase64: string) => void;
+	gender: "male" | "female";
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	useEffect(() => {
@@ -343,6 +345,7 @@ export default function Stage5EmotionalExpressions({
 						</motion.div>
 						<div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-6 border-3 border-blue-200">
 							<BodyMap
+								gender={gender} // <-- pass gender
 								onBodyPartClick={() => setBodyMapComplete(true)}
 								onSelectionChange={onBodyMapChange}
 								onSkip={() => setBodyMapComplete(true)}
@@ -521,17 +524,7 @@ export default function Stage5EmotionalExpressions({
 							) : (
 								<ArrowRight className="w-6 h-6 mr-2" />
 							)}
-							{loading ? (
-								"Saving..."
-							) : (
-								<>
-									<Icon
-										icon="fluent-emoji:party-popper"
-										className="inline w-6 h-6 mr-2 align-middle"
-									/>
-									Share My Feelings!
-								</>
-							)}
+							{loading ? "Saving..." : <p>Share My Feelings!</p>}
 						</Button>
 					</motion.div>
 				</div>

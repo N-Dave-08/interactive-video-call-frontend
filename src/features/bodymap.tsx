@@ -26,12 +26,14 @@ interface BodyMapProps {
 	onBodyPartClick?: (partId: string, view: "front" | "back") => void;
 	onSelectionChange?: (front: SelectedParts, back: SelectedParts) => void;
 	onSkip?: () => void;
+	gender?: "male" | "female"; // <-- add this
 }
 
 const BodyMap: React.FC<BodyMapProps> = ({
 	onBodyPartClick,
 	onSelectionChange,
 	onSkip,
+	gender = "male", // <-- default to male
 }) => {
 	const [frontSelectedParts, setFrontSelectedParts] = useState<SelectedParts>(
 		{},
@@ -293,6 +295,13 @@ const BodyMap: React.FC<BodyMapProps> = ({
 		return "";
 	};
 
+	const frontImage =
+		gender === "female"
+			? "/body-map/girl-front.png"
+			: "/body-map/boy-front.png";
+	const backImage =
+		gender === "female" ? "/body-map/girl-back.png" : "/body-map/boy-back.png";
+
 	return (
 		<div className="flex flex-row h-full border rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-blue-50 via-white to-green-50">
 			{/* Left: Body Map Area */}
@@ -304,7 +313,7 @@ const BodyMap: React.FC<BodyMapProps> = ({
 						<div className="relative w-[280px] h-[360px] border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200">
 							{/* Body map image as background */}
 							<img
-								src="/body-map/boy-front.png"
+								src={frontImage}
 								alt="Body Map Front"
 								className="absolute top-0 left-0 w-full h-full object-contain select-none pointer-events-none"
 								draggable={false}
@@ -399,7 +408,7 @@ const BodyMap: React.FC<BodyMapProps> = ({
 					<div className="flex flex-col items-center">
 						<div className="relative w-[280px] h-[360px] border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200">
 							<img
-								src="/body-map/boy-back.png"
+								src={backImage}
 								alt="Body Map Back"
 								className="absolute top-0 left-0 w-full h-full object-contain select-none pointer-events-none"
 								draggable={false}

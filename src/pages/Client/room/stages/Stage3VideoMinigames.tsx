@@ -26,6 +26,7 @@ export default function Stage3VideoMinigames({
 	// Get the panel state from URL parameter, default to 'activities'
 	const currentPanel = searchParams.get("panel") || "activities";
 	const showGamesPanel = currentPanel === "games";
+	const showVideosPanel = currentPanel === "videos";
 
 	useEffect(() => {
 		const audio = new Audio("/ai-voiced/stage3.mp3");
@@ -37,7 +38,7 @@ export default function Stage3VideoMinigames({
 	}, [setQuestion]);
 
 	// Function to update URL parameter
-	const updatePanelState = (panel: "activities" | "games") => {
+	const updatePanelState = (panel: "activities" | "games" | "videos") => {
 		const newSearchParams = new URLSearchParams(searchParams);
 		if (panel === "activities") {
 			newSearchParams.delete("panel");
@@ -83,6 +84,33 @@ export default function Stage3VideoMinigames({
 		},
 	];
 
+	const videos = [
+		{
+			title: "Meet Arnold",
+			description: "Lorem Ipsum",
+			thumbnail: "https://img.youtube.com/vi/ndvDzYmX15o/ndvDzYmX15o.jpg",
+			youtubeId: "ndvDzYmX15o",
+		},
+		{
+			title: "Meet Arnold",
+			description: "Lorem Ipsum",
+			thumbnail: "https://img.youtube.com/vi/bBKOoMH_fSw/bBKOoMH_fSw.jpg",
+			youtubeId: "bBKOoMH_fSw",
+		},
+		{
+			title: "Meet Arnold",
+			description: "Lorem Ipsum",
+			thumbnail: "https://img.youtube.com/vi/bTB3wSbi3Fs/hqdefault.jpg",
+			youtubeId: "bTB3wSbi3Fs",
+		},
+		{
+			title: "Meet Arnold",
+			description: "Lorem Ipsum",
+			thumbnail: "https://img.youtube.com/vi/drq97TJlMM0/drq97TJlMM0.jpg",
+			youtubeId: "drq97TJlMM0",
+		},
+	];
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 50 }}
@@ -109,7 +137,71 @@ export default function Stage3VideoMinigames({
 				</motion.div>
 
 				{/* Inline Games Panel or Activities List */}
-				{showGamesPanel ? (
+				{showVideosPanel ? (
+					<motion.div
+						key="video-selection"
+						initial={{ opacity: 0, x: 20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.3 }}
+						className="grid gap-6 mb-8"
+					>
+						<div className="text-center mb-4 text-2xl font-bold text-gray-800">
+							Choose a Video!
+						</div>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+							{videos.map((video) => (
+								<motion.div
+									key={video.title}
+									whileHover={{
+										scale: 1.05,
+										boxShadow:
+											"0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+									}}
+									whileTap={{ scale: 0.98 }}
+									transition={{
+										type: "spring",
+										stiffness: 300,
+										damping: 20,
+										duration: 0.3,
+									}}
+									className="relative group rounded-3xl"
+								>
+									{/* Glowing gradient blur background */}
+									<div
+										className={`absolute inset-0 bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl blur-lg opacity-30 group-hover:opacity-40 transition-opacity duration-300`}
+									/>
+									<Card className="relative flex flex-col items-center justify-center p-6 text-center rounded-3xl border-2 border-pink-200 group-hover:border-pink-400 bg-white/90 backdrop-blur-sm shadow-lg transition-all duration-300">
+										<CardContent className="p-0 flex flex-col items-center w-full">
+											<div className="aspect-[16/9] w-full mb-4">
+												<iframe
+													className="w-full h-full rounded-xl"
+													src={`https://www.youtube.com/embed/${video.youtubeId}`}
+													title={video.title}
+													frameBorder="0"
+													allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+													allowFullScreen
+												/>
+											</div>
+											<CardTitle className="text-xl font-extrabold text-gray-800">
+												{video.title}
+											</CardTitle>
+											<div className="text-gray-600 text-sm mt-1">
+												{video.description}
+											</div>
+										</CardContent>
+									</Card>
+								</motion.div>
+							))}
+						</div>
+						<Button
+							variant="link"
+							className="mt-6 text-lg font-semibold text-gray-600 hover:text-gray-800"
+							onClick={() => updatePanelState("activities")}
+						>
+							<ArrowLeft className="w-5 h-5 mr-2" /> Back to Activities
+						</Button>
+					</motion.div>
+				) : showGamesPanel ? (
 					<motion.div
 						key="game-selection"
 						initial={{ opacity: 0, x: 20 }}
@@ -191,7 +283,9 @@ export default function Stage3VideoMinigames({
 								onClick={
 									activity.title === "Mini Games"
 										? () => updatePanelState("games")
-										: undefined
+										: activity.title === "Fun Videos"
+											? () => updatePanelState("videos")
+											: undefined
 								}
 							>
 								<div className="relative">
@@ -229,7 +323,7 @@ export default function Stage3VideoMinigames({
 				)}
 
 				{/* Call to action / Next adventure section */}
-				{!showGamesPanel && (
+				{!showGamesPanel && !showVideosPanel && (
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}

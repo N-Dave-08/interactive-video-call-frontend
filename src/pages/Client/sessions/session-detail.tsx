@@ -279,19 +279,22 @@ export default function SessionDetailPage() {
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="flex flex-wrap items-center gap-3">
-								{session.stage && (
+								{session.end_time ? (
 									<Badge
-										className={`px-3 py-1 font-medium ${getStageColor(session.stage)}`}
+										className={`px-3 py-1 font-medium ${getStatusColor(!!session.end_time)}`}
 									>
-										<Target className="h-4 w-4 mr-2" />
-										{session.stage.toUpperCase()}
+										Completed
 									</Badge>
+								) : (
+									session.stage && (
+										<Badge
+											className={`px-3 py-1 font-medium ${getStageColor(session.stage)}`}
+										>
+											<Target className="h-4 w-4 mr-2" />
+											{session.stage.toUpperCase()}
+										</Badge>
+									)
 								)}
-								<Badge
-									className={`px-3 py-1 font-medium ${getStatusColor(!!session.end_time)}`}
-								>
-									{session.end_time ? "Completed" : "In Progress"}
-								</Badge>
 								<div className="ml-auto text-sm text-blue-400">
 									Session ID:{" "}
 									<span className="font-mono bg-blue-50 px-2 py-1 rounded">

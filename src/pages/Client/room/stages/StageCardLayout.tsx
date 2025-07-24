@@ -13,14 +13,15 @@ export default function StageCardLayout({
 	cardClassName = "",
 }: StageCardLayoutProps) {
 	return (
-		<Card
-			className={`bg-white/60 backdrop-blur-sm shadow-2xl border-0 rounded-3xl overflow-hidden flex flex-col h-full w-3/4 mx-auto my-4 ${cardClassName}`}
-		>
-			<CardContent
-				className={`px-10 flex-1 flex flex-col justify-between ${cardContentClassName}`}
+		<>
+			<Card
+				className={`bg-white/60 backdrop-blur-sm shadow-2xl border-0 rounded-3xl w-3/4 mx-auto mt-4${cardClassName}`}
 			>
-				{children}
-			</CardContent>
-		</Card>
+				<CardContent className={`px-10  ${cardContentClassName}`}>
+					{children}
+				</CardContent>
+			</Card>
+			<div className="h-40" aria-hidden="true" />
+		</>
 	);
 }
