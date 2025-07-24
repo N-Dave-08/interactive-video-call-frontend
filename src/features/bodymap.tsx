@@ -14,6 +14,7 @@ interface BodyPart {
 	y?: number;
 	width?: number;
 	height?: number;
+	rotate?: number;
 }
 
 // Define interface for selected parts state
@@ -24,7 +25,7 @@ interface SelectedParts {
 interface BodyMapProps {
 	onBodyPartClick?: (partId: string, view: "front" | "back") => void;
 	onSelectionChange?: (front: SelectedParts, back: SelectedParts) => void;
-	onSkip?: () => void; // <-- add this
+	onSkip?: () => void;
 }
 
 const BodyMap: React.FC<BodyMapProps> = ({
@@ -37,159 +38,183 @@ const BodyMap: React.FC<BodyMapProps> = ({
 	);
 	const [backSelectedParts, setBackSelectedParts] = useState<SelectedParts>({});
 	const [mode, setMode] = useState<"pain" | "touch">("pain");
+	const [hoveredPart, setHoveredPart] = useState<string | null>(null);
 
 	// Define body parts for front and back views
 	const frontBodyParts: BodyPart[] = [
-		{ id: "leftEye", name: "Left Eye", cx: 85, cy: 90, r: 5 },
-		{ id: "rightEye", name: "Right Eye", cx: 105, cy: 57, r: 5 },
-		{ id: "leftEar", name: "Left Ear", cx: 80, cy: 60, r: 7 },
-		{ id: "rightEar", name: "Right Ear", cx: 120, cy: 60, r: 7 },
-		{ id: "neck", name: "Neck", x: 90, y: 85, width: 20, height: 30 },
-		{ id: "leftShoulder", name: "Left Shoulder", cx: 70, cy: 110, r: 15 },
-		{ id: "rightShoulder", name: "Right Shoulder", cx: 130, cy: 110, r: 15 },
-		{ id: "chest", name: "Chest", x: 75, y: 120, width: 50, height: 40 },
-		{ id: "leftArm", name: "Left Arm", x: 45, y: 115, width: 15, height: 50 },
+		{ id: "leftEye", name: "Left Eye", cx: 85, cy: 88, r: 5 },
+		{ id: "rightEye", name: "Right Eye", cx: 114, cy: 88, r: 5 },
+		{ id: "nose", name: "Nose", x: 96, y: 88, width: 8, height: 12 },
+		{ id: "mouth", name: "Mouth", x: 92, y: 102, width: 16, height: 8 },
+		{ id: "leftEar", name: "Left Ear", cx: 64, cy: 94, r: 7 },
+		{ id: "rightEar", name: "Right Ear", cx: 134, cy: 94, r: 7 },
+		{ id: "neck", name: "Neck", x: 90, y: 114, width: 20, height: 14 },
+		{ id: "leftShoulder", name: "Left Shoulder", cx: 78, cy: 130, r: 10 },
+		{ id: "rightShoulder", name: "Right Shoulder", cx: 120, cy: 130, r: 10 },
+		{ id: "chest", name: "Chest", x: 80, y: 134, width: 40, height: 40 },
+		{
+			id: "leftArm",
+			name: "Left Arm",
+			x: 58,
+			y: 138,
+			width: 15,
+			height: 50,
+			rotate: 20,
+		},
 		{
 			id: "rightArm",
 			name: "Right Arm",
-			x: 140,
-			y: 115,
+			x: 128,
+			y: 138,
 			width: 15,
 			height: 50,
+			rotate: -20,
 		},
-		{ id: "leftHand", name: "Left Hand", cx: 52, cy: 175, r: 12 },
-		{ id: "rightHand", name: "Right Hand", cx: 148, cy: 175, r: 12 },
-		{ id: "stomach", name: "Stomach", x: 80, y: 160, width: 40, height: 30 },
+		{ id: "leftHand", name: "Left Hand", cx: 52, cy: 204, r: 14 },
+		{ id: "rightHand", name: "Right Hand", cx: 148, cy: 204, r: 14 },
+		{ id: "stomach", name: "Stomach", x: 80, y: 175, width: 40, height: 36 },
 		{
 			id: "private",
 			name: "Private Area",
 			x: 90,
-			y: 190,
+			y: 220,
 			width: 20,
 			height: 15,
 		},
-		{ id: "leftHip", name: "Left Hip", cx: 85, cy: 205, r: 12 },
-		{ id: "rightHip", name: "Right Hip", cx: 115, cy: 205, r: 12 },
+		{ id: "leftHip", name: "Left Hip", cx: 85, cy: 218, r: 12 },
+		{ id: "rightHip", name: "Right Hip", cx: 115, cy: 218, r: 12 },
 		{
 			id: "leftThigh",
 			name: "Left Thigh",
 			x: 75,
-			y: 220,
+			y: 230,
 			width: 20,
-			height: 45,
+			height: 34,
 		},
 		{
 			id: "rightThigh",
 			name: "Right Thigh",
 			x: 105,
-			y: 220,
+			y: 230,
 			width: 20,
-			height: 45,
+			height: 34,
 		},
-		{ id: "leftKnee", name: "Left Knee", cx: 85, cy: 275, r: 10 },
-		{ id: "rightKnee", name: "Right Knee", cx: 115, cy: 275, r: 10 },
-		{ id: "leftShin", name: "Left Shin", x: 80, y: 285, width: 15, height: 40 },
+		{ id: "leftKnee", name: "Left Knee", cx: 85, cy: 270, r: 10 },
+		{ id: "rightKnee", name: "Right Knee", cx: 115, cy: 270, r: 10 },
+		{ id: "leftShin", name: "Left Shin", x: 76, y: 280, width: 15, height: 26 },
 		{
 			id: "rightShin",
 			name: "Right Shin",
-			x: 110,
-			y: 285,
+			x: 108,
+			y: 280,
 			width: 15,
-			height: 40,
+			height: 26,
 		},
-		{ id: "leftFoot", name: "Left Foot", x: 75, y: 325, width: 20, height: 15 },
+		{ id: "leftFoot", name: "Left Foot", x: 70, y: 306, width: 24, height: 15 },
 		{
 			id: "rightFoot",
 			name: "Right Foot",
-			x: 105,
-			y: 325,
-			width: 20,
+			x: 107,
+			y: 306,
+			width: 24,
 			height: 15,
 		},
 	];
 
 	const backBodyParts: BodyPart[] = [
-		{ id: "leftEar", name: "Left Ear", cx: 80, cy: 60, r: 7 },
-		{ id: "rightEar", name: "Right Ear", cx: 120, cy: 60, r: 7 },
-		{ id: "neck", name: "Neck", x: 90, y: 85, width: 20, height: 30 },
-		{ id: "leftShoulder", name: "Left Shoulder", cx: 70, cy: 110, r: 15 },
-		{ id: "rightShoulder", name: "Right Shoulder", cx: 130, cy: 110, r: 15 },
+		{ id: "backHead", name: "Back of Head", cx: 100, cy: 76, r: 34 },
+		{ id: "leftEar", name: "Left Ear", cx: 64, cy: 94, r: 7 },
+		{ id: "rightEar", name: "Right Ear", cx: 136, cy: 94, r: 7 },
+		{ id: "neck", name: "Neck", x: 90, y: 114, width: 20, height: 14 },
+		{ id: "leftShoulder", name: "Left Shoulder", cx: 78, cy: 130, r: 10 },
+		{ id: "rightShoulder", name: "Right Shoulder", cx: 120, cy: 130, r: 10 },
 		{
 			id: "upperBack",
 			name: "Upper Back",
-			x: 75,
-			y: 120,
-			width: 50,
+			x: 78,
+			y: 136,
+			width: 46,
 			height: 40,
 		},
-		{ id: "leftArm", name: "Left Arm", x: 45, y: 115, width: 15, height: 50 },
+		{
+			id: "leftArm",
+			name: "Left Arm",
+			x: 58,
+			y: 138,
+			width: 15,
+			height: 50,
+			rotate: 20,
+		},
 		{
 			id: "rightArm",
 			name: "Right Arm",
-			x: 140,
-			y: 115,
+			x: 128,
+			y: 138,
 			width: 15,
 			height: 50,
+			rotate: -20,
 		},
-		{ id: "leftHand", name: "Left Hand", cx: 52, cy: 175, r: 12 },
-		{ id: "rightHand", name: "Right Hand", cx: 148, cy: 175, r: 12 },
+		{ id: "leftHand", name: "Left Hand", cx: 52, cy: 204, r: 12 },
+		{ id: "rightHand", name: "Right Hand", cx: 148, cy: 204, r: 12 },
 		{
 			id: "lowerBack",
 			name: "Lower Back",
 			x: 80,
-			y: 160,
+			y: 180,
 			width: 40,
 			height: 30,
 		},
-		{
-			id: "private",
-			name: "Private Area",
-			x: 90,
-			y: 190,
-			width: 20,
-			height: 15,
-		},
-		{ id: "leftHip", name: "Left Hip", cx: 85, cy: 205, r: 12 },
-		{ id: "rightHip", name: "Right Hip", cx: 115, cy: 205, r: 12 },
+
+		{ id: "leftCheek", name: "Left Cheek", cx: 85, cy: 220, r: 14 },
+		{ id: "rightCheek", name: "Right Cheek", cx: 115, cy: 220, r: 14 },
 		{
 			id: "leftThigh",
 			name: "Left Thigh",
 			x: 75,
-			y: 220,
+			y: 234,
 			width: 20,
-			height: 45,
+			height: 30,
 		},
 		{
 			id: "rightThigh",
 			name: "Right Thigh",
 			x: 105,
-			y: 220,
+			y: 234,
 			width: 20,
-			height: 45,
+			height: 30,
 		},
-		{ id: "leftKnee", name: "Left Knee", cx: 85, cy: 275, r: 10 },
-		{ id: "rightKnee", name: "Right Knee", cx: 115, cy: 275, r: 10 },
-		{ id: "leftShin", name: "Left Shin", x: 80, y: 285, width: 15, height: 40 },
+		{ id: "leftKnee", name: "Left Knee", cx: 85, cy: 270, r: 10 },
+		{ id: "rightKnee", name: "Right Knee", cx: 115, cy: 270, r: 10 },
+		{ id: "leftShin", name: "Left Shin", x: 76, y: 280, width: 15, height: 26 },
 		{
 			id: "rightShin",
 			name: "Right Shin",
-			x: 110,
-			y: 285,
+			x: 108,
+			y: 280,
 			width: 15,
-			height: 40,
+			height: 26,
 		},
-		{ id: "leftFoot", name: "Left Foot", x: 75, y: 325, width: 20, height: 15 },
+		{ id: "leftFoot", name: "Left Foot", x: 70, y: 306, width: 24, height: 15 },
 		{
 			id: "rightFoot",
 			name: "Right Foot",
-			x: 105,
-			y: 325,
-			width: 20,
+			x: 107,
+			y: 306,
+			width: 24,
 			height: 15,
 		},
 	];
 
+	const selectAudio = () => {
+		const audio = new Audio(
+			"/sound-effects/body-map&select-expressions/select.mp3",
+		);
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+	};
+
 	const handlePartClick = (partId: string, view: "front" | "back"): void => {
+		selectAudio();
+
 		const setSelected =
 			view === "front" ? setFrontSelectedParts : setBackSelectedParts;
 		setSelected((prev) => {
@@ -201,7 +226,6 @@ const BodyMap: React.FC<BodyMapProps> = ({
 					touch: mode === "touch" ? !current.touch : current.touch,
 				},
 			};
-			// Call onSelectionChange with updated state
 			if (onSelectionChange) {
 				if (view === "front") {
 					onSelectionChange(updated, backSelectedParts);
@@ -217,16 +241,19 @@ const BodyMap: React.FC<BodyMapProps> = ({
 	const clearAll = (): void => {
 		setFrontSelectedParts({});
 		setBackSelectedParts({});
+		if (onSelectionChange) {
+			onSelectionChange({}, {});
+		}
 	};
 
 	const getPartFill = (partId: string, view: "front" | "back"): string => {
 		const selection =
 			view === "front" ? frontSelectedParts[partId] : backSelectedParts[partId];
-		if (!selection || (!selection.pain && !selection.touch)) return "#e2e8f0";
+		if (!selection || (!selection.pain && !selection.touch)) return "#fff";
 		if (selection.pain && selection.touch) {
 			return "url(#dualGradient)";
 		}
-		return selection.pain ? "#ef4444" : "#10b981";
+		return selection.pain ? "#ff000050" : "#10b98150";
 	};
 
 	const getPartStroke = (partId: string, view: "front" | "back"): string => {
@@ -234,20 +261,37 @@ const BodyMap: React.FC<BodyMapProps> = ({
 			view === "front" ? frontSelectedParts[partId] : backSelectedParts[partId];
 		if (!selection || (!selection.pain && !selection.touch)) return "#94a3b8";
 		if (selection.pain && selection.touch) {
-			return "#374151"; // Neutral stroke for dual selection
+			return "#374151";
 		}
 		return selection.pain ? "#dc2626" : "#059669";
 	};
 
-	// const selectedCount: number =
-	// 	Object.entries(frontSelectedParts).reduce(
-	// 		(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
-	// 		0,
-	// 	) +
-	// 	Object.entries(backSelectedParts).reduce(
-	// 		(count, [_, sel]) => count + (sel.pain ? 1 : 0) + (sel.touch ? 1 : 0),
-	// 		0,
-	// 	);
+	const getPartOpacity = (
+		partId: string,
+		view: "front" | "back",
+		isHovered: boolean = false,
+	): number => {
+		const selection =
+			view === "front" ? frontSelectedParts[partId] : backSelectedParts[partId];
+		if (selection && (selection.pain || selection.touch)) return 1; // Fully visible when selected
+		return isHovered ? 0.5 : 0; // 50% opacity on hover, 0 otherwise
+	};
+
+	const getTransform = (part: BodyPart): string => {
+		if (part.rotate === undefined) return "";
+		if (part.cx && part.cy) {
+			return `rotate(${part.rotate}, ${part.cx}, ${part.cy})`;
+		}
+		if (
+			part.x !== undefined &&
+			part.y !== undefined &&
+			part.width !== undefined &&
+			part.height !== undefined
+		) {
+			return `rotate(${part.rotate}, ${part.x + part.width / 2}, ${part.y + part.height / 2})`;
+		}
+		return "";
+	};
 
 	return (
 		<div className="flex flex-row h-full border rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -282,8 +326,8 @@ const BodyMap: React.FC<BodyMapProps> = ({
 										x2="100%"
 										y2="0%"
 									>
-										<stop offset="50%" stopColor="#ef4444" />
-										<stop offset="50%" stopColor="#10b981" />
+										<stop offset="50%" stopColor="#ff000050" />
+										<stop offset="50%" stopColor="#10b98150" />
 									</linearGradient>
 								</defs>
 								{frontBodyParts.map((part) => (
@@ -296,14 +340,19 @@ const BodyMap: React.FC<BodyMapProps> = ({
 												fill={getPartFill(part.id, "front")}
 												stroke={getPartStroke(part.id, "front")}
 												strokeWidth="2"
-												className="cursor-pointer hover:opacity-80 transition-all duration-150"
+												opacity={getPartOpacity(
+													part.id,
+													"front",
+													hoveredPart === part.id,
+												)}
+												transform={getTransform(part)}
+												className="cursor-pointer transition-opacity duration-150"
+												onMouseEnter={() => setHoveredPart(part.id)}
+												onMouseLeave={() => setHoveredPart(null)}
 												onClick={() => handlePartClick(part.id, "front")}
 												role="button"
 												tabIndex={0}
-												aria-label={
-													frontBodyParts.find((p) => p.id === part.id)?.name ||
-													part.id
-												}
+												aria-label={part.name || part.id}
 												onKeyDown={(e) => {
 													if (e.key === "Enter" || e.key === " ")
 														handlePartClick(part.id, "front");
@@ -319,14 +368,19 @@ const BodyMap: React.FC<BodyMapProps> = ({
 												fill={getPartFill(part.id, "front")}
 												stroke={getPartStroke(part.id, "front")}
 												strokeWidth="2"
-												className="cursor-pointer hover:opacity-80 transition-all duration-150"
+												opacity={getPartOpacity(
+													part.id,
+													"front",
+													hoveredPart === part.id,
+												)}
+												transform={getTransform(part)}
+												className="cursor-pointer transition-opacity duration-150"
+												onMouseEnter={() => setHoveredPart(part.id)}
+												onMouseLeave={() => setHoveredPart(null)}
 												onClick={() => handlePartClick(part.id, "front")}
 												role="button"
 												tabIndex={0}
-												aria-label={
-													frontBodyParts.find((p) => p.id === part.id)?.name ||
-													part.id
-												}
+												aria-label={part.name || part.id}
 												onKeyDown={(e) => {
 													if (e.key === "Enter" || e.key === " ")
 														handlePartClick(part.id, "front");
@@ -335,14 +389,6 @@ const BodyMap: React.FC<BodyMapProps> = ({
 										)}
 									</g>
 								))}
-								<circle
-									cx="100"
-									cy="60"
-									r="25"
-									fill="none"
-									stroke="#374151"
-									strokeWidth="1"
-								/>
 							</svg>
 						</div>
 						<span className="mt-2 text-blue-700 font-semibold text-sm tracking-wide">
@@ -351,83 +397,94 @@ const BodyMap: React.FC<BodyMapProps> = ({
 					</div>
 					{/* Back View */}
 					<div className="flex flex-col items-center">
-						<svg
-							width="200"
-							height="360"
-							viewBox="0 0 200 360"
-							className="border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200"
-						>
-							<title>Back Body Map</title>
-							<defs>
-								<linearGradient
-									id="dualGradient"
-									x1="0%"
-									y1="0%"
-									x2="100%"
-									y2="0%"
-								>
-									<stop offset="50%" stopColor="#ef4444" />
-									<stop offset="50%" stopColor="#10b981" />
-								</linearGradient>
-							</defs>
-							{backBodyParts.map((part) => (
-								<g key={part.id}>
-									{part.cx ? (
-										<circle
-											cx={part.cx}
-											cy={part.cy}
-											r={part.r}
-											fill={getPartFill(part.id, "back")}
-											stroke={getPartStroke(part.id, "back")}
-											strokeWidth="2"
-											className="cursor-pointer hover:opacity-80 transition-all duration-150"
-											onClick={() => handlePartClick(part.id, "back")}
-											role="button"
-											tabIndex={0}
-											aria-label={
-												backBodyParts.find((p) => p.id === part.id)?.name ||
-												part.id
-											}
-											onKeyDown={(e) => {
-												if (e.key === "Enter" || e.key === " ")
-													handlePartClick(part.id, "back");
-											}}
-										/>
-									) : (
-										<rect
-											x={part.x}
-											y={part.y}
-											width={part.width}
-											height={part.height}
-											rx="5"
-											fill={getPartFill(part.id, "back")}
-											stroke={getPartStroke(part.id, "back")}
-											strokeWidth="2"
-											className="cursor-pointer hover:opacity-80 transition-all duration-150"
-											onClick={() => handlePartClick(part.id, "back")}
-											role="button"
-											tabIndex={0}
-											aria-label={
-												backBodyParts.find((p) => p.id === part.id)?.name ||
-												part.id
-											}
-											onKeyDown={(e) => {
-												if (e.key === "Enter" || e.key === " ")
-													handlePartClick(part.id, "back");
-											}}
-										/>
-									)}
-								</g>
-							))}
-							<circle
-								cx="100"
-								cy="60"
-								r="25"
-								fill="none"
-								stroke="#374151"
-								strokeWidth="1"
+						<div className="relative w-[280px] h-[360px] border-2 border-blue-200 rounded-xl bg-blue-50 shadow-md hover:shadow-lg transition-shadow duration-200">
+							<img
+								src="/body-map/boy-back.png"
+								alt="Body Map Back"
+								className="absolute top-0 left-0 w-full h-full object-contain select-none pointer-events-none"
+								draggable={false}
 							/>
-						</svg>
+							<svg
+								width="200"
+								height="360"
+								viewBox="0 0 200 360"
+								className="absolute top-0 left-0 w-full h-full"
+								style={{ pointerEvents: "none" }}
+							>
+								<title>Back Body Map</title>
+								<defs>
+									<linearGradient
+										id="dualGradient"
+										x1="0%"
+										y1="0%"
+										x2="100%"
+										y2="0%"
+									>
+										<stop offset="50%" stopColor="#ef4444" />
+										<stop offset="50%" stopColor="#10b981" />
+									</linearGradient>
+								</defs>
+								{backBodyParts.map((part) => (
+									<g key={part.id} style={{ pointerEvents: "auto" }}>
+										{part.cx ? (
+											<circle
+												cx={part.cx}
+												cy={part.cy}
+												r={part.r}
+												fill={getPartFill(part.id, "back")}
+												stroke={getPartStroke(part.id, "back")}
+												strokeWidth="2"
+												opacity={getPartOpacity(
+													part.id,
+													"back",
+													hoveredPart === part.id,
+												)}
+												transform={getTransform(part)}
+												className="cursor-pointer transition-opacity duration-150"
+												onMouseEnter={() => setHoveredPart(part.id)}
+												onMouseLeave={() => setHoveredPart(null)}
+												onClick={() => handlePartClick(part.id, "back")}
+												role="button"
+												tabIndex={0}
+												aria-label={part.name || part.id}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ")
+														handlePartClick(part.id, "back");
+												}}
+											/>
+										) : (
+											<rect
+												x={part.x}
+												y={part.y}
+												width={part.width}
+												height={part.height}
+												rx="5"
+												fill={getPartFill(part.id, "back")}
+												stroke={getPartStroke(part.id, "back")}
+												strokeWidth="2"
+												opacity={getPartOpacity(
+													part.id,
+													"back",
+													hoveredPart === part.id,
+												)}
+												transform={getTransform(part)}
+												className="cursor-pointer transition-opacity duration-150"
+												onMouseEnter={() => setHoveredPart(part.id)}
+												onMouseLeave={() => setHoveredPart(null)}
+												onClick={() => handlePartClick(part.id, "back")}
+												role="button"
+												tabIndex={0}
+												aria-label={part.name || part.id}
+												onKeyDown={(e) => {
+													if (e.key === "Enter" || e.key === " ")
+														handlePartClick(part.id, "back");
+												}}
+											/>
+										)}
+									</g>
+								))}
+							</svg>
+						</div>
 						<span className="mt-2 text-blue-700 font-semibold text-sm tracking-wide">
 							Back
 						</span>
