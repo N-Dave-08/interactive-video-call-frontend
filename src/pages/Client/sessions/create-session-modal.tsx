@@ -45,6 +45,7 @@ export default function CreateSessionModal({
 					last_name: "",
 					age: 0,
 					birthday: "",
+					gender: "",
 				},
 				avatar_data: {
 					hair: "default",

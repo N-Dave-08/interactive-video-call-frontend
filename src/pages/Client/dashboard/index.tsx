@@ -94,8 +94,10 @@ export default function Dashboard() {
 		}
 	};
 
-	const getInitials = (firstName: string, lastName: string) => {
-		return `${firstName[0]}${lastName[0]}`;
+	const getInitials = (firstName?: string, lastName?: string) => {
+		const first = firstName?.[0] ?? "";
+		const last = lastName?.[0] ?? "";
+		return `${first}${last}` || "NA";
 	};
 
 	const getGreeting = () => {
@@ -291,6 +293,10 @@ export default function Dashboard() {
 														</p>
 														<div className="flex items-center space-x-4 text-xs text-slate-400">
 															<span>Age: {session.child_data.age}</span>
+															<span>•</span>
+															<span>
+																Gender: {session.child_data.gender || "N/A"}
+															</span>
 															<span>•</span>
 															<span>{session.stage}</span>
 															<span>•</span>

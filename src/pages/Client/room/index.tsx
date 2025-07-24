@@ -101,6 +101,7 @@ export default function Room() {
 						last_name: session.child_data.last_name ?? "",
 						age: String(session.child_data.age ?? ""),
 						birthday: session.child_data.birthday ?? "",
+						gender: session.child_data.gender ?? "", // Restore gender
 					});
 				}
 				if (session?.emotional_expression?.selected_feelings?.[0]) {
@@ -131,6 +132,7 @@ export default function Room() {
 		last_name: "",
 		age: "",
 		birthday: "",
+		gender: "", // Add gender to state
 	});
 	const [avatarData, setAvatarData] = useState({
 		head: "/avatar-assets/heads/default-head-clear.png",
@@ -163,7 +165,11 @@ export default function Room() {
 		try {
 			// Update to the NEXT stage
 			await updateSession(session_id, {
-				child_data: { ...childData, age: Number(childData.age) },
+				child_data: {
+					...childData,
+					age: Number(childData.age),
+					gender: childData.gender,
+				},
 				stage: "Stage 2",
 			});
 			setStep(1);

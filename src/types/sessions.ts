@@ -63,4 +63,5 @@ export interface ChildData {
 	birthday: string;
 	last_name: string;
 	first_name: string;
+	gender: string;
 }

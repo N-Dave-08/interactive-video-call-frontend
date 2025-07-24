@@ -4,6 +4,13 @@ import { Calendar, Heart, Sparkles, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Calendar as BirthdayCalendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { useQuestionStore } from "@/store/questionStore";
 import StageCardLayout from "./StageCardLayout";
 
@@ -12,14 +19,16 @@ interface ChildData {
 	last_name: string;
 	age: string;
 	birthday: string;
+	gender: string;
 }
 
 export default function Stage1ChildData({
 	value = {
-		first_name: "Alex",
-		last_name: "Johnson",
-		age: "8",
-		birthday: "06/15/2016",
+		first_name: "",
+		last_name: "",
+		age: "",
+		birthday: "",
+		gender: "",
 	},
 	onChange = () => {},
 	onNext = () => {},
@@ -62,6 +71,16 @@ export default function Stage1ChildData({
 			audio: "/ai-voiced/tell-me-your-age.mp3",
 		},
 		{
+			id: "gender",
+			label: "What is your gender?",
+			placeholder: "Select your gender!",
+			color: "from-yellow-400 via-orange-400 to-red-400",
+			bgColor: "from-yellow-50 to-orange-50",
+			type: "select",
+			iconify: "fluent-emoji:boy",
+			audio: "/ai-voiced/tell-me-your-gender.mp3",
+		},
+		{
 			id: "birthday",
 			label: "When is your special birthday?",
 			placeholder: "Pick your birthday!",
@@ -81,7 +100,7 @@ export default function Stage1ChildData({
 		return () => {
 			audio.pause();
 		};
-	}, [currentStep]);
+	}, [currentStep, inputFields[currentStep].audio]);
 
 	useEffect(() => {
 		localStorage.setItem("stage1-current-step", String(currentStep));
@@ -191,6 +210,54 @@ export default function Stage1ChildData({
 				</div>
 			);
 		}
+		if (currentField.id === "gender") {
+			return (
+				<div className="relative flex flex-col w-full">
+					<Select
+						value={value.gender}
+						onValueChange={(selectedValue) =>
+							onChange({ ...value, gender: selectedValue })
+						}
+					>
+						<SelectTrigger
+							id="gender"
+							className="w-full pl-6 pr-6 py-6 font-bold text-2xl border-3 border-gray-200 rounded-3xl bg-white/90 backdrop-blur-sm focus:border-yellow-400 focus:ring-6 focus:ring-yellow-100 transition-all duration-300 hover:border-yellow-300 shadow-lg h-auto"
+						>
+							<SelectValue placeholder={currentField.placeholder} />
+						</SelectTrigger>
+						<SelectContent className="rounded-2xl border-3 border-yellow-200 shadow-xl bg-white/95 backdrop-blur-sm">
+							<SelectItem
+								value="male"
+								className="font-bold text-lg py-3 px-4 rounded-xl hover:bg-yellow-50 focus:bg-yellow-100 cursor-pointer"
+							>
+								<div className="flex items-center gap-3">
+									<Icon icon="fluent-emoji:boy" className="w-6 h-6" />
+									Male
+								</div>
+							</SelectItem>
+							<SelectItem
+								value="female"
+								className="font-bold text-lg py-3 px-4 rounded-xl hover:bg-yellow-50 focus:bg-yellow-100 cursor-pointer"
+							>
+								<div className="flex items-center gap-3">
+									<Icon icon="fluent-emoji:girl" className="w-6 h-6" />
+									Female
+								</div>
+							</SelectItem>
+							<SelectItem
+								value="other"
+								className="font-bold text-lg py-3 px-4 rounded-xl hover:bg-yellow-50 focus:bg-yellow-100 cursor-pointer"
+							>
+								<div className="flex items-center gap-3">
+									<Icon icon="fluent-emoji:rainbow" className="w-6 h-6" />
+									Other
+								</div>
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			);
+		}
 		if (currentField.id === "birthday") {
 			let selectedDate: Date | undefined;
 			if (currentValue) {
@@ -220,6 +287,7 @@ export default function Stage1ChildData({
 							}}
 							disabled={{ after: new Date() }}
 							className="mx-auto"
+							captionLayout="dropdown"
 						/>
 					</div>
 					{currentValue && (
@@ -267,7 +335,6 @@ export default function Stage1ChildData({
 			<StageCardLayout cardClassName="max-w-2xl">
 				<div className="relative">
 					<FloatingElements />
-
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -290,7 +357,9 @@ export default function Stage1ChildData({
 								<Icon icon="fluent-emoji:waving-hand" className="w-14 h-14" />
 							) : currentField.icon ? (
 								<currentField.icon className="w-14 h-14 text-white" />
-							) : null}
+							) : (
+								<Icon icon={currentField.iconify} className="w-14 h-14" />
+							)}
 						</motion.div>
 						<h2 className="text-4xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent mb-4">
 							Tell me about yourself!{" "}
@@ -300,7 +369,6 @@ export default function Stage1ChildData({
 							Let's get to know each other better!
 						</p>
 					</motion.div>
-
 					<div className="space-y-8 flex-1 flex flex-col justify-between">
 						<AnimatePresence mode="wait">
 							<motion.div
@@ -321,7 +389,7 @@ export default function Stage1ChildData({
 										className={`absolute inset-0 bg-gradient-to-r ${currentField.color} rounded-3xl blur-lg opacity-20 group-hover:opacity-30 transition-opacity duration-300`}
 									/>
 									<div className="relative flex items-center">
-										{currentStep !== 0 && (
+										{currentStep !== 0 && currentField.id !== "gender" && (
 											<motion.div
 												className={`absolute left-6 z-10 w-12 h-12 bg-gradient-to-r ${currentField.color} rounded-full flex items-center justify-center shadow-lg`}
 												initial={{ scale: 0, rotate: -180 }}
@@ -336,7 +404,12 @@ export default function Stage1ChildData({
 											>
 												{currentField.icon ? (
 													<currentField.icon className="w-6 h-6 text-white" />
-												) : null}
+												) : (
+													<Icon
+														icon={currentField.iconify}
+														className="w-6 h-6"
+													/>
+												)}
 											</motion.div>
 										)}
 										<div className="w-full">{renderField()}</div>
@@ -345,7 +418,6 @@ export default function Stage1ChildData({
 							</motion.div>
 						</AnimatePresence>
 					</div>
-
 					<motion.div
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -396,7 +468,6 @@ export default function Stage1ChildData({
 							)}
 						</motion.button>
 					</motion.div>
-
 					{error && (
 						<motion.div
 							initial={{ opacity: 0, scale: 0.9 }}

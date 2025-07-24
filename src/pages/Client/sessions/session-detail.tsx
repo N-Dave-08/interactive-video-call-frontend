@@ -231,6 +231,9 @@ export default function SessionDetailPage() {
 									<p className="text-blue-700 text-lg">
 										Age {session.child_data.age}
 									</p>
+									<p className="text-blue-500 text-base">
+										Gender: {session.child_data.gender || "N/A"}
+									</p>
 									<div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
 										<Cake className="h-5 w-5 text-pink-400" />
 										<span className="text-sm">
