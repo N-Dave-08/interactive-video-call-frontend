@@ -9,7 +9,6 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import SpinnerLoading from "@/components/ui/spinner-loading";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types";
+import ChildAvatar from "@/components/ChildAvatar";
 
 export default function Dashboard() {
 	const { user } = useAuth();
@@ -94,12 +94,6 @@ export default function Dashboard() {
 			default:
 				return "bg-gray-50 text-gray-700 border-gray-200";
 		}
-	};
-
-	const getInitials = (firstName?: string, lastName?: string) => {
-		const first = firstName?.[0] ?? "";
-		const last = lastName?.[0] ?? "";
-		return `${first}${last}` || "NA";
 	};
 
 	const getGreeting = () => {
@@ -270,7 +264,7 @@ export default function Dashboard() {
 							</div>
 						</CardHeader>
 						<CardContent className="p-0">
-							<div className="divide-y divide-slate-100">
+							<div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
 								{sessions
 									.filter((session) => session.status === "in_progress")
 									.map((session) => (
@@ -286,14 +280,15 @@ export default function Dashboard() {
 										>
 											<div className="flex items-center justify-between">
 												<div className="flex items-center space-x-4">
-													<Avatar className="h-12 w-12 ring-2 ring-slate-100">
-														<AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold">
-															{getInitials(
-																session.child_data.first_name,
-																session.child_data.last_name,
-															)}
-														</AvatarFallback>
-													</Avatar>
+													<ChildAvatar
+														size={90}
+														avatar_data={{
+															...session.avatar_data,
+															first_name: session.child_data.first_name,
+															last_name: session.child_data.last_name,
+														}}
+														className="h-16 w-16 ring-2 ring-slate-100"
+													/>
 													<div>
 														<h4 className="font-semibold text-slate-900">
 															{session.child_data.first_name}{" "}
@@ -365,14 +360,15 @@ export default function Dashboard() {
 										}
 									>
 										<div className="flex items-center space-x-3">
-											<Avatar className="h-10 w-10">
-												<AvatarFallback className="bg-slate-100 text-slate-600 text-sm font-medium">
-													{getInitials(
-														session.child_data.first_name,
-														session.child_data.last_name,
-													)}
-												</AvatarFallback>
-											</Avatar>
+											<ChildAvatar
+												size={56}
+												avatar_data={{
+													...session.avatar_data,
+													first_name: session.child_data.first_name,
+													last_name: session.child_data.last_name,
+												}}
+												className="h-14 w-14"
+											/>
 											<div className="flex-1 min-w-0">
 												<p className="font-medium text-slate-900 truncate">
 													{session.child_data.first_name}{" "}
