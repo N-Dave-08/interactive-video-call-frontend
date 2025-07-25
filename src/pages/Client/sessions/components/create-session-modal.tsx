@@ -63,7 +63,10 @@ export default function CreateSessionModal({ open, setOpen, onSessionCreated }: 
         social_worker_id: user.id,
         title,
         start_time: startDateTime,
-        status: startDateTime ? "scheduled" : "active",
+        status:
+          startDateTime && new Date(startDateTime) > new Date()
+            ? "scheduled"
+            : "in_progress",
         child_data: {
           first_name: "",
           last_name: "",

@@ -11,7 +11,7 @@ import {
 	UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { deleteSession } from "@/api/sessions";
+import { deleteSession, updateSession } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -48,6 +48,47 @@ function getStageColor(stage: string) {
 			return "bg-indigo-100 text-indigo-700 border-indigo-300";
 		default:
 			return "bg-gray-100 text-gray-700 border-gray-300";
+	}
+}
+
+// Helper to get badge style and label for status
+function getStatusBadgeStyle(status: string) {
+	switch (status) {
+		case "scheduled":
+			return {
+				label: "Scheduled",
+				className:
+					"bg-yellow-100 text-yellow-800 border-yellow-200 ring-2 ring-yellow-200",
+			};
+		case "in_progress":
+			return {
+				label: "In Progress",
+				className:
+					"bg-blue-100 text-blue-800 border-blue-200 ring-2 ring-blue-200",
+			};
+		case "rescheduled":
+			return {
+				label: "Rescheduled",
+				className:
+					"bg-purple-100 text-purple-800 border-purple-200 ring-2 ring-purple-200",
+			};
+		case "completed":
+			return {
+				label: "Completed",
+				className:
+					"bg-emerald-100 text-emerald-800 border-emerald-200 ring-2 ring-emerald-200",
+			};
+		case "cancelled":
+			return {
+				label: "Cancelled",
+				className:
+					"bg-red-100 text-red-800 border-red-200 ring-2 ring-red-200",
+			};
+		default:
+			return {
+				label: status,
+				className: "bg-gray-100 text-gray-700 border-gray-200",
+			};
 	}
 }
 
@@ -120,13 +161,9 @@ export default function SessionCards({
 									<div className="flex items-center gap-2">
 										<Badge
 											variant={session.end_time ? "secondary" : "default"}
-											className={
-												session.end_time
-													? "bg-emerald-100 text-emerald-800 rounded-full px-3 py-1 text-sm font-semibold border border-emerald-200"
-													: "bg-blue-100 text-blue-800 rounded-full px-3 py-1 text-sm font-semibold border border-blue-200"
-											}
+											className={getStatusBadgeStyle(session.status).className + " rounded-full px-3 py-1 text-sm font-semibold border capitalize"}
 										>
-											{session.end_time ? "Completed" : "In Progress"}
+											{getStatusBadgeStyle(session.status).label}
 										</Badge>
 										<Dialog>
 											<DialogTrigger asChild>
@@ -217,11 +254,14 @@ export default function SessionCards({
 									<User className="h-5 w-5 text-pink-500" />
 									<div>
 										<span className="font-bold text-gray-800 text-base">
-											{session.child_data.first_name}{" "}
-											{session.child_data.last_name}
+											{(session.child_data.first_name || session.child_data.last_name)
+												? `${session.child_data.first_name} ${session.child_data.last_name}`.trim()
+												: <span className="italic text-gray-400">No name</span>}
 										</span>
 										<span className="text-sm text-gray-500 ml-2">
-											({session.child_data.age} years old)
+											{session.child_data.age
+												? `(${session.child_data.age} years old)`
+												: <span className="italic text-gray-400">(Age not set)</span>}
 										</span>
 									</div>
 								</div>
@@ -234,15 +274,19 @@ export default function SessionCards({
 										</span>
 									</div>
 									<div className="flex flex-wrap gap-1">
-										{session.tags.map((tag) => (
-											<Badge
-												key={tag}
-												variant="outline"
-												className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium border border-emerald-200"
-											>
-												{tag.replace(/_/g, " ")}
-											</Badge>
-										))}
+										{session.tags.length > 0 ? (
+											session.tags.map((tag) => (
+												<Badge
+													key={tag}
+													variant="outline"
+													className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium border border-emerald-200"
+												>
+													{tag.replace(/_/g, " ")}
+												</Badge>
+											))
+										) : (
+											<span className="italic text-gray-400">No tags</span>
+										)}
 									</div>
 								</div>
 								{/* Session Notes */}
@@ -254,7 +298,9 @@ export default function SessionCards({
 										</span>
 									</div>
 									<p className="text-sm text-gray-700 leading-relaxed bg-amber-50 p-4 rounded-xl border-l-4 border-amber-200">
-										{session.session_notes}
+										{session.session_notes
+											? session.session_notes
+											: <span className="italic text-gray-400">No notes</span>}
 									</p>
 								</div>
 							</CardContent>
@@ -266,6 +312,30 @@ export default function SessionCards({
 										{user.first_name} {user.last_name}
 									</span>
 								</span>
+								{/* Start button for scheduled sessions when time is reached */}
+								{session.status === "scheduled" && (() => {
+									const now = new Date();
+									const start = new Date(session.start_time);
+									const canStart = start <= now && !session.end_time;
+									if (!canStart) return null;
+									return (
+										<Button
+											size="sm"
+											className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1"
+											onClick={async (e) => {
+												e.stopPropagation();
+												try {
+													await updateSession(session.session_id, { status: "in_progress" });
+													navigate(`/room/${session.session_id}`);
+												} catch {
+													alert("Failed to start session. Please try again.");
+												}
+											}}
+										>
+											Start <ArrowRight className="h-4 w-4" />
+										</Button>
+									);
+								})()}
 								{/* Continue button for in-progress sessions */}
 								{session.status === "in_progress" && !session.end_time && (
 									(() => {
