@@ -121,7 +121,7 @@ export default function AppSidebar() {
 					user={{
 						name: user ? `${user.first_name} ${user.last_name}` : "No name",
 						email: user?.email || "no email",
-						avatar: "/avatars/shadcn.jpg",
+						avatar: user?.profile_picture || "/placeholder.svg"
 					}}
 				/>
 			</SidebarFooter>

@@ -10,6 +10,7 @@ export interface LoginResponse {
 		place_of_assignment: string;
 		role: string;
 		condition: string;
+		profile_picture?: string;
 	};
 }
 
