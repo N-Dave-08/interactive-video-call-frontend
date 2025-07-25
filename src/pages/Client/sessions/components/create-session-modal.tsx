@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 import { createSession } from "@/api/sessions"
 import { useAuth } from "@/hooks/useAuth"
 import { useSessionStore } from "@/store/sessionStore"
-import type { Session } from "@/types/sessions"
+import type { Session } from "@/types"
 
 interface CreateSessionModalProps {
   open: boolean
