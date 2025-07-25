@@ -12,15 +12,12 @@ interface AvatarData {
 
 interface ChildAvatarProps {
   avatar_data?: AvatarData;
-  size?: number; // px, default 48
+  size?: number; 
   className?: string;
 }
 
-const getInitials = (first?: string, last?: string) => {
-  const f = first?.[0] ?? "";
-  const l = last?.[0] ?? "";
-  return `${f}${l}` || "NA";
-};
+
+const isDefault = (val?: string) => !val || val === "default" || val === "";
 
 export const ChildAvatar: React.FC<ChildAvatarProps> = ({
   avatar_data,
@@ -33,23 +30,25 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
     head,
     hair,
     expression,
-    first_name,
-    last_name,
   } = avatar_data || {};
 
-  const initials = getInitials(first_name, last_name);
 
-  // If no avatar layers, fallback to initials
-  const hasAvatar = background || clothes || head || hair || expression;
+
+  const hasAvatar =
+    !isDefault(background) ||
+    !isDefault(clothes) ||
+    !isDefault(head) ||
+    !isDefault(hair) ||
+    !isDefault(expression);
 
   return (
     <div
-      className={`relative rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-200 to-purple-200 text-white font-semibold select-none ${className}`}
+      className={`relative rounded-full overflow-hidden flex items-center justify-center font-semibold select-none ${className}`}
       style={{ width: size, height: size }}
     >
       {hasAvatar ? (
         <>
-          {background && (
+          {!isDefault(background) && (
             <img
               src={background}
               alt="bg"
@@ -57,7 +56,7 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
               draggable={false}
             />
           )}
-          {clothes && (
+          {!isDefault(clothes) && (
             <img
               src={clothes}
               alt="clothes"
@@ -65,7 +64,7 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
               draggable={false}
             />
           )}
-          {head && (
+          {!isDefault(head) && (
             <img
               src={head}
               alt="head"
@@ -73,7 +72,7 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
               draggable={false}
             />
           )}
-          {hair && (
+          {!isDefault(hair) && (
             <img
               src={hair}
               alt="hair"
@@ -81,7 +80,7 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
               draggable={false}
             />
           )}
-          {expression && (
+          {!isDefault(expression) && (
             <img
               src={expression}
               alt="expression"
@@ -91,7 +90,22 @@ export const ChildAvatar: React.FC<ChildAvatarProps> = ({
           )}
         </>
       ) : (
-        <span className="text-lg">{initials}</span>
+        <span className="absolute inset-0 flex items-center justify-center w-full h-full text-slate-300">
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <title>Default avatar</title>
+            <circle cx="24" cy="24" r="24" fill="#E5E7EB"/>
+            <ellipse cx="24" cy="20" rx="8" ry="8" fill="#D1D5DB"/>
+            <ellipse cx="24" cy="36" rx="14" ry="8" fill="#D1D5DB"/>
+          </svg>
+        </span>
       )}
     </div>
   );
