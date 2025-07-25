@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
 	ArrowRight,
-	Calendar,
+	Calendar as CalendarIcon,
 	Clock,
 	FileText,
 	Tag,
@@ -27,11 +27,18 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import type { Session } from "@/types/sessions";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface SessionCardsProps {
 	sessions: Session[];
 	user: { first_name: string; last_name: string };
 	onSessionDeleted?: (sessionId: string) => void;
+    onSessionUpdated?: () => void;
 }
 
 // Helper to get color class for stage
@@ -97,6 +104,7 @@ export default function SessionCards({
 	sessions,
 	user,
 	onSessionDeleted,
+    onSessionUpdated,
 }: SessionCardsProps) {
 	const navigate = useNavigate();
 	const [now, setNow] = useState(new Date());
@@ -128,6 +136,12 @@ export default function SessionCards({
 			alert("Failed to delete session. Please try again.");
 		}
 	};
+
+	const [rescheduleOpen, setRescheduleOpen] = useState<string | null>(null);
+	const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(undefined);
+	const [rescheduleTime, setRescheduleTime] = useState<string>("");
+	const [rescheduleLoading, setRescheduleLoading] = useState(false);
+	const [rescheduleError, setRescheduleError] = useState<string | null>(null);
 
 	// console.log(": sessions", sessions);
 
@@ -232,7 +246,7 @@ export default function SessionCards({
 								{/* Date and Time */}
 								<div className="bg-blue-50 rounded-xl p-3 space-y-2 border border-blue-100">
 									<div className="flex items-center gap-2 text-sm text-gray-700">
-										<Calendar className="h-4 w-4 text-blue-500" />
+										<CalendarIcon className="h-4 w-4 text-blue-500" />
 										<span className="font-semibold">Start:</span>
 										<span>
 											{formatDate(session.start_time)} at{" "}
@@ -343,17 +357,97 @@ export default function SessionCards({
 								})()}
 								{/* Reschedule button for scheduled or rescheduled sessions */}
 								{(session.status === "scheduled" || session.status === "rescheduled") && (
-									<Button
-										size="sm"
-										variant="outline"
-										className="rounded-full border-blue-400 text-blue-700 hover:bg-blue-50 ml-2"
-										onClick={(e) => {
-											e.stopPropagation();
-											alert("Reschedule handler placeholder");
-										}}
-									>
-										Reschedule
-									</Button>
+									<>
+										<Button
+											size="sm"
+											variant="outline"
+											className="rounded-full border-blue-400 text-blue-700 hover:bg-blue-50 ml-2"
+											onClick={e => {
+												e.stopPropagation();
+												setRescheduleOpen(session.session_id);
+												const start = new Date(session.start_time);
+												setRescheduleDate(Number.isNaN(start.getTime()) ? undefined : start);
+												const pad = (n: number) => n.toString().padStart(2, "0");
+												setRescheduleTime(Number.isNaN(start.getTime()) ? "" : `${pad(start.getHours())}:${pad(start.getMinutes())}`);
+												setRescheduleError(null);
+											}}
+										>
+											Reschedule
+										</Button>
+										<Dialog open={rescheduleOpen === session.session_id} onOpenChange={open => { if (!open) setRescheduleOpen(null); }}>
+											<DialogContent onClick={e => e.stopPropagation()}>
+												<DialogHeader>
+													<DialogTitle>Reschedule Session</DialogTitle>
+													<DialogDescription>Pick a new date and time for this session.</DialogDescription>
+												</DialogHeader>
+												<form
+													onSubmit={async e => {
+														e.preventDefault();
+														if (!rescheduleDate || !rescheduleTime) {
+															setRescheduleError("Please select both date and time.");
+															return;
+														}
+														setRescheduleLoading(true);
+														setRescheduleError(null);
+														try {
+															const [hours, minutes] = rescheduleTime.split(":");
+															if (!rescheduleDate) return;
+															const dt = new Date(rescheduleDate);
+															dt.setHours(Number(hours));
+															dt.setMinutes(Number(minutes));
+															dt.setSeconds(0);
+															await updateSession(session.session_id, { start_time: dt.toISOString(), status: "rescheduled" });
+															setRescheduleOpen(null);
+											onSessionUpdated?.();
+														} catch  {
+															setRescheduleError("Failed to reschedule session. Please try again.");
+														}
+														setRescheduleLoading(false);
+													}}
+												>
+													<div className="grid gap-4 py-2">
+														<div className="grid grid-cols-4 items-center gap-4">
+															<Label htmlFor="reschedule-date" className="text-right">Date</Label>
+															<Popover>
+																<PopoverTrigger asChild>
+																	<Button
+																		variant="outline"
+																		className={cn("col-span-3 justify-start text-left font-normal", !rescheduleDate && "text-muted-foreground")}
+																	>
+																		<CalendarIcon className="mr-2 h-4 w-4" />
+																		{rescheduleDate ? format(rescheduleDate, "PPP") : <span>Pick a date</span>}
+																	</Button>
+																</PopoverTrigger>
+																<PopoverContent className="w-auto p-0">
+																	<Calendar mode="single" selected={rescheduleDate} onSelect={date => setRescheduleDate(date ?? undefined)} initialFocus />
+																</PopoverContent>
+															</Popover>
+														</div>
+														<div className="grid grid-cols-4 items-center gap-4">
+															<Label htmlFor="reschedule-time" className="text-right">Time</Label>
+															<Input
+																id="reschedule-time"
+																type="time"
+																placeholder="Time"
+																value={rescheduleTime}
+																onChange={e => setRescheduleTime(e.target.value)}
+																className="col-span-3"
+															/>
+														</div>
+														{rescheduleError && <div className="text-red-500 text-sm text-center">{rescheduleError}</div>}
+													</div>
+													<DialogFooter>
+														<Button type="button" variant="outline" onClick={() => setRescheduleOpen(null)}>
+															Cancel
+														</Button>
+														<Button type="submit" disabled={rescheduleLoading}>
+															{rescheduleLoading ? "Rescheduling..." : "Reschedule"}
+														</Button>
+													</DialogFooter>
+												</form>
+											</DialogContent>
+										</Dialog>
+									</>
 								)}
 								{/* Continue button for in-progress sessions */}
 								{session.status === "in_progress" && !session.end_time && (

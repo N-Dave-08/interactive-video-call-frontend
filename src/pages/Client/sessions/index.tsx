@@ -153,6 +153,7 @@ export default function SessionsPage() {
 					sessions={Array.isArray(data) ? data : []}
 					user={{ first_name: user.first_name, last_name: user.last_name }}
 					onSessionDeleted={handleSessionDeleted}
+					onSessionUpdated={() => queryClient.invalidateQueries({ queryKey: ["sessions", user?.id] })}
 				/>
 			))}
 		</>
