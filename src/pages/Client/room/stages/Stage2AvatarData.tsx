@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import AvatarCreator from "@/features/avatar-creator";
 import { useQuestionStore } from "@/store/questionStore";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 interface AvatarData {
 	head: string;

@@ -2,7 +2,7 @@ import { Icon } from "@iconify/react";
 import { RotateCcw, Star } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import MiniGameLayout from "../MiniGameLayout";
+import MiniGameLayout from "../layouts/MiniGameLayout";
 
 const shapes = [
 	{

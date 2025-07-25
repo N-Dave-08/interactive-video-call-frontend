@@ -5,9 +5,9 @@ import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types/sessions";
-import CreateSessionModal from "./create-session-modal";
-import SessionCards from "./session-cards";
-import SessionCardsSkeleton from "./session-cards-skeleton";
+import CreateSessionModal from "./components/create-session-modal";
+import SessionCards from "./components/session-cards";
+import SessionCardsSkeleton from "./components/session-cards-skeleton";
 
 export default function SessionsPage() {
 	const { user } = useAuth();

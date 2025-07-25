@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuestionStore } from "@/store/questionStore";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage6SessionNotesTags({
 	notes,

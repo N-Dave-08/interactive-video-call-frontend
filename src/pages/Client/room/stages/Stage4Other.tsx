@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, Heart, Lightbulb, Puzzle } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useQuestionStore } from "@/store/questionStore";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage4Other({
 	onNext,

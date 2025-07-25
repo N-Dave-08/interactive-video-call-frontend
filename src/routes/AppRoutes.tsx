@@ -9,12 +9,12 @@ import RegisterPage from "@/pages/Auth/register";
 import ClientDashboard from "@/pages/Client/dashboard";
 import ProfilePage from "@/pages/Client/Profile";
 import Room from "@/pages/Client/room";
-import RoomLayout from "@/pages/Client/room/RoomLayout";
+import RoomLayout from "@/pages/Client/room/layouts/RoomLayout";
 import SchedulePage from "@/pages/Client/schedule";
 import SessionsPage from "@/pages/Client/sessions";
-import SessionDetailPage from "@/pages/Client/sessions/session-detail";
+import SessionDetailPage from "@/pages/Client/sessions/components/session-detail";
 import LandingPage from "@/pages/Landing";
-import MiniGameRoute from "../pages/Client/mini-games/MiniGameRoute";
+import MiniGameRoute from "../pages/Client/mini-games/components/MiniGameRoute";
 
 const DashboardRoute = () => {
 	const { user } = useAuth();

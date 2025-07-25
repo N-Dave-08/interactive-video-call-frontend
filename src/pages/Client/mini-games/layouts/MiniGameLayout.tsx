@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { MiniGameAnimatedBackground } from "./MiniGameAnimatedBackground";
+import { MiniGameAnimatedBackground } from "../components/MiniGameAnimatedBackground";
 
 export default function MiniGameLayout({ children }: { children: ReactNode }) {
 	return (

@@ -12,7 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { useQuestionStore } from "@/store/questionStore";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 interface ChildData {
 	first_name: string;

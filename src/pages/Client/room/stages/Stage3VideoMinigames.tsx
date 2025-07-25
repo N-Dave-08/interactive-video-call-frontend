@@ -9,7 +9,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuestionStore } from "@/store/questionStore";
 import type { Video } from "@/types/video";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage3VideoMinigames({
 	onNext,

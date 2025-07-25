@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import BodyMap from "@/features/bodymap";
 import DrawingPad from "@/features/drawing-pad";
 import { useQuestionStore } from "@/store/questionStore";
-import StageCardLayout from "./StageCardLayout";
+import StageCardLayout from "../layouts/StageCardLayout";
 
 interface SelectedParts {
 	[key: string]: { pain: boolean; touch: boolean };

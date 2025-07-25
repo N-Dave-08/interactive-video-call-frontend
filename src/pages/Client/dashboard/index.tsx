@@ -1,34 +1,17 @@
-import {
-	CheckCircle,
-	ChevronRight,
-	Clock,
-	FileText,
-	TrendingUp,
-} from "lucide-react";
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+
 import SpinnerLoading from "@/components/ui/spinner-loading";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types";
-import ChildAvatar from "@/components/ChildAvatar";
-import { PieChart, Pie, Cell } from "recharts";
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
-import { Icon } from "@iconify/react";
+
+import SessionStatusPieChart from "./components/SessionStatusPieChart";
+import WelcomeCard from "./components/WelcomeCard";
+import StatisticsCards from "./components/StatisticsCards";
+import ActiveSessionsList from "./components/ActiveSessionsList";
+import UpcomingSessionsList from "./components/UpcomingSessionsList";
 
 
 export default function Dashboard() {
@@ -73,6 +56,44 @@ export default function Dashboard() {
 	const totalSessions = sessions.length;
 	const completedSessions = counts.completed;
 	const completionRate = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
+
+	// Calculate percentage change from last month
+	const calculateMonthlyChange = () => {
+		const now = new Date();
+		const currentMonth = now.getMonth();
+		const currentYear = now.getFullYear();
+		
+		// Get sessions from current month
+		const currentMonthSessions = sessions.filter(session => {
+			const sessionDate = new Date(session.createdAt);
+			return sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear;
+		});
+		
+		// Get sessions from previous month
+		const previousMonthSessions = sessions.filter(session => {
+			const sessionDate = new Date(session.createdAt);
+			const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+			const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+			return sessionDate.getMonth() === previousMonth && sessionDate.getFullYear() === previousYear;
+		});
+		
+		const currentCount = currentMonthSessions.length;
+		const previousCount = previousMonthSessions.length;
+		
+		if (previousCount === 0) {
+			return currentCount > 0 ? 100 : 0; // If no previous month data, show 100% if current month has data
+		}
+		
+		const change = ((currentCount - previousCount) / previousCount) * 100;
+		return Math.round(change);
+	};
+
+	const monthlyChange = calculateMonthlyChange();
+	const monthlyChangeText = monthlyChange > 0 
+		? `+${monthlyChange}% from last month`
+		: monthlyChange < 0 
+		? `${monthlyChange}% from last month`
+		: "No change from last month";
 
 	const formatTime = (dateString: string) => {
 		return new Date(dateString).toLocaleTimeString("en-US", {
@@ -168,256 +189,50 @@ export default function Dashboard() {
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-12">
 				{/* Pie Chart for Session Statuses */}
 				<div className="md:col-span-2 lg:col-span-7">
-					<Card className="flex flex-col shadow-md rounded-xl">
-						<CardHeader className="items-center pb-0">
-							<CardTitle className="text-lg font-semibold text-slate-900">Session Status Overview</CardTitle>
-							<CardDescription>Current distribution of session statuses</CardDescription>
-						</CardHeader>
-						<CardContent className="flex-1 pb-0">
-							{pieData.every((d) => d.value === 0) ? (
-								<div className="flex flex-col items-center justify-center h-[250px] text-slate-400">
-									<Icon icon="mdi:chart-pie" width={48} height={48} className="mb-2" />
-									<span className="text-lg font-medium">No session data to display</span>
-									<span className="text-sm">Session statuses will appear here once available.</span>
-								</div>
-							) : (
-								<ChartContainer
-									config={dashboardChartConfig}
-									className="mx-auto aspect-square max-h-[300px]"
-								>
-									<PieChart>
-										<Pie
-											data={pieData}
-											dataKey="value"
-											nameKey="name"
-											outerRadius={80}
-										>
-											{pieData.map((entry, idx) => (
-												<Cell
-													key={entry.name}
-													fill={PIE_COLORS[idx % PIE_COLORS.length]}
-												/>
-											))}
-										</Pie>
-										<ChartLegend
-											content={<ChartLegendContent nameKey="key" />}
-											className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
-										/>
-									</PieChart>
-								</ChartContainer>
-							)}
-						</CardContent>
-					</Card>
+					<SessionStatusPieChart
+						pieData={pieData}
+						dashboardChartConfig={dashboardChartConfig}
+						PIE_COLORS={PIE_COLORS}
+					/>
 				</div>
 
 				{/* Welcome Card */}
 				<div className="md:col-span-2 lg:col-span-5">
-					<Card className="shadow-md rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 h-full flex flex-col justify-between">
-						<CardHeader>
-							<CardTitle className="text-xl font-semibold text-slate-900">Today's Overview</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-6">
-							<div>
-								<div className="flex items-center justify-between mb-2">
-									<span className="text-slate-600">Sessions scheduled</span>
-									<span className="text-2xl font-bold text-blue-600">{counts.scheduled}</span>
-								</div>
-								<div className="flex items-center justify-between">
-									<span className="text-slate-600">Active sessions</span>
-									<span className="text-lg font-semibold text-amber-600">{counts.in_progress}</span>
-								</div>
-							</div>
-							<Button
-								className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm"
-								onClick={() => navigate("/schedule")}
-							>
-								<CheckCircle className="h-4 w-4 mr-2" />
-								View Schedule
-							</Button>
-						</CardContent>
-					</Card>
+					<WelcomeCard
+						counts={counts}
+						onViewSchedule={() => navigate("/schedule")}
+					/>
 				</div>
 
 				{/* Statistics Cards */}
-				<div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-					<Card className="shadow-md rounded-xl">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between">
-								<div>
-									<p className="text-sm font-medium text-slate-600 mb-1">Total Sessions</p>
-									<p className="text-3xl font-bold text-slate-900">{totalSessions}</p>
-								</div>
-								<div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center">
-									<FileText className="h-6 w-6 text-blue-600" />
-								</div>
-							</div>
-							<div className="mt-4 flex items-center">
-								<TrendingUp className="h-4 w-4 text-emerald-500 mr-1" />
-								<span className="text-sm text-emerald-600 font-medium">+12% from last month</span>
-							</div>
-						</CardContent>
-					</Card>
-					<Card className="shadow-md rounded-xl">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between">
-								<div>
-									<p className="text-sm font-medium text-slate-600 mb-1">In Progress</p>
-									<p className="text-3xl font-bold text-slate-900">{counts.in_progress}</p>
-								</div>
-								<div className="h-12 w-12 bg-amber-100 rounded-xl flex items-center justify-center">
-									<Clock className="h-6 w-6 text-amber-600" />
-								</div>
-							</div>
-							<div className="mt-4">
-								<Progress value={completionRate} className="h-2" />
-								<span className="text-sm text-slate-500 mt-1">{completionRate}% completion rate</span>
-							</div>
-						</CardContent>
-					</Card>
-					<Card className="shadow-md rounded-xl">
-						<CardContent className="p-6">
-							<div className="flex items-center justify-between">
-								<div>
-									<p className="text-sm font-medium text-slate-600 mb-1">Completed</p>
-									<p className="text-3xl font-bold text-slate-900">{counts.completed}</p>
-								</div>
-								<div className="h-12 w-12 bg-emerald-100 rounded-xl flex items-center justify-center">
-									<CheckCircle className="h-6 w-6 text-emerald-600" />
-								</div>
-							</div>
-							<div className="mt-4 flex items-center">
-								<span className="text-sm text-slate-500">{completionRate}% success rate</span>
-							</div>
-						</CardContent>
-					</Card>
-				</div>
+				<StatisticsCards
+					totalSessions={totalSessions}
+					counts={counts}
+					completionRate={completionRate}
+					monthlyChange={monthlyChange}
+					monthlyChangeText={monthlyChangeText}
+				/>
 
 				{/* Current Sessions */}
 				<div className="md:col-span-2 lg:col-span-8">
-					<Card className="shadow-md rounded-xl">
-						<CardHeader>
-							<CardTitle className="text-xl font-semibold text-slate-900">Active Sessions</CardTitle>
-							<CardDescription className="text-slate-500">Currently in progress</CardDescription>
-						</CardHeader>
-						<CardContent className="px-0">
-							<div className="divide-y divide-slate-100 h-full overflow-y-auto">
-								{sessions
-									.filter((session) => session.status === "in_progress")
-									.map((session) => (
-										<button
-											key={session.session_id}
-											type="button"
-											className="w-full text-left p-6 hover:bg-slate-50 transition-colors cursor-pointer bg-transparent border-0"
-											onClick={() =>
-												navigate(`/sessions/${session.session_id}`, {
-													state: { session },
-												})
-											}
-										>
-											<div className="flex items-center justify-between">
-												<div className="flex items-center space-x-4">
-													<ChildAvatar
-														size={90}
-														avatar_data={{
-															...session.avatar_data,
-															first_name: session.child_data.first_name,
-															last_name: session.child_data.last_name,
-														}}
-														className="h-16 w-16 ring-2 ring-slate-100"
-													/>
-													<div>
-														<h4 className="font-semibold text-slate-900">
-															{getDisplayName(session.child_data.first_name, session.child_data.last_name)}
-														</h4>
-														<p className="text-sm text-slate-500 mb-1">{session.title}</p>
-														<div className="flex items-center space-x-4 text-xs text-slate-400">
-															<span>Age: {session.child_data.age}</span>
-															<span>•</span>
-															<span>Gender: {session.child_data.gender || "N/A"}</span>
-															<span>•</span>
-															<span>{session.stage}</span>
-															<span>•</span>
-															<span>{formatTime(session.start_time)}</span>
-														</div>
-													</div>
-												</div>
-												<div className="flex items-center space-x-3">
-													{session.tags.map((tag) => (
-														<Badge key={tag} variant="secondary" className="bg-slate-100 text-slate-600">
-															{tag}
-														</Badge>
-													))}
-													<Badge className={getStatusColor(session.status)} variant="outline">
-														{session.status.replace("_", " ")}
-													</Badge>
-												</div>
-											</div>
-										</button>
-									))}
-							</div>
-						</CardContent>
-					</Card>
+					<ActiveSessionsList
+						sessions={sessions}
+						navigate={navigate}
+						getDisplayName={getDisplayName}
+						formatTime={formatTime}
+						getStatusColor={getStatusColor}
+					/>
 				</div>
 
 				{/* Upcoming Sessions */}
 				<div className="md:col-span-2 lg:col-span-4">
-					<Card className="shadow-md rounded-xl h-full">
-						<CardHeader>
-							<div className="flex items-center justify-between">
-								<div>
-									<CardTitle className="text-xl font-semibold text-slate-900">Upcoming Sessions</CardTitle>
-									<CardDescription className="text-slate-500">Next appointments</CardDescription>
-								</div>
-								<Button
-									variant="ghost"
-									className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-									onClick={() => navigate("/sessions")}
-								>
-									View all sessions
-									<ChevronRight className="h-4 w-4 ml-1" />
-								</Button>
-							</div>
-						</CardHeader>
-						<CardContent className="px-0">
-							<div className="divide-y divide-slate-100">
-								{sessions.slice(0, 4).map((session) => (
-									<button
-										key={session.session_id}
-										type="button"
-										className="w-full text-left p-4 hover:bg-slate-50 transition-colors cursor-pointer bg-transparent border-0"
-										onClick={() =>
-											navigate(`/sessions/${session.session_id}`, {
-												state: { session },
-											})
-										}
-									>
-										<div className="flex items-center space-x-3">
-											<ChildAvatar
-												size={56}
-												avatar_data={{
-													...session.avatar_data,
-													first_name: session.child_data.first_name,
-													last_name: session.child_data.last_name,
-												}}
-												className="h-12 w-12"
-											/>
-											<div className="flex-1 min-w-0">
-												<p className="font-medium text-slate-900 truncate">
-													{getDisplayName(session.child_data.first_name, session.child_data.last_name)}
-												</p>
-												<div className="flex items-center space-x-2 text-sm text-slate-500">
-													<span>{formatDate(session.start_time)}</span>
-													<span>•</span>
-													<span>{formatTime(session.start_time)}</span>
-												</div>
-											</div>
-											<ChevronRight className="h-4 w-4 text-slate-400" />
-										</div>
-									</button>
-								))}
-							</div>
-						</CardContent>
-					</Card>
+					<UpcomingSessionsList
+						sessions={sessions}
+						navigate={navigate}
+						getDisplayName={getDisplayName}
+						formatDate={formatDate}
+						formatTime={formatTime}
+					/>
 				</div>
 			</div>
 		</>

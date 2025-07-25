@@ -11,7 +11,7 @@ import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import SpinnerLoading from "@/components/ui/spinner-loading";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
-import Stepper from "@/pages/Client/room/Stepper";
+import Stepper from "@/pages/Client/room/components/Stepper";
 import Stage1ChildData from "@/pages/Client/room/stages/Stage1ChildData";
 import Stage2AvatarData from "@/pages/Client/room/stages/Stage2AvatarData";
 import Stage3VideoMinigames from "@/pages/Client/room/stages/Stage3VideoMinigames";

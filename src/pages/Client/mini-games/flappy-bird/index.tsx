@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import MiniGameLayout from "../MiniGameLayout";
+import MiniGameLayout from "../layouts/MiniGameLayout";
 
 const CANVAS_WIDTH = 350;
 const CANVAS_HEIGHT = 500;
