@@ -13,36 +13,15 @@ import SpinnerLoading from "@/components/ui/spinner-loading"
 import type { User } from "@/types";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
-  const [profile, setProfile] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, token } = useAuth();
+  const [profile, setProfile] = useState<User | null>(user);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchProfile() {
-      setLoading(true);
-      setError(null);
-      try {
-        const users = await fetchUsers();
-        const fullUser = users.find((u) => u.id === user?.id);
-        if (fullUser) {
-          setProfile(fullUser);
-        } else {
-          setError("User not found");
-        }
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Failed to fetch user profile");
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (user?.id) fetchProfile();
+    setProfile(user);
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,7 +45,8 @@ export default function ProfilePage() {
       const file = e.target.files[0];
       try {
         setSaving(true);
-        const newUrl = await updateUserProfilePicture(profile.id, file);
+        if (!token) throw new Error("No token");
+        const newUrl = await updateUserProfilePicture(profile.id, file, token);
         setProfile((prev) => ({
           ...(prev as User),
           profile_picture: newUrl,
@@ -87,6 +67,7 @@ export default function ProfilePage() {
     setError(null);
     setSuccess(false);
     try {
+      if (!token) throw new Error("No token");
       const updateData: Partial<User> = {
         first_name: profile?.first_name,
         last_name: profile?.last_name,
@@ -96,7 +77,7 @@ export default function ProfilePage() {
         place_of_assignment: profile?.place_of_assignment,
         role: profile?.role,
       };
-      await updateUserInfo(profile.id, updateData);
+      await updateUserInfo(profile.id, updateData, token);
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error) {

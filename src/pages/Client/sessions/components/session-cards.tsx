@@ -6,10 +6,8 @@ import {
 	FileText,
 	Tag,
 	Target,
-	Trash2,
 	User,
 	UserCheck,
-	Ban,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -17,23 +15,14 @@ import { deleteSession, updateSession } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
+
 import type { Session } from "@/types";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { Suspense, lazy } from "react";
+
+const DeleteSessionDialog = lazy(() => import("./delete-session-dialog"));
+const CancelSessionDialog = lazy(() => import("./cancel-session-dialog"));
+const RescheduleSessionDialog = lazy(() => import("./reschedule-session-dialog"));
 
 interface SessionCardsProps {
 	sessions: Session[];
@@ -129,9 +118,12 @@ export default function SessionCards({
 		});
 	};
 
+	const { token } = useAuth();
+
 	const onDeleteSession = async (session_id: string) => {
+		if (!token) return alert("No token");
 		try {
-			await deleteSession(session_id);
+			await deleteSession(session_id, token);
 			onSessionDeleted?.(session_id);
 		} catch (_) {
 			alert("Failed to delete session. Please try again.");
@@ -148,6 +140,9 @@ export default function SessionCards({
 	const [cancelOpen, setCancelOpen] = useState<string | null>(null);
 	const [cancelLoading, setCancelLoading] = useState(false);
 	const [cancelError, setCancelError] = useState<string | null>(null);
+
+	const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
+	const [deleteLoading, setDeleteLoading] = useState(false);
 
 	// console.log(": sessions", sessions);
 
@@ -191,98 +186,53 @@ export default function SessionCards({
 										>
 											{getStatusBadgeStyle(session.status).label}
 										</Badge>
-										<Dialog>
-											<DialogTrigger asChild>
-												<motion.button
-													onClick={(e) => e.stopPropagation()}
-													title="Delete session"
-													className="p-2 rounded-full hover:bg-red-100 transition-colors duration-200"
-													type="button"
-													whileHover={{ scale: 1.15 }}
-													whileTap={{ scale: 0.9 }}
-												>
-													<Trash2 className="h-5 w-5 text-red-500" />
-												</motion.button>
-											</DialogTrigger>
-											<DialogContent onClick={(e) => e.stopPropagation()}>
-												<DialogHeader>
-													<DialogTitle className="text-xl font-bold text-gray-800">
-														Delete Session
-													</DialogTitle>
-													<DialogDescription className="text-gray-600">
-														Are you sure you want to delete this session? This
-														action cannot be undone.
-													</DialogDescription>
-												</DialogHeader>
-												<DialogFooter className="flex justify-end gap-2">
-													<DialogClose asChild>
-														<Button
-															variant={"secondary"}
-															className="rounded-full px-4 py-2"
-														>
-															Cancel
-														</Button>
-													</DialogClose>
-													<Button
-															onClick={() => onDeleteSession(session.session_id)}
-															variant={"destructive"}
-															className="rounded-full px-4 py-2"
-														>
-															Delete
-														</Button>
-												</DialogFooter>
-											</DialogContent>
-										</Dialog>
+										<Suspense fallback={<div>Loading...</div>}>
+											<DeleteSessionDialog
+												open={deleteOpen === session.session_id}
+												onOpenChange={open => setDeleteOpen(open ? session.session_id : null)}
+												onDelete={async () => {
+													setDeleteLoading(true);
+													try {
+														await onDeleteSession(session.session_id);
+														setDeleteOpen(null);
+													} catch (_) {
+														// error handled in onDeleteSession
+													} finally {
+														setDeleteLoading(false);
+													}
+												}}
+												loading={deleteLoading}
+											/>
+										</Suspense>
 										{/* Cancel button: only show if not completed or cancelled */}
 										{session.status !== "completed" && session.status !== "cancelled" && (
-											<Dialog open={cancelOpen === session.session_id} onOpenChange={open => { if (!open) setCancelOpen(null); }}>
-												<DialogTrigger asChild>
-													<motion.button
-														onClick={e => { e.stopPropagation(); setCancelOpen(session.session_id); setCancelError(null); }}
-														title="Cancel session"
-														className="p-2 rounded-full hover:bg-orange-100 transition-colors duration-200"
-														type="button"
-														whileHover={{ scale: 1.15 }}
-														whileTap={{ scale: 0.9 }}
-													>
-														<Ban className="h-5 w-5 text-orange-500" />
-													</motion.button>
-												</DialogTrigger>
-												<DialogContent onClick={e => e.stopPropagation()}>
-													<DialogHeader>
-														<DialogTitle className="text-xl font-bold text-gray-800">
-															Cancel Session
-														</DialogTitle>
-														<DialogDescription className="text-gray-600">
-															Are you sure you want to cancel this session? This action cannot be undone.
-														</DialogDescription>
-													</DialogHeader>
-													{cancelError && <div className="text-red-500 text-sm text-center mb-2">{cancelError}</div>}
-													<DialogFooter className="flex justify-end gap-2">
-														<Button type="button" variant="outline" onClick={() => setCancelOpen(null)}>
-															Back
-														</Button>
-														<Button
-															disabled={cancelLoading}
-															variant="destructive"
-															onClick={async () => {
-																setCancelLoading(true);
-																setCancelError(null);
-																try {
-																	await updateSession(session.session_id, { status: "cancelled" });
-																	setCancelOpen(null);
-																	onSessionUpdated?.();
-																} catch {
-																	setCancelError("Failed to cancel session. Please try again.");
-																}
+											<Suspense fallback={<div>Loading...</div>}>
+												<CancelSessionDialog
+													open={cancelOpen === session.session_id}
+													onOpenChange={open => { if (!open) setCancelOpen(null); else { setCancelOpen(session.session_id); setCancelError(null); } }}
+													onCancel={async () => {
+														setCancelLoading(true);
+														setCancelError(null);
+														try {
+															if (!session.session_id) return;
+															if (!token) {
+																setCancelError("No token available.");
 																setCancelLoading(false);
-															}}
-														>
-															{cancelLoading ? "Cancelling..." : "Confirm Cancel"}
-														</Button>
-													</DialogFooter>
-												</DialogContent>
-											</Dialog>
+																return;
+															}
+															await updateSession(session.session_id as string, { status: "cancelled" }, token);
+															setCancelOpen(null);
+															onSessionUpdated?.();
+														} catch {
+															setCancelError("Failed to cancel session. Please try again.");
+														}
+														setCancelLoading(false);
+													}}
+													loading={cancelLoading}
+													error={cancelError}
+													clearError={() => setCancelError(null)}
+												/>
+											</Suspense>
 										)}
 									</div>
 								</div>
@@ -401,7 +351,12 @@ export default function SessionCards({
 											onClick={async (e) => {
 												e.stopPropagation();
 												try {
-													await updateSession(session.session_id, { status: "in_progress" });
+													if (!session.session_id) return;
+													if (!token) {
+														alert("No token");
+														return;
+													}
+													await updateSession(session.session_id as string, { status: "in_progress" }, token);
 													navigate(`/room/${session.session_id}`);
 												} catch {
 													alert("Failed to start session. Please try again.");
@@ -431,112 +386,94 @@ export default function SessionCards({
 										>
 											Reschedule
 										</Button>
-										<Dialog open={rescheduleOpen === session.session_id} onOpenChange={open => { if (!open) setRescheduleOpen(null); }}>
-											<DialogContent onClick={e => e.stopPropagation()}>
-												<DialogHeader>
-													<DialogTitle>Reschedule Session</DialogTitle>
-													<DialogDescription>Pick a new date and time for this session.</DialogDescription>
-												</DialogHeader>
-												<form
-													onSubmit={async e => {
-														e.preventDefault();
-														if (!rescheduleDate || !rescheduleTime) {
-															setRescheduleError("Please select both date and time.");
+										<Suspense fallback={<div>Loading...</div>}>
+											<RescheduleSessionDialog
+												open={rescheduleOpen === session.session_id}
+												onOpenChange={open => { if (!open) setRescheduleOpen(null); }}
+												onReschedule={async e => {
+													e.preventDefault();
+													if (!rescheduleDate || !rescheduleTime) {
+														setRescheduleError("Please select both date and time.");
+														return;
+													}
+													setRescheduleLoading(true);
+													setRescheduleError(null);
+													try {
+														const [hours, minutes] = rescheduleTime.split(":");
+														if (!rescheduleDate) return;
+														const dt = new Date(rescheduleDate);
+														dt.setHours(Number(hours));
+														dt.setMinutes(Number(minutes));
+														dt.setSeconds(0);
+														if (!session.session_id) return;
+														if (!token) {
+															setRescheduleError("No token available.");
+															setRescheduleLoading(false);
 															return;
 														}
-														setRescheduleLoading(true);
-														setRescheduleError(null);
-														try {
-															const [hours, minutes] = rescheduleTime.split(":");
-															if (!rescheduleDate) return;
-															const dt = new Date(rescheduleDate);
-															dt.setHours(Number(hours));
-															dt.setMinutes(Number(minutes));
-															dt.setSeconds(0);
-															await updateSession(session.session_id, { start_time: dt.toISOString(), status: "rescheduled" });
-															setRescheduleOpen(null);
-											onSessionUpdated?.();
-														} catch  {
-															setRescheduleError("Failed to reschedule session. Please try again.");
-														}
-														setRescheduleLoading(false);
-													}}
-												>
-													<div className="grid gap-4 py-2">
-														<div className="grid grid-cols-4 items-center gap-4">
-															<Label htmlFor="reschedule-date" className="text-right">Date</Label>
-															<Popover>
-																<PopoverTrigger asChild>
-																	<Button
-																		variant="outline"
-																		className={cn("col-span-3 justify-start text-left font-normal", !rescheduleDate && "text-muted-foreground")}
-																	>
-																		<CalendarIcon className="mr-2 h-4 w-4" />
-																		{rescheduleDate ? format(rescheduleDate, "PPP") : <span>Pick a date</span>}
-																	</Button>
-																</PopoverTrigger>
-																<PopoverContent className="w-auto p-0">
-																	<Calendar mode="single" selected={rescheduleDate} onSelect={date => setRescheduleDate(date ?? undefined)} initialFocus />
-																</PopoverContent>
-															</Popover>
-														</div>
-														<div className="grid grid-cols-4 items-center gap-4">
-															<Label htmlFor="reschedule-time" className="text-right">Time</Label>
-															<Input
-																id="reschedule-time"
-																type="time"
-																placeholder="Time"
-																value={rescheduleTime}
-																onChange={e => setRescheduleTime(e.target.value)}
-																className="col-span-3"
-															/>
-														</div>
-														{rescheduleError && <div className="text-red-500 text-sm text-center">{rescheduleError}</div>}
-													</div>
-													<DialogFooter>
-														<Button type="button" variant="outline" onClick={() => setRescheduleOpen(null)}>
-															Cancel
-														</Button>
-														<Button type="submit" disabled={rescheduleLoading}>
-															{rescheduleLoading ? "Rescheduling..." : "Reschedule"}
-														</Button>
-													</DialogFooter>
-												</form>
-											</DialogContent>
-										</Dialog>
+														await updateSession(session.session_id as string, { start_time: dt.toISOString(), status: "rescheduled" }, token);
+														setRescheduleOpen(null);
+														onSessionUpdated?.();
+													} catch  {
+														setRescheduleError("Failed to reschedule session. Please try again.");
+													}
+													setRescheduleLoading(false);
+												}}
+												loading={rescheduleLoading}
+												error={rescheduleError}
+												date={rescheduleDate}
+												time={rescheduleTime}
+												setDate={setRescheduleDate}
+												setTime={setRescheduleTime}
+												clearError={() => setRescheduleError(null)}
+											/>
+										</Suspense>
 									</>
 								)}
 								{/* Continue button for in-progress sessions */}
-								{session.status === "in_progress" && !session.end_time && (
-									(() => {
-										const start = new Date(session.start_time);
-										const notStartedYet = start > now;
-										return (
-											<div className="ml-auto flex flex-col items-end">
-												<Button
-													size="sm"
-													className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
-													onClick={(e) => {
-														e.stopPropagation();
-														navigate(`/room/${session.session_id}`);
-													}}
-													disabled={notStartedYet}
-													title={notStartedYet ? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}` : undefined}
-												>
-													Continue <ArrowRight className="h-4 w-4" />
-												</Button>
-												{notStartedYet && (
-													<span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
-												)}
-											</div>
-										);
-									})()
-								)}
-							</div>
-						</Card>
-					</motion.div>
-				))}
-			</AnimatePresence>
-		</div>
+								{session.status === "in_progress" && !session.end_time && (() => {
+    const start = new Date(session.start_time);
+    const notStartedYet = start > now;
+    if (notStartedYet) {
+        return (
+            <div className="ml-auto flex flex-col items-end">
+                <Button
+                    size="sm"
+                    className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/room/${session.session_id}`);
+                    }}
+                    disabled={notStartedYet}
+                    title={`Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}`}
+                >
+                    Continue <ArrowRight className="h-4 w-4" />
+                </Button>
+                <span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
+            </div>
+        );
+    }
+    return (
+        <div className="ml-auto flex flex-col items-end">
+            <Button
+                size="sm"
+                className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/room/${session.session_id}`);
+                }}
+                disabled={notStartedYet}
+            >
+                Continue <ArrowRight className="h-4 w-4" />
+            </Button>
+        </div>
+    );
+})()}
+								</div>
+							</Card>
+						</motion.div>
+					))}
+				</AnimatePresence>
+			</div>
 	);
 }

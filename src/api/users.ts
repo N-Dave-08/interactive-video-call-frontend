@@ -5,9 +5,12 @@ import type {
 	UserStatistics,
 } from "@/types";
 
-export async function fetchUsers(): Promise<User[]> {
+export async function fetchUsers(token: string): Promise<User[]> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/get`,
+		{
+			headers: { Authorization: `Bearer ${token}` },
+		}
 	);
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
@@ -17,7 +20,7 @@ export async function fetchUsers(): Promise<User[]> {
 	return json.data;
 }
 
-export async function queryUsers(params: UserQueryParams): Promise<{
+export async function queryUsers(params: UserQueryParams, token: string): Promise<{
 	data: User[];
 	total: number;
 	statistics: UserStatistics;
@@ -30,7 +33,9 @@ export async function queryUsers(params: UserQueryParams): Promise<{
 		}
 	});
 
-	const response = await fetch(url.toString());
+	const response = await fetch(url.toString(), {
+		headers: { Authorization: `Bearer ${token}` },
+	});
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
 	}
@@ -46,12 +51,13 @@ export async function queryUsers(params: UserQueryParams): Promise<{
 export async function updateUserCondition(
 	userId: string,
 	condition: string,
+	token: string
 ): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/condition`,
 		{
 			method: "PUT",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			body: JSON.stringify({ condition }),
 		},
 	);
@@ -63,12 +69,13 @@ export async function updateUserCondition(
 export async function updateUserInfo(
 	userId: string,
 	data: Partial<User>,
+	token: string
 ): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/info`,
 		{
 			method: "PUT",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			body: JSON.stringify(data),
 		},
 	);
@@ -77,7 +84,7 @@ export async function updateUserInfo(
 	}
 }
 
-export async function updateUserProfilePicture(userId: string, file: File): Promise<string> {
+export async function updateUserProfilePicture(userId: string, file: File, token: string): Promise<string> {
   const formData = new FormData();
   formData.append('image', file);
 
@@ -86,6 +93,7 @@ export async function updateUserProfilePicture(userId: string, file: File): Prom
     {
       method: 'PUT',
       body: formData,
+      headers: { Authorization: `Bearer ${token}` },
     }
   );
   if (!response.ok) {
@@ -95,11 +103,12 @@ export async function updateUserProfilePicture(userId: string, file: File): Prom
   return data.data.profile_picture;
 }
 
-export async function deleteUser(userId: string): Promise<void> {
+export async function deleteUser(userId: string, token: string): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/delete/${userId}`,
 		{
 			method: "DELETE",
+			headers: { Authorization: `Bearer ${token}` },
 		},
 	);
 	if (!response.ok) {
@@ -107,12 +116,12 @@ export async function deleteUser(userId: string): Promise<void> {
 	}
 }
 
-export async function createUser(data: Partial<User>): Promise<void> {
+export async function createUser(data: Partial<User>, token: string): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/create`,
 		{
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
 			body: JSON.stringify(data),
 		},
 	);

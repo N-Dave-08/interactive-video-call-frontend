@@ -14,12 +14,15 @@ import { queryUsers } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Activity as ActivityType } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
+import SpinnerLoading from "@/components/ui/spinner-loading";
 
 export default function AdminDashboard() {
 	// Fetch user statistics from the backend
+	const { token } = useAuth();
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["users-dashboard-stats"],
-		queryFn: () => queryUsers({ page: 1, rowsPerPage: 1 }),
+		queryFn: () => token ? queryUsers({ page: 1, rowsPerPage: 1 }, token) : Promise.reject(new Error("No token")),
 		select: (res) => res.statistics,
 	});
 
@@ -50,7 +53,7 @@ export default function AdminDashboard() {
 	};
 
 	if (isLoading) {
-		return <div className="p-6">Loading dashboard statistics...</div>;
+		return <SpinnerLoading />;
 	}
 	if (error) {
 		return (

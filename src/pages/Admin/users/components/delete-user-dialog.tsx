@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Trash2, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { deleteUser } from "@/api/users";
+import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,10 +36,12 @@ export function DeleteUserDialog({
 	onOpenChange,
 }: DeleteUserDialogProps) {
 	const queryClient = useQueryClient();
+	const { token } = useAuth();
 
 	const { mutate: removeUser, isPending } = useMutation({
 		mutationFn: async () => {
-			await deleteUser(user.id);
+			if (!token) throw new Error("No token");
+			await deleteUser(user.id, token);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users"] });

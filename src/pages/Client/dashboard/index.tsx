@@ -15,7 +15,7 @@ import UpcomingSessionsList from "./components/UpcomingSessionsList";
 
 
 export default function Dashboard() {
-	const { user } = useAuth();
+	const { user, token } = useAuth();
 	const navigate = useNavigate();
 	const [sessions, setSessions] = useState<Session[]>([]);
 	const [counts, setCounts] = useState<{
@@ -35,13 +35,14 @@ export default function Dashboard() {
 	const [error, setError] = useState("");
 
 	useEffect(() => {
-		if (!user) {
+		if (!user || !token) {
 			setLoading(false);
+			setError("No token");
 			return;
 		}
 		const fetchData = async () => {
 			try {
-				const response = await fetchSessionsBySocialWorkerId(user.id);
+				const response = await fetchSessionsBySocialWorkerId(user.id, token);
 				setSessions(response.data);
 				setCounts(response.counts);
 			} catch {
@@ -51,7 +52,7 @@ export default function Dashboard() {
 			}
 		};
 		fetchData();
-	}, [user]);
+	}, [user, token]);
 
 	const totalSessions = sessions.length;
 	const completedSessions = counts.completed;

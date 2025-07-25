@@ -40,6 +40,7 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 import { updateUserCondition } from "@/api/users";
+import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -250,9 +251,11 @@ const columns: ColumnDef<User>[] = [
 			const value = row.original.condition;
 			const id = row.original.id;
 			const queryClient = useQueryClient();
+			const { token } = useAuth();
 			const { mutate: updateCondition, isPending } = useMutation({
 				mutationFn: async (newCondition: string) => {
-					await updateUserCondition(id, newCondition);
+					if (!token) throw new Error("No token");
+					await updateUserCondition(id, newCondition, token);
 				},
 				onSuccess: (_data, newCondition) => {
 					queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -730,9 +733,9 @@ export function DataTable({
 						{loading ? (
 							Array.from({ length: rowsPerPage }).map((_, i) => (
 								<TableRow key={`skeleton-row-${i + 1}`} className="border-none">
-									{columns.map((j) => (
+									{columns.map((j, colIdx) => (
 										<TableCell
-											key={`skeleton-cell-${i}-${j}`}
+											key={`skeleton-cell-${i + 1}-${j.id || colIdx}`}
 											className="py-3"
 										></TableCell>
 									))}

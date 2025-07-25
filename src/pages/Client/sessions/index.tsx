@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function SessionsPage() {
-	const { user } = useAuth();
+	const { user, token } = useAuth();
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -24,8 +24,8 @@ export default function SessionsPage() {
 	} = useQuery<Session[], Error>({
 		queryKey: ["sessions", user?.id],
 		queryFn: () =>
-			user
-				? fetchSessionsBySocialWorkerId(user.id).then((res: SessionsListResponse) => res.data)
+			user && token
+				? fetchSessionsBySocialWorkerId(user.id, token).then((res: SessionsListResponse) => res.data)
 				: Promise.resolve([]),
 		enabled: !!user && user.role === "social_worker",
 		refetchInterval: 5000, // 5 seconds for real-time updates

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Calendar } from "@/components/ui/calendar"
@@ -23,7 +23,7 @@ interface CreateSessionModalProps {
 }
 
 export default function CreateSessionModal({ open, setOpen, onSessionCreated }: CreateSessionModalProps) {
-  const { user } = useAuth()
+  const { user, token } = useAuth();
   const setSessionTitle = useSessionStore((state) => state.setTitle)
   const [title, setTitle] = useState("")
   const [date, setDate] = useState<Date | undefined>()
@@ -46,6 +46,10 @@ export default function CreateSessionModal({ open, setOpen, onSessionCreated }: 
     if (!user) {
       setError("User not authenticated.")
       return
+    }
+    if (!token) {
+      setError("No token available.");
+      return;
     }
     setSessionTitle(title)
     setLoading(true)
@@ -91,7 +95,7 @@ export default function CreateSessionModal({ open, setOpen, onSessionCreated }: 
         tags: [],
         stage: "Stage 1",
       }
-      const session = await createSession(payload)
+      const session = await createSession(payload, token)
       setOpen(false)
       onSessionCreated(session.data)
     } catch (err: unknown) {
@@ -110,6 +114,9 @@ export default function CreateSessionModal({ open, setOpen, onSessionCreated }: 
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create New Session</DialogTitle>
+          <DialogDescription>
+        Fill in the session details below to create a new session.
+      </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreateSession} className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">

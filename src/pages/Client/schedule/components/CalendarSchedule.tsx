@@ -33,10 +33,12 @@ import type { Session } from "@/types";
 
 interface SessionCalendarProps {
 	socialWorkerId: string;
+	token: string;
 }
 
 export default function SessionCalendar({
 	socialWorkerId,
+	token,
 }: SessionCalendarProps) {
 	const [currentDate, setCurrentDate] = useState<Date>(new Date());
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -51,7 +53,7 @@ export default function SessionCalendar({
 		const loadSessions = async () => {
 			try {
 				setLoading(true);
-				const response = await fetchSessionsBySocialWorkerId(socialWorkerId);
+				const response = await fetchSessionsBySocialWorkerId(socialWorkerId, token);
 				setSessions(response.data);
 				setError(null);
 			} catch (err) {
@@ -62,7 +64,7 @@ export default function SessionCalendar({
 			}
 		};
 		loadSessions();
-	}, [socialWorkerId]);
+	}, [socialWorkerId, token]);
 
 	const getCalendarDays = (): Date[] => {
 		const start = startOfWeek(startOfMonth(currentDate));

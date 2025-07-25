@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { queryUsers } from "@/api/users";
 import type { User, UserQueryParams } from "@/types";
 import { DataTable } from "./components/users-data-table";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function UsersPage() {
 	// Query params state
@@ -23,6 +24,8 @@ export default function UsersPage() {
 		}, 300);
 		return () => clearTimeout(handler);
 	}, [search]);
+
+	const { token } = useAuth();
 
 	const params: UserQueryParams = {
 		search: debouncedSearch,
@@ -47,7 +50,7 @@ export default function UsersPage() {
 		Error
 	>({
 		queryKey: ["users", params],
-		queryFn: () => queryUsers(params),
+		queryFn: () => token ? queryUsers(params, token) : Promise.reject(new Error("No token")),
 	});
 
 	if (error) return <div>{error.message || "Failed to fetch users"}</div>;

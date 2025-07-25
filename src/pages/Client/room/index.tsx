@@ -35,7 +35,7 @@ const steps = [
 
 export default function Room() {
 	const [step, setStep] = useState(0);
-	const { user } = useAuth();
+	const { user, token } = useAuth();
 	const { session_id } = useParams();
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -55,9 +55,9 @@ export default function Room() {
 	// Restore step from backend session stage
 	useEffect(() => {
 		async function restoreStep() {
-			if (!session_id || !user?.id) return;
+			if (!session_id || !user?.id || !token) return;
 			try {
-				const sessionsResp = await fetchSessionsBySocialWorkerId(user.id);
+				const sessionsResp = await fetchSessionsBySocialWorkerId(user.id, token);
 				const sessions = sessionsResp?.data || [];
 				const session = (sessions as Session[]).find(
 					(s: Session) => s.session_id === session_id,
@@ -116,7 +116,7 @@ export default function Room() {
 			}
 		}
 		restoreStep();
-	}, [session_id, user?.id]);
+	}, [session_id, user?.id, token]);
 
 	// Stage 1 interaction states
 	const [showChildForm, setShowChildForm] = useState(() => {
@@ -160,7 +160,7 @@ export default function Room() {
 
 	// Update all handleXNext functions to set the backend to the NEXT stage
 	const handleChildDataNext = async () => {
-		if (!user || loading || !session_id) return;
+		if (!user || loading || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
@@ -172,7 +172,7 @@ export default function Room() {
 					gender: childData.gender,
 				},
 				stage: "Stage 2",
-			});
+			}, token);
 			setStep(1);
 			setShowChildForm(false);
 			localStorage.removeItem("showChildForm");
@@ -186,7 +186,7 @@ export default function Room() {
 	};
 
 	const handleAvatarDataNext = async () => {
-		if (!user || !session_id) return;
+		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
@@ -199,7 +199,7 @@ export default function Room() {
 					background: avatarData.background,
 				},
 				stage: "Stage 3",
-			});
+			}, token);
 			setStep(2);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -210,13 +210,13 @@ export default function Room() {
 	};
 
 	const handleVideoMinigamesNext = async () => {
-		if (!user || !session_id) return;
+		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
 			await updateSession(session_id, {
 				stage: "Stage 4",
-			});
+			}, token);
 			setStep(3);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -227,13 +227,13 @@ export default function Room() {
 	};
 
 	const handleStage4Next = async () => {
-		if (!user || !session_id) return;
+		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
 			await updateSession(session_id, {
 				stage: "Stage 5",
-			});
+			}, token);
 			setStep(4);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -244,7 +244,7 @@ export default function Room() {
 	};
 
 	const handleEmotionalExpressionsNext = async () => {
-		if (!user || !session_id) return;
+		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
@@ -256,7 +256,7 @@ export default function Room() {
 					body_map_annotations: bodyMapAnnotations,
 				},
 				stage: "Stage 6",
-			});
+			}, token);
 			setStep(5);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -268,7 +268,7 @@ export default function Room() {
 
 
 	const handleSessionNotesNext = async () => {
-		if (!user || !session_id) return;
+		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
@@ -277,7 +277,7 @@ export default function Room() {
 				tags: tags, // use deduplicated tags
 				stage: "Completion",
 				status: "completed",
-			});
+			}, token);
 			setStep(6);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -340,29 +340,29 @@ export default function Room() {
 	// Debounced save functions for each stage
 	const debouncedSaveChildData = useRef(
 		debounce(async (data) => {
-			if (session_id && user) {
+			if (session_id && user && token) {
 				await updateSession(session_id, {
 					child_data: {
 						...data,
 						age: Number(data.age),
 						gender: data.gender,
 					},
-				});
+				}, token);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveAvatarData = useRef(
 		debounce(async (data) => {
-			if (session_id && user) {
+			if (session_id && user && token) {
 				await updateSession(session_id, {
 					avatar_data: data,
-				});
+				}, token);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveEmotionalExpression = useRef(
 		debounce(async (emotion, drawingData, bodyMapAnnotations) => {
-			if (session_id && user) {
+			if (session_id && user && token) {
 				await updateSession(session_id, {
 					emotional_expression: {
 						method: "drawing",
@@ -370,17 +370,17 @@ export default function Room() {
 						selected_feelings: [emotion],
 						body_map_annotations: bodyMapAnnotations,
 					},
-				});
+				}, token);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveSessionNotesTags = useRef(
 		debounce(async (notes, tags) => {
-			if (session_id && user) {
+			if (session_id && user && token) {
 				await updateSession(session_id, {
 					session_notes: notes,
 					tags: tags,
-				});
+				}, token);
 			}
 		}, 400),
 	).current;
@@ -459,34 +459,34 @@ export default function Room() {
 
 	// Add Back handlers for each stage
 	const handleChildDataBack = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 1" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 1" }, token);
 		setStep(0);
 		setShowChildForm(true);
 	};
 	const handleAvatarDataBack = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 2" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 2" }, token);
 		setStep(1);
 	};
 	const handleVideoMinigamesBack = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 3" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 3" }, token);
 		setStep(2);
 	};
 	const handleStage4Back = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 4" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 4" }, token);
 		setStep(3);
 	};
 	const handleEmotionalExpressionsBack = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 5" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 5" }, token);
 		setStep(4);
 	};
 	const handleSessionNotesBack = async () => {
-		if (!user || !session_id) return;
-		await updateSession(session_id, { stage: "Stage 6" });
+		if (!user || !session_id || !token) return;
+		await updateSession(session_id!, { stage: "Stage 6" }, token);
 		setStep(5);
 	};
 

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { updateUserInfo } from "@/api/users";
+import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,10 +75,12 @@ export function EditUserDialog({
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const queryClient = useQueryClient();
+	const { token } = useAuth();
 
 	const { mutate: editUser, isPending } = useMutation({
 		mutationFn: async (data: EditUserData) => {
-			await updateUserInfo(user.id, data);
+			if (!token) throw new Error("No token");
+			await updateUserInfo(user.id, data, token);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users"] });
