@@ -9,6 +9,7 @@ import {
 	Trash2,
 	User,
 	UserCheck,
+	Ban,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -143,6 +144,11 @@ export default function SessionCards({
 	const [rescheduleLoading, setRescheduleLoading] = useState(false);
 	const [rescheduleError, setRescheduleError] = useState<string | null>(null);
 
+	// Add state for cancel dialog
+	const [cancelOpen, setCancelOpen] = useState<string | null>(null);
+	const [cancelLoading, setCancelLoading] = useState(false);
+	const [cancelError, setCancelError] = useState<string | null>(null);
+
 	// console.log(": sessions", sessions);
 
 	return (
@@ -218,15 +224,66 @@ export default function SessionCards({
 														</Button>
 													</DialogClose>
 													<Button
-														onClick={() => onDeleteSession(session.session_id)}
-														variant={"destructive"}
-														className="rounded-full px-4 py-2"
-													>
-														Delete
-													</Button>
+															onClick={() => onDeleteSession(session.session_id)}
+															variant={"destructive"}
+															className="rounded-full px-4 py-2"
+														>
+															Delete
+														</Button>
 												</DialogFooter>
 											</DialogContent>
 										</Dialog>
+										{/* Cancel button: only show if not completed or cancelled */}
+										{session.status !== "completed" && session.status !== "cancelled" && (
+											<Dialog open={cancelOpen === session.session_id} onOpenChange={open => { if (!open) setCancelOpen(null); }}>
+												<DialogTrigger asChild>
+													<motion.button
+														onClick={e => { e.stopPropagation(); setCancelOpen(session.session_id); setCancelError(null); }}
+														title="Cancel session"
+														className="p-2 rounded-full hover:bg-orange-100 transition-colors duration-200"
+														type="button"
+														whileHover={{ scale: 1.15 }}
+														whileTap={{ scale: 0.9 }}
+													>
+														<Ban className="h-5 w-5 text-orange-500" />
+													</motion.button>
+												</DialogTrigger>
+												<DialogContent onClick={e => e.stopPropagation()}>
+													<DialogHeader>
+														<DialogTitle className="text-xl font-bold text-gray-800">
+															Cancel Session
+														</DialogTitle>
+														<DialogDescription className="text-gray-600">
+															Are you sure you want to cancel this session? This action cannot be undone.
+														</DialogDescription>
+													</DialogHeader>
+													{cancelError && <div className="text-red-500 text-sm text-center mb-2">{cancelError}</div>}
+													<DialogFooter className="flex justify-end gap-2">
+														<Button type="button" variant="outline" onClick={() => setCancelOpen(null)}>
+															Back
+														</Button>
+														<Button
+															disabled={cancelLoading}
+															variant="destructive"
+															onClick={async () => {
+																setCancelLoading(true);
+																setCancelError(null);
+																try {
+																	await updateSession(session.session_id, { status: "cancelled" });
+																	setCancelOpen(null);
+																	onSessionUpdated?.();
+																} catch {
+																	setCancelError("Failed to cancel session. Please try again.");
+																}
+																setCancelLoading(false);
+															}}
+														>
+															{cancelLoading ? "Cancelling..." : "Confirm Cancel"}
+														</Button>
+													</DialogFooter>
+												</DialogContent>
+											</Dialog>
+										)}
 									</div>
 								</div>
 								{/* Only show stage if session is not completed */}
