@@ -1,4 +1,4 @@
-import { Calendar, Heart, Sparkles, Star } from "lucide-react";
+import { Calendar, Heart, Sparkles, Star, CalendarIcon, ClockIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
@@ -8,6 +8,7 @@ import type { Session } from "@/types/sessions";
 import CreateSessionModal from "./components/create-session-modal";
 import SessionCards from "./components/session-cards";
 import SessionCardsSkeleton from "./components/session-cards-skeleton";
+import { toast } from "sonner";
 
 export default function SessionsPage() {
 	const { user } = useAuth();
@@ -110,9 +111,40 @@ export default function SessionsPage() {
 			<CreateSessionModal
 				open={open}
 				setOpen={setOpen}
-				onSessionCreated={(sessionId) => {
+				onSessionCreated={(session) => {
 					localStorage.removeItem("showChildForm");
-					navigate(`/room/${sessionId}`);
+					const now = new Date();
+					const start = new Date(session.start_time);
+					if (!session.start_time || start <= now) {
+						navigate(`/room/${session.session_id}`);
+					} else {
+						toast.custom(() => (
+							<div className="flex items-center gap-4 p-4 rounded-lg border border-blue-200 bg-blue-50 shadow-lg">
+								<div className="flex-shrink-0">
+									<CalendarIcon className="text-blue-500 w-6 h-6" />
+								</div>
+								<div className="flex-1 min-w-0">
+									<div className="font-semibold text-blue-900 truncate">
+										Session "{session.title}" scheduled!
+									</div>
+									<div className="flex items-center gap-1 text-md text-blue-800 mt-1">
+										<ClockIcon className="w-4 h-4" />
+										{start.toLocaleString()}
+									</div>
+									<div className="text-sm text-blue-700 mt-1">
+										You will be able to start this session at the scheduled time.
+									</div>
+								</div>
+								{/* <Button
+									
+									className="ml-4"
+									onClick={() => setOpen(false)}
+								>
+									View Sessions
+								</Button> */}
+							</div>
+						));
+					}
 				}}
 			/>
 

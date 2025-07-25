@@ -267,17 +267,31 @@ export default function SessionCards({
 									</span>
 								</span>
 								{/* Continue button for in-progress sessions */}
-								{!session.end_time && (
-									<Button
-										size="sm"
-										className="ml-auto rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1"
-										onClick={(e) => {
-											e.stopPropagation();
-											navigate(`/room/${session.session_id}`);
-										}}
-									>
-										Continue <ArrowRight className="h-4 w-4" />
-									</Button>
+								{session.status === "in_progress" && !session.end_time && (
+									(() => {
+										const now = new Date();
+										const start = new Date(session.start_time);
+										const notStartedYet = start > now;
+										return (
+											<div className="ml-auto flex flex-col items-end">
+												<Button
+													size="sm"
+													className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
+													onClick={(e) => {
+														e.stopPropagation();
+														navigate(`/room/${session.session_id}`);
+													}}
+													disabled={notStartedYet}
+													title={notStartedYet ? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}` : undefined}
+												>
+													Continue <ArrowRight className="h-4 w-4" />
+												</Button>
+												{notStartedYet && (
+													<span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
+												)}
+											</div>
+										);
+									})()
 								)}
 							</div>
 						</Card>
