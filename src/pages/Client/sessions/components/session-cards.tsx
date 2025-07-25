@@ -11,6 +11,7 @@ import {
 	UserCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { deleteSession, updateSession } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,11 @@ export default function SessionCards({
 	onSessionDeleted,
 }: SessionCardsProps) {
 	const navigate = useNavigate();
+	const [now, setNow] = useState(new Date());
+	useEffect(() => {
+		const interval = setInterval(() => setNow(new Date()), 1000);
+		return () => clearInterval(interval);
+	}, []);
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("en-US", {
 			month: "short",
@@ -314,7 +320,6 @@ export default function SessionCards({
 								</span>
 								{/* Start button for scheduled sessions when time is reached */}
 								{session.status === "scheduled" && (() => {
-									const now = new Date();
 									const start = new Date(session.start_time);
 									const canStart = start <= now && !session.end_time;
 									if (!canStart) return null;
@@ -336,10 +341,23 @@ export default function SessionCards({
 										</Button>
 									);
 								})()}
+								{/* Reschedule button for scheduled or rescheduled sessions */}
+								{(session.status === "scheduled" || session.status === "rescheduled") && (
+									<Button
+										size="sm"
+										variant="outline"
+										className="rounded-full border-blue-400 text-blue-700 hover:bg-blue-50 ml-2"
+										onClick={(e) => {
+											e.stopPropagation();
+											alert("Reschedule handler placeholder");
+										}}
+									>
+										Reschedule
+									</Button>
+								)}
 								{/* Continue button for in-progress sessions */}
 								{session.status === "in_progress" && !session.end_time && (
 									(() => {
-										const now = new Date();
 										const start = new Date(session.start_time);
 										const notStartedYet = start > now;
 										return (
