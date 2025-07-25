@@ -11,7 +11,7 @@ export interface User {
 	condition: string;
 	createdAt: string;
 	updatedAt: string;
-	avatar?: string;
+	profile_picture: string | null;
 }
 
 export interface UserQueryParams {

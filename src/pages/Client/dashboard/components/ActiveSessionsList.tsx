@@ -1,11 +1,11 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ChildAvatar from "@/components/ChildAvatar";
-import React from "react";
+import type { Session } from "@/types";
 
 interface ActiveSessionsListProps {
-  sessions: any[];
-  navigate: (path: string, options?: any) => void;
+  sessions: Session[];
+  navigate: (path: string, options?: Record<string, unknown>) => void;
   getDisplayName: (first?: string, last?: string) => string;
   formatTime: (dateString: string) => string;
   getStatusColor: (status: string) => string;

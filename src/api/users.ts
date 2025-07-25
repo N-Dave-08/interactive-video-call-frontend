@@ -77,6 +77,24 @@ export async function updateUserInfo(
 	}
 }
 
+export async function updateUserProfilePicture(userId: string, file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(
+    `${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/profile_picture`,
+    {
+      method: 'PUT',
+      body: formData,
+    }
+  );
+  if (!response.ok) {
+    throw new Error('Failed to update profile picture');
+  }
+  const data = await response.json();
+  return data.data.profile_picture;
+}
+
 export async function deleteUser(userId: string): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/delete/${userId}`,
