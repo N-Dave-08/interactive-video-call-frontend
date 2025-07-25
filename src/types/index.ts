@@ -3,3 +3,5 @@
 export * from "./sessions";
 export * from "./user";
 export * from "./video";
+export * from "./auth";
+export * from "./activity";

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuestionStore } from "@/store/questionStore";
-import type { Video } from "@/types/video";
+import type { Video } from "@/types";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage3VideoMinigames({

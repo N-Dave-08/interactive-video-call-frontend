@@ -1,10 +1,9 @@
 import type {
-	AvatarData,
-	ChildData,
-	EmotionalExpression,
 	Session,
 	SessionsListResponse,
-} from "@/types/sessions";
+	CreateSessionPayload,
+	SessionApiResponse
+} from "@/types";
 
 export async function fetchSessionsBySocialWorkerId(
 	socialWorkerId: string,
@@ -16,23 +15,6 @@ export async function fetchSessionsBySocialWorkerId(
 		throw new Error("Failed to fetch sessions");
 	}
 	return response.json();
-}
-
-export interface CreateSessionPayload {
-	social_worker_id: string;
-	title: string;
-	child_data: ChildData;
-	avatar_data: AvatarData;
-	emotional_expression: EmotionalExpression;
-	session_notes: string;
-	tags: string[];
-	stage: string;
-}
-
-export interface SessionApiResponse {
-	success: boolean;
-	message: string;
-	data: Session;
 }
 
 export async function createSession(

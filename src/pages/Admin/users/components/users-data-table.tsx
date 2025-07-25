@@ -71,7 +71,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import type { User } from "@/types";
-import type { UserPagination, UserStatistics } from "@/types/user";
+import type { UserPagination, UserStatistics } from "@/types";
 import { AddUserDialog } from "./add-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";

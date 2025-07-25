@@ -20,7 +20,7 @@ import Stage5EmotionalExpressions from "@/pages/Client/room/stages/Stage5Emotion
 import Stage6SessionNotesTags from "@/pages/Client/room/stages/Stage6SessionNotesTags";
 import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import { useQuestionStore } from "@/store/questionStore";
-import type { ChildData, Session } from "@/types/sessions";
+import type { ChildData, Session } from "@/types";
 import { debounce } from "lodash";
 
 const steps = [

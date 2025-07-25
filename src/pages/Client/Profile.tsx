@@ -10,7 +10,7 @@ import { CameraIcon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 import { updateUserInfo, fetchUsers, updateUserProfilePicture } from "@/api/users"
 import SpinnerLoading from "@/components/ui/spinner-loading"
-import type { User } from "@/types/user";
+import type { User } from "@/types";
 
 export default function ProfilePage() {
   const { user } = useAuth();

@@ -29,7 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import SpinnerLoading from "@/components/ui/spinner-loading";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import type { Session } from "@/types/sessions";
+import type { Session } from "@/types";
 
 interface SessionCalendarProps {
 	socialWorkerId: string;

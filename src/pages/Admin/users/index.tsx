@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { queryUsers } from "@/api/users";
-import type { User, UserQueryParams } from "@/types/user";
+import type { User, UserQueryParams } from "@/types";
 import { DataTable } from "./components/users-data-table";
 
 export default function UsersPage() {
@@ -41,8 +41,8 @@ export default function UsersPage() {
 		{
 			data: User[];
 			total: number;
-			statistics: import("@/types/user").UserStatistics;
-			pagination: import("@/types/user").UserPagination;
+			statistics: import("@/types").UserStatistics;
+			pagination: import("@/types").UserPagination;
 		},
 		Error
 	>({

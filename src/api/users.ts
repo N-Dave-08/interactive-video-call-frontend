@@ -3,7 +3,7 @@ import type {
 	UserPagination,
 	UserQueryParams,
 	UserStatistics,
-} from "@/types/user";
+} from "@/types";
 
 export async function fetchUsers(): Promise<User[]> {
 	const response = await fetch(

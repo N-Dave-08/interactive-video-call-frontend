@@ -1,11 +1,4 @@
-export interface Activity {
-	id: string;
-	user: string;
-	action: string;
-	type: "create" | "registered" | "delete" | "update";
-	createdAt: string;
-	updatedAt: string;
-}
+import type { Activity } from "@/types";
 
 export async function fetchActivities(): Promise<Activity[]> {
 	const response = await fetch(

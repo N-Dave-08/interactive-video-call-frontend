@@ -1,4 +1,4 @@
-import type { VideosApiResponse } from "@/types/video";
+import type { VideosApiResponse } from "@/types";
 
 export async function fetchVideos(): Promise<VideosApiResponse> {
 	const response = await fetch(

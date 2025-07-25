@@ -13,7 +13,7 @@ import { fetchActivities } from "@/api/activities";
 import { queryUsers } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Activity as ActivityType } from "@/types/activity";
+import type { Activity as ActivityType } from "@/types";
 
 export default function AdminDashboard() {
 	// Fetch user statistics from the backend
