@@ -1,47 +1,48 @@
 import { Calendar, Heart, Sparkles, Star, CalendarIcon, ClockIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { Session } from "@/types/sessions";
+import type { SessionsListResponse } from "@/types/sessions";
 import CreateSessionModal from "./components/create-session-modal";
 import SessionCards from "./components/session-cards";
 import SessionCardsSkeleton from "./components/session-cards-skeleton";
 import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function SessionsPage() {
 	const { user } = useAuth();
-	const [sessions, setSessions] = useState<Session[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();
+	const queryClient = useQueryClient();
+
+	const {
+		data = [],
+		isLoading,
+		error,
+	} = useQuery<Session[], Error>({
+		queryKey: ["sessions", user?.id],
+		queryFn: () =>
+			user
+				? fetchSessionsBySocialWorkerId(user.id).then((res: SessionsListResponse) => res.data)
+				: Promise.resolve([]),
+		enabled: !!user && user.role === "social_worker",
+		refetchInterval: 5000, // 5 seconds for real-time updates
+	});
 
 	const handleSessionDeleted = (sessionId: string) => {
-		setSessions((prev) => prev.filter((s) => s.session_id !== sessionId));
+		queryClient.setQueryData(["sessions", user?.id], (old: Session[] | undefined): Session[] =>
+			Array.isArray(old) ? old.filter((s) => s.session_id !== sessionId) : []
+		);
 	};
 
-	useEffect(() => {
-		if (!user) return;
-		if (user.role !== "social_worker") {
-			setError("Only social workers can view their sessions list.");
-			setLoading(false);
-			return;
-		}
-		fetchSessionsBySocialWorkerId(user.id)
-			.then((res) => {
-				setSessions(res.data);
-				setLoading(false);
-			})
-			.catch((err) => {
-				setError(err.message);
-				setLoading(false);
-			});
-	}, [user]);
-
-	if (error) return <div>Error: {error}</div>;
 	if (!user) return null;
+	if (user.role !== "social_worker") {
+		return <div>Error: Only social workers can view their sessions list.</div>;
+	}
+	if (error) return <div>Error: {error.message}</div>;
 
 	// Empty State Component
 	function SessionsEmptyState({
@@ -135,30 +136,25 @@ export default function SessionsPage() {
 										You will be able to start this session at the scheduled time.
 									</div>
 								</div>
-								{/* <Button
-									
-									className="ml-4"
-									onClick={() => setOpen(false)}
-								>
-									View Sessions
-								</Button> */}
 							</div>
 						));
 					}
+					// Optionally refetch sessions immediately after creation
+					queryClient.invalidateQueries({ queryKey: ["sessions", user?.id] });
 				}}
 			/>
 
-			{loading ? (
+			{isLoading ? (
 				<SessionCardsSkeleton />
-			) : sessions.length === 0 ? (
+			) : (data.length === 0 ? (
 				<SessionsEmptyState onCreateSession={() => setOpen(true)} />
 			) : (
 				<SessionCards
-					sessions={sessions}
+					sessions={Array.isArray(data) ? data : []}
 					user={{ first_name: user.first_name, last_name: user.last_name }}
 					onSessionDeleted={handleSessionDeleted}
 				/>
-			)}
+			))}
 		</>
 	);
 }
