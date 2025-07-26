@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface PendingActionsProps {
-	data: any;
+	data?: { needForApprovalCount?: number };
 }
 
 export default function PendingActions({ data }: PendingActionsProps) {
