@@ -8,14 +8,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CameraIcon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
-import { updateUserInfo, fetchUsers, updateUserProfilePicture } from "@/api/users"
+import { updateUserInfo, updateUserProfilePicture } from "@/api/users"
 import SpinnerLoading from "@/components/ui/spinner-loading"
 import type { User } from "@/types";
 
 export default function ProfilePage() {
   const { user, token } = useAuth();
   const [profile, setProfile] = useState<User | null>(user);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
