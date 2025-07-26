@@ -8,7 +8,7 @@ import {
 	Users,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,15 @@ export default function Stage7Completion({ childName }: Stage7CompletionProps) {
 	>([]);
 	const navigate = useNavigate();
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+
+	// Celebration sound effect
+	const audioRef = useRef<HTMLAudioElement | null>(null);
+	useEffect(() => {
+		if (audioRef.current) {
+			audioRef.current.currentTime = 0;
+			audioRef.current.play();
+		}
+	}, []);
 
 	// Generate confetti on mount
 	useEffect(() => {
@@ -61,6 +70,10 @@ export default function Stage7Completion({ childName }: Stage7CompletionProps) {
 
 	return (
 		<div className="flex items-center justify-center p-4">
+			{/* Celebration Sound Effect */}
+			<audio ref={audioRef} src="/sound-effects/yay-celebration.mp3" preload="auto">
+				<track kind="captions" label="Celebration sound" />
+			</audio>
 			<div className="relative bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-3xl shadow-2xl overflow-hidden max-w-2xl w-full">
 				{/* Animated Background Elements */}
 				<div className="absolute inset-0 overflow-hidden">

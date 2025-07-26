@@ -546,9 +546,7 @@ export default function Room() {
 										className={
 											step === 0 && !showChildForm
 												? "fixed inset-0 z-30 flex items-center justify-center"
-												: step === 0
-													? "fixed top-96 right-96 z-30"
-													: "fixed bottom-20 right-20 z-30"
+												: "fixed bottom-20 right-20 z-30"
 										}
 										style={step === 0 ? {} : { pointerEvents: "none" }}
 									>
@@ -556,7 +554,7 @@ export default function Room() {
 											showNext={!showChildForm && step === 0}
 											onNext={handleGotIt}
 											bubblePosition="left"
-											size={!showChildForm && step === 0 ? "2xl" : "md"}
+											size={!showChildForm && step === 0 ? "2xl" : "xl"}
 										/>
 									</motion.div>
 								)}

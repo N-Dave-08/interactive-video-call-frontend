@@ -25,8 +25,8 @@ export default function AvatarCharacter({
 		<div className="pointer-events-auto">
 			<TutorialCharacter
 				name={""}
-				avatar="😃"
-				color="bg-indigo-300"
+				avatar="/assistant/girl.png"
+				color="bg-red-100"
 				message={message ?? question}
 				type="hint"
 				bubblePosition={bubblePosition}

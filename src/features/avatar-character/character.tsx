@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { SpeechBubble } from "./speech-bubble";
 
@@ -24,7 +24,7 @@ interface TutorialCharacterProps {
 export function TutorialCharacter({
 	name,
 	avatar,
-	color = "#10b981",
+	color,
 	message,
 	type = "instruction",
 	bubblePosition = "right",
@@ -41,6 +41,19 @@ export function TutorialCharacter({
 	const [showButtons, setShowButtons] = useState(false);
 	const [showBubble] = useState(true); // Show bubble immediately
 	const [hasMounted, setHasMounted] = useState(false);
+
+	// Greeting audio effect
+	const greetingAudioRef = useRef<HTMLAudioElement | null>(null);
+	useEffect(() => {
+		if (
+			greetingAudioRef.current &&
+			message === "Hello! Let's have some fun together."
+		) {
+			greetingAudioRef.current.currentTime = 0;
+			greetingAudioRef.current.play();
+		}
+	// Add message as a dependency for linter compliance
+	}, [message]);
 
 	// const handleComplete = () => {
 	// 	setIsComplete(true);
@@ -143,11 +156,10 @@ export function TutorialCharacter({
 			}}
 		>
 			<motion.button
-				className={`${currentSize.container} rounded-full flex items-center justify-center text-white font-bold ${currentSize.text} shadow-lg cursor-pointer select-none ${color}`}
+				className={`${currentSize.container} rounded-full flex items-center justify-center text-white font-bold ${currentSize.text} shadow-lg cursor-pointer select-none overflow-hidden ${color}`}
 				type="button"
 				whileHover={{
 					scale: 1.1,
-					rotate: [0, -10, 10, 0],
 					transition: { duration: 0.3 },
 				}}
 				whileTap={{ scale: 0.9 }}
@@ -162,7 +174,15 @@ export function TutorialCharacter({
 						duration: hasMounted ? 0.2 : undefined,
 					}}
 				>
-					{avatar}
+					{avatar.endsWith('.png') || avatar.endsWith('.jpg') || avatar.endsWith('.jpeg') || avatar.endsWith('.gif') || avatar.endsWith('.svg') ? (
+						<img 
+							src={avatar} 
+							alt="Avatar" 
+							className="w-full h-full object-cover rounded-full"
+						/>
+					) : (
+						avatar
+					)}
 				</motion.span>
 			</motion.button>
 
@@ -371,5 +391,16 @@ export function TutorialCharacter({
 		}
 	};
 
-	return getLayout();
+	return (
+		<>
+			{/* Greeting Audio */}
+			{message === "Hello! Let's have some fun together." && (
+				<audio ref={greetingAudioRef} src="/ai-voiced/lets-have-some-fun-together.mp3" preload="auto">
+					<track kind="captions" label="Greeting sound" />
+				</audio>
+			)}
+			{/* Layout */}
+			{getLayout()}
+		</>
+	);
 }
