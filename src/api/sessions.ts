@@ -66,3 +66,16 @@ export async function deleteSession(sessionId: string, token: string): Promise<v
 		throw new Error("Failed to delete session");
 	}
 }
+
+export async function fetchAllSessions(token: string): Promise<SessionsListResponse> {
+    const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/sessions/all`,
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+    );
+    if (!response.ok) {
+        throw new Error("Failed to fetch all sessions");
+    }
+    return response.json();
+}

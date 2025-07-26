@@ -58,6 +58,11 @@ const adminItems = [
 		url: "/users",
 		icon: User,
 	},
+	{
+		title: "Sessions",
+		url: "/sessions",
+		icon: LibraryBig,
+	},
 ];
 
 export default function AppSidebar() {

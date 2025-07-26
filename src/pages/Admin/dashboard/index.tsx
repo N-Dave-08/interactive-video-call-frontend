@@ -5,7 +5,6 @@ import {
 	CheckCircle,
 	Clock,
 	Settings,
-	TrendingUp,
 	UserCheck,
 	Users,
 } from "lucide-react";
@@ -63,6 +62,34 @@ export default function AdminDashboard() {
 		);
 	}
 
+	// Stats Cards
+	const statsCards = [
+		{
+			title: "Total Users",
+			value: data?.totalUsers ?? 0,
+			icon: <Users className="h-4 w-4 text-muted-foreground" />, 
+			valueClass: "text-2xl font-bold",
+		},
+		{
+			title: "Social Workers",
+			value: data?.socialWorkerCount ?? 0,
+			icon: <UserCheck className="h-4 w-4 text-blue-600" />, 
+			valueClass: "text-2xl font-bold text-blue-600",
+		},
+		{
+			title: "Admins",
+			value: data?.adminCount ?? 0,
+			icon: <Settings className="h-4 w-4 text-purple-600" />, 
+			valueClass: "text-2xl font-bold text-purple-600",
+		},
+		{
+			title: "Approved Users",
+			value: data?.approvedCount ?? 0,
+			icon: <CheckCircle className="h-4 w-4 text-green-600" />, 
+			valueClass: "text-2xl font-bold text-green-600",
+		},
+	];
+
 	return (
 		<>
 			<div className="mb-4">
@@ -72,62 +99,18 @@ export default function AdminDashboard() {
 				</p>
 			</div>
 			{/* Stats Cards */}
-			<div className="grid gap-4 md:grid-cols-5 mb-8">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Total Users</CardTitle>
-						<Users className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">{data?.totalUsers ?? 0}</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Social Workers
-						</CardTitle>
-						<UserCheck className="h-4 w-4 text-blue-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-blue-600">
-							{data?.socialWorkerCount ?? 0}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Admins</CardTitle>
-						<Settings className="h-4 w-4 text-purple-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-purple-600">
-							{data?.adminCount ?? 0}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">
-							Approved Users
-						</CardTitle>
-						<CheckCircle className="h-4 w-4 text-green-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-green-600">
-							{data?.approvedCount ?? 0}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Active Today</CardTitle>
-						<TrendingUp className="h-4 w-4 text-blue-500" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-blue-500">N/A</div>
-					</CardContent>
-				</Card>
+			<div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-8">
+				{statsCards.map((card) => (
+					<Card key={card.title}>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+							{card.icon}
+						</CardHeader>
+						<CardContent>
+							<div className={card.valueClass}>{card.value}</div>
+						</CardContent>
+					</Card>
+				))}
 			</div>
 
 			{/* Quick Stats, Recent Activity, Pending Actions */}

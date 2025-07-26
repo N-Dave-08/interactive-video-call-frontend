@@ -15,6 +15,7 @@ import SessionsPage from "@/pages/Client/sessions";
 import SessionDetailPage from "@/pages/Client/sessions/components/session-detail";
 import LandingPage from "@/pages/Landing";
 import MiniGameRoute from "../pages/Client/mini-games/components/MiniGameRoute";
+import SessionsAdmin from "@/pages/Admin/sessions";
 
 const DashboardRoute = () => {
 	const { user } = useAuth();
@@ -24,6 +25,7 @@ const DashboardRoute = () => {
 };
 
 export default function AppRoutes() {
+	const { user } = useAuth();
 	return (
 		<Routes>
 			<Route path="/" element={<LandingPage />} />
@@ -59,7 +61,7 @@ export default function AppRoutes() {
 				<Route path="dashboard" element={<DashboardRoute />} />
 				<Route path="profile" element={<ProfilePage />} />
 				<Route path="schedule" element={<SchedulePage />} />
-				<Route path="sessions" element={<SessionsPage />} />
+				<Route path="sessions" element={user?.role === "admin" ? <SessionsAdmin /> : <SessionsPage />} />
 				<Route path="sessions/:sessionId" element={<SessionDetailPage />} />
 				<Route path="/users" element={<UsersPage />} />
 			</Route>
