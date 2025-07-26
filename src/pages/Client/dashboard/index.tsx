@@ -24,12 +24,14 @@ export default function Dashboard() {
 		completed: number;
 		archived: number;
 		rescheduled: number;
+		cancelled: number;
 	}>({
 		scheduled: 0,
 		in_progress: 0,
 		completed: 0,
 		archived: 0,
 		rescheduled: 0,
+		cancelled: 0,
 	});
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState("");
@@ -44,7 +46,14 @@ export default function Dashboard() {
 			try {
 				const response = await fetchSessionsBySocialWorkerId(user.id, token);
 				setSessions(response.data);
-				setCounts(response.counts);
+				
+				// Calculate cancelled count manually from sessions data
+				const cancelledCount = response.data.filter(session => session.status === "cancelled").length;
+				
+				setCounts({
+					...response.counts,
+					cancelled: cancelledCount,
+				});
 			} catch {
 				setError("Failed to load sessions.");
 			} finally {
@@ -133,13 +142,22 @@ export default function Dashboard() {
 		return name || "No Name";
 	};
 
+	// Filter upcoming sessions (sessions with future start times)
+	const upcomingSessions = sessions.filter(session => {
+		const sessionStartTime = new Date(session.start_time);
+		const now = new Date();
+		return sessionStartTime > now && session.status !== "cancelled";
+	}).sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+
 	const pieData = [
 		{ name: "Scheduled", value: counts.scheduled, key: "scheduled" },
 		{ name: "In Progress", value: counts.in_progress, key: "in_progress" },
 		{ name: "Completed", value: counts.completed, key: "completed" },
+		{ name: "Rescheduled", value: counts.rescheduled, key: "rescheduled" },
+		{ name: "Cancelled", value: counts.cancelled || 0, key: "cancelled" },
 	];
 
-	const PIE_COLORS = ["#60A5FA", "#FBBF24", "#34D399"];
+	const PIE_COLORS = ["#60A5FA", "#FBBF24", "#34D399", "#A78BFA", "#F87171"];
 
 	const dashboardChartConfig = {
   scheduled: {
@@ -153,6 +171,14 @@ export default function Dashboard() {
   completed: {
     label: "Completed",
     color: PIE_COLORS[2],
+  },
+  rescheduled: {
+    label: "Rescheduled",
+    color: PIE_COLORS[3],
+  },
+  cancelled: {
+    label: "Cancelled",
+    color: PIE_COLORS[4],
   },
 };
 
@@ -228,7 +254,7 @@ export default function Dashboard() {
 				{/* Upcoming Sessions */}
 				<div className="md:col-span-2 lg:col-span-4">
 					<UpcomingSessionsList
-						sessions={sessions}
+						sessions={upcomingSessions}
 						navigate={navigate}
 						getDisplayName={getDisplayName}
 						formatDate={formatDate}
