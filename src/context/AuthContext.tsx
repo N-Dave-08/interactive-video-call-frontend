@@ -1,6 +1,6 @@
 import type React from "react";
 import { createContext, useState } from "react";
-import type { LoginResponse } from "@/api/auth";
+import type { LoginResponse } from "@/types";
 
 interface AuthContextType {
 	user: LoginResponse["user"] | null;

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { createUser } from "@/api/users";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -55,10 +56,12 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
 	});
 	const [errors, setErrors] = useState<Record<string, string>>({});
 	const queryClient = useQueryClient();
+	const { token } = useAuth();
 
 	const { mutate: addUser, isPending } = useMutation({
 		mutationFn: async (data: AddUserData) => {
-			await createUser(data);
+			if (!token) throw new Error("No auth token");
+			await createUser(data, token);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users"] });
