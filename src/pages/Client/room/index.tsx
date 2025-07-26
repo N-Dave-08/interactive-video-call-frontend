@@ -49,7 +49,7 @@ export default function Room() {
 
 	// Stage audio management
 	const currentStage = `stage${step + 1}`;
-	const { stopAudio } = useStageAudio(currentStage);
+	useStageAudio(currentStage);
 
 	useEffect(() => {
 		if (session_id === "undefined") {
