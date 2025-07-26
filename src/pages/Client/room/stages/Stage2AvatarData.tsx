@@ -30,9 +30,16 @@ export default function Stage2AvatarData({
 	error?: string;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	
 	useEffect(() => {
-		setQuestion("Let's create your avatar! Choose your look.");
+		setQuestion("Woohoo! You made it! Time to create your avatar. Pick whatever you want—cool hair, cute clothes, or just plain silly. It's your call.");
 	}, [setQuestion]);
+
+	// Play "you made it" sound when component mounts
+	useEffect(() => {
+		const audio = new Audio("/avatar-assets/sounds/you_made_it.mp3");
+		audio.play().catch(() => {}); // Ignore errors if audio fails
+	}, []);
 
 	const handleAvatarChange = (data: AvatarData) => {
 		onChange(data);

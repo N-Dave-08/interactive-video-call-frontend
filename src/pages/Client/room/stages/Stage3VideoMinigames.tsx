@@ -52,7 +52,7 @@ export default function Stage3VideoMinigames({
 	}, []);
 
 	useEffect(() => {
-		setQuestion("Ready for some video and minigames?");
+		setQuestion("Ready to have some fun? Let's watch some videos or play some games!");
 	}, [setQuestion]);
 
 	// Function to update URL parameter

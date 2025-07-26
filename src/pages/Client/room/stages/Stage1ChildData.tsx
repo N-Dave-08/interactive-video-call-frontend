@@ -52,7 +52,7 @@ export default function Stage1ChildData({
 	const inputFields = [
 		{
 			id: "name",
-			label: "What's your name?",
+			label: "Hey! What's up, so what's your name?",
 			placeholder: "Type your first and last name!",
 			color: "from-pink-400 via-rose-400 to-red-400",
 			bgColor: "from-pink-50 to-rose-50",
@@ -61,7 +61,7 @@ export default function Stage1ChildData({
 		},
 		{
 			id: "age",
-			label: "How old are you?",
+			label: "Alright, now tell me you age!",
 			placeholder: "Your amazing age!",
 			icon: Sparkles,
 			color: "from-blue-400 via-cyan-400 to-teal-400",
@@ -72,7 +72,7 @@ export default function Stage1ChildData({
 		},
 		{
 			id: "gender",
-			label: "What is your gender?",
+			label: "Alright, now tell me your gender!",
 			placeholder: "Select your gender!",
 			color: "from-yellow-400 via-orange-400 to-red-400",
 			bgColor: "from-yellow-50 to-orange-50",
@@ -82,7 +82,7 @@ export default function Stage1ChildData({
 		},
 		{
 			id: "birthday",
-			label: "When is your special birthday?",
+			label: "Okay now, when is your birthday, I can't wait to here",
 			placeholder: "Pick your birthday!",
 			icon: Calendar,
 			color: "from-green-400 via-emerald-400 to-teal-400",

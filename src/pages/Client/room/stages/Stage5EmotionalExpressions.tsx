@@ -43,13 +43,22 @@ export default function Stage5EmotionalExpressions({
 	gender: "male" | "female";
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
-	useEffect(() => {
-		setQuestion("How are you feeling today?");
-	}, [setQuestion]);
-
+	
 	const [currentTab, setCurrentTab] = React.useState<
 		"feelings" | "bodymap" | "drawingpad"
 	>("feelings");
+	
+	// Define questions for each tab
+	const tabQuestions = {
+		feelings: "Okay, tell how you feel.",
+		bodymap: "Can you tell me where you feel things in your body?",
+		drawingpad: "Can you show me your feelings with a drawing?",
+	};
+
+	useEffect(() => {
+		setQuestion(tabQuestions[currentTab]);
+	}, [setQuestion, currentTab]);
+
 	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
 	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
 

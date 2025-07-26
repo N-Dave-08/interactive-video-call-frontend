@@ -18,7 +18,7 @@ export default function Stage4Other({
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	useEffect(() => {
-		setQuestion("Let's continue to the next step!");
+		setQuestion("Okay, tell me about yourself.");
 	}, [setQuestion]);
 
 	const puzzles = [
