@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import AvatarCreator from "@/features/avatar-creator";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 interface AvatarData {
@@ -31,15 +32,12 @@ export default function Stage2AvatarData({
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	
+	// Stage audio management
+	useStageAudio('stage2');
+	
 	useEffect(() => {
 		setQuestion("Woohoo! You made it! Time to create your avatar. Pick whatever you want—cool hair, cute clothes, or just plain silly. It's your call.");
 	}, [setQuestion]);
-
-	// Play "you made it" sound when component mounts
-	useEffect(() => {
-		const audio = new Audio("/avatar-assets/sounds/you_made_it.mp3");
-		audio.play().catch(() => {}); // Ignore errors if audio fails
-	}, []);
 
 	const handleAvatarChange = (data: AvatarData) => {
 		onChange(data);

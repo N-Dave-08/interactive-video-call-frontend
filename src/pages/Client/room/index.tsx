@@ -11,6 +11,7 @@ import { fetchSessionsBySocialWorkerId, updateSession } from "@/api/sessions";
 import SpinnerLoading from "@/components/ui/spinner-loading";
 import AvatarCharacter from "@/features/avatar-character";
 import { useAuth } from "@/hooks/useAuth";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import Stepper from "@/pages/Client/room/components/Stepper";
 import Stage1ChildData from "@/pages/Client/room/stages/Stage1ChildData";
 import Stage2AvatarData from "@/pages/Client/room/stages/Stage2AvatarData";
@@ -45,6 +46,10 @@ export default function Room() {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+
+	// Stage audio management
+	const currentStage = `stage${step + 1}`;
+	const { stopAudio } = useStageAudio(currentStage);
 
 	useEffect(() => {
 		if (session_id === "undefined") {

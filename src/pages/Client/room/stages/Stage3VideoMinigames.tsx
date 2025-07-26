@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import type { Video } from "@/types";
 import StageCardLayout from "../layouts/StageCardLayout";
 
@@ -35,6 +36,9 @@ export default function Stage3VideoMinigames({
 	const [videosLoading, setVideosLoading] = useState(false);
 	const [videosError, setVideosError] = useState<string | null>(null);
 
+	// Stage audio management
+	useStageAudio('stage3');
+
 	useEffect(() => {
 		if (showVideosPanel) {
 			setVideosLoading(true);
@@ -45,11 +49,6 @@ export default function Stage3VideoMinigames({
 				.finally(() => setVideosLoading(false));
 		}
 	}, [showVideosPanel]);
-
-	useEffect(() => {
-		const audio = new Audio("/ai-voiced/stage3.mp3");
-		audio.play().catch(() => {}); // Ignore errors if audio fails
-	}, []);
 
 	useEffect(() => {
 		setQuestion("Ready to have some fun? Let's watch some videos or play some games!");

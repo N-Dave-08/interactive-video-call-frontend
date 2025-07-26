@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import BodyMap from "@/features/bodymap";
 import DrawingPad from "@/features/drawing-pad";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 interface SelectedParts {
@@ -62,11 +63,13 @@ export default function Stage5EmotionalExpressions({
 	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
 	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
 
-	const tabAudios = {
-		feelings: "/ai-voiced/tell-me-how-you-feel.mp3",
-		bodymap: "/ai-voiced/body-map.mp3",
-		drawingpad: "/ai-voiced/draw-something.mp3",
+	// Stage audio management - use different audio based on current tab
+	const tabAudioMap = {
+		feelings: 'stage5-feelings',
+		bodymap: 'stage5-bodymap', 
+		drawingpad: 'stage5-drawing'
 	};
+	useStageAudio(tabAudioMap[currentTab]);
 
 	const selectAudio = () => {
 		const audio = new Audio(
@@ -74,16 +77,6 @@ export default function Stage5EmotionalExpressions({
 		);
 		audio.play().catch(() => {}); // Ignore errors if audio fails
 	};
-
-	useEffect(() => {
-		const audio = new Audio(tabAudios[currentTab]);
-		audio.play().catch(() => {}); // Ignore errors if audio fails
-
-		// Cleanup function to stop audio if component unmounts
-		return () => {
-			audio.pause();
-		};
-	}, [currentTab]);
 
 	const emotions = [
 		{

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage6SessionNotesTags({
@@ -28,6 +29,10 @@ export default function Stage6SessionNotesTags({
 	error?: string;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	
+	// Stage audio management
+	useStageAudio('stage6');
+	
 	useEffect(() => {
 		setQuestion("Add your session notes and tags!");
 	}, [setQuestion]);

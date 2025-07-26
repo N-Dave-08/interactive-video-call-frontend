@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Heart, Lightbulb, Puzzle } from "lucide-react";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 export default function Stage4Other({
@@ -17,6 +18,10 @@ export default function Stage4Other({
 	error?: string;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	
+	// Stage audio management
+	useStageAudio('stage4');
+	
 	useEffect(() => {
 		setQuestion("Okay, tell me about yourself.");
 	}, [setQuestion]);
@@ -27,11 +32,6 @@ export default function Stage4Other({
 		{ emoji: "🌟", label: "Puzzle 3", completed: false },
 		{ emoji: "🎪", label: "Puzzle 4", completed: false },
 	];
-
-	useEffect(() => {
-		const audio = new Audio("/ai-voiced/stage4.mp3");
-		audio.play().catch(() => {}); // Ignore errors if audio fails
-	}, []);
 
 	return (
 		<motion.div

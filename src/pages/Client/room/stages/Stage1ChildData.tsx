@@ -12,6 +12,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { useQuestionStore } from "@/store/questionStore";
+import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
 
 interface ChildData {
@@ -47,6 +48,9 @@ export default function Stage1ChildData({
 		const savedStep = localStorage.getItem("stage1-current-step");
 		return savedStep ? Number(savedStep) : 0;
 	});
+
+	// Stage audio management for Stage 1
+	useStageAudio('stage1', currentStep);
 
 	// Only show first and last name together in the first step
 	const inputFields = [
@@ -93,14 +97,7 @@ export default function Stage1ChildData({
 		},
 	];
 
-	useEffect(() => {
-		const audio = new Audio(inputFields[currentStep].audio);
-		audio.play().catch(() => {}); // Ignore errors if audio fails
 
-		return () => {
-			audio.pause();
-		};
-	}, [currentStep, inputFields[currentStep].audio]);
 
 	useEffect(() => {
 		localStorage.setItem("stage1-current-step", String(currentStep));
