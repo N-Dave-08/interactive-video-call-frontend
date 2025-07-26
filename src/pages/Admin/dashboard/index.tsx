@@ -1,20 +1,44 @@
 import { useQuery } from "@tanstack/react-query";
-import {
-	Activity,
-	Bell,
-	CheckCircle,
-	Clock,
-	Settings,
-	UserCheck,
-	Users,
-} from "lucide-react";
 import { fetchActivities } from "@/api/activities";
 import { queryUsers } from "@/api/users";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Activity as ActivityType } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import SpinnerLoading from "@/components/ui/spinner-loading";
+import { fetchAllSessions } from "@/api/sessions";
+import { Suspense, lazy } from "react";
+
+// Lazy load dashboard components
+const StatsCards = lazy(() => import("./components/StatsCards.tsx"));
+const SessionDurationChart = lazy(() => import("./components/SessionDurationChart.tsx"));
+const QuickStats = lazy(() => import("./components/QuickStats.tsx"));
+const RecentActivity = lazy(() => import("./components/RecentActivity.tsx"));
+const PendingActions = lazy(() => import("./components/PendingActions.tsx"));
+
+// Loading fallback component
+const ChartLoadingFallback = () => (
+	<div className="flex items-center justify-center h-[250px] w-full bg-gray-50 rounded-lg">
+		<div className="text-center">
+			<SpinnerLoading />
+			<p className="text-sm text-gray-500 mt-2">Loading chart...</p>
+		</div>
+	</div>
+);
+
+// Loading cards fallback
+const LoadingCardsFallback = () => (
+	<div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-6 mb-8">
+		{["users", "social-workers", "admins", "approved", "duration", "upcoming"].map((cardType) => (
+			<Card key={`loading-${cardType}`}>
+				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+					<CardTitle className="text-sm font-medium">Loading...</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className="text-2xl font-bold">...</div>
+				</CardContent>
+			</Card>
+		))}
+	</div>
+);
 
 export default function AdminDashboard() {
 	// Fetch user statistics from the backend
@@ -35,21 +59,63 @@ export default function AdminDashboard() {
 		queryFn: fetchActivities,
 	});
 
-	const getActivityIcon = (type: string) => {
-		switch (type) {
-			case "approval":
-			case "registered":
-				return <Users className="h-4 w-4 text-blue-600" />;
-			case "create":
-				return <CheckCircle className="h-4 w-4 text-green-600" />;
-			case "update":
-				return <Settings className="h-4 w-4 text-orange-600" />;
-			case "delete":
-				return <Bell className="h-4 w-4 text-red-600" />;
-			default:
-				return <Activity className="h-4 w-4 text-gray-600" />;
+	// Fetch session statistics for admin
+	const {
+		data: sessionsData,
+		isLoading: isLoadingSessions,
+	} = useQuery({
+		queryKey: ["admin-all-sessions"],
+		queryFn: () => token ? fetchAllSessions(token) : Promise.reject(new Error("No token")),
+		select: (res) => res.data,
+	});
+
+	// Calculate average session duration (in minutes) for completed sessions
+	let averageSessionDuration = 0;
+	let upcomingSessionsCount = 0;
+	if (sessionsData && Array.isArray(sessionsData)) {
+		const completedSessions = sessionsData.filter(
+			s => s.status === "completed" && s.start_time && s.end_time
+		);
+		if (completedSessions.length > 0) {
+			const totalDuration = completedSessions.reduce((sum, s) => {
+				if (!s.start_time || !s.end_time) return sum;
+				const start = new Date(s.start_time).getTime();
+				const end = new Date(s.end_time).getTime();
+				return sum + (end - start);
+			}, 0);
+			averageSessionDuration = Math.round(totalDuration / completedSessions.length / 60000); // in minutes
 		}
-	};
+		const now = new Date();
+		upcomingSessionsCount = sessionsData.filter(s => {
+			if (!s.start_time) return false;
+			const start = new Date(s.start_time);
+			return start > now && s.status !== "cancelled";
+		}).length;
+	}
+
+	// Prepare data for Average Session Duration Over Time chart
+	let avgSessionDurationData: { date: string; avgDuration: number }[] = [];
+	if (sessionsData && Array.isArray(sessionsData)) {
+		const completedSessions = sessionsData.filter(
+			s => s.status === "completed" && s.start_time && s.end_time
+		);
+		const durationByDate: Record<string, number[]> = {};
+		completedSessions.forEach(s => {
+			if (!s.start_time || !s.end_time) return;
+			const date = new Date(s.start_time).toISOString().slice(0, 10); // YYYY-MM-DD
+			const start = new Date(s.start_time).getTime();
+			const end = new Date(s.end_time).getTime();
+			const duration = (end - start) / 60000; // in minutes
+			if (!durationByDate[date]) durationByDate[date] = [];
+			durationByDate[date].push(duration);
+		});
+		avgSessionDurationData = Object.entries(durationByDate)
+			.map(([date, durations]) => ({
+				date,
+				avgDuration: Math.round(durations.reduce((a, b) => a + b, 0) / durations.length),
+			}))
+			.sort((a, b) => a.date.localeCompare(b.date));
+	}
 
 	if (isLoading) {
 		return <SpinnerLoading />;
@@ -62,34 +128,6 @@ export default function AdminDashboard() {
 		);
 	}
 
-	// Stats Cards
-	const statsCards = [
-		{
-			title: "Total Users",
-			value: data?.totalUsers ?? 0,
-			icon: <Users className="h-4 w-4 text-muted-foreground" />, 
-			valueClass: "text-2xl font-bold",
-		},
-		{
-			title: "Social Workers",
-			value: data?.socialWorkerCount ?? 0,
-			icon: <UserCheck className="h-4 w-4 text-blue-600" />, 
-			valueClass: "text-2xl font-bold text-blue-600",
-		},
-		{
-			title: "Admins",
-			value: data?.adminCount ?? 0,
-			icon: <Settings className="h-4 w-4 text-purple-600" />, 
-			valueClass: "text-2xl font-bold text-purple-600",
-		},
-		{
-			title: "Approved Users",
-			value: data?.approvedCount ?? 0,
-			icon: <CheckCircle className="h-4 w-4 text-green-600" />, 
-			valueClass: "text-2xl font-bold text-green-600",
-		},
-	];
-
 	return (
 		<>
 			<div className="mb-4">
@@ -98,146 +136,42 @@ export default function AdminDashboard() {
 					Overview of your system, users, and recent activity.
 				</p>
 			</div>
+			
 			{/* Stats Cards */}
-			<div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4 mb-8">
-				{statsCards.map((card) => (
-					<Card key={card.title}>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-							{card.icon}
-						</CardHeader>
-						<CardContent>
-							<div className={card.valueClass}>{card.value}</div>
-						</CardContent>
-					</Card>
-				))}
-			</div>
+			<Suspense fallback={<LoadingCardsFallback />}>
+				<StatsCards 
+					data={data}
+					isLoadingSessions={isLoadingSessions}
+					averageSessionDuration={averageSessionDuration}
+					upcomingSessionsCount={upcomingSessionsCount}
+				/>
+			</Suspense>
+
+			{/* Average Session Duration Over Time Chart */}
+			<Suspense fallback={<ChartLoadingFallback />}>
+				<SessionDurationChart avgSessionDurationData={avgSessionDurationData} />
+			</Suspense>
 
 			{/* Quick Stats, Recent Activity, Pending Actions */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				{/* Quick Stats */}
-				<Card>
-					<CardHeader className="border-b border-gray-200">
-						<CardTitle className="text-lg font-semibold text-gray-900">
-							Quick Stats
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="p-6">
-						<div className="space-y-4">
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-gray-600">Approval Rate</span>
-								<span className="text-sm font-medium text-gray-900">
-									{data ? `${data.approvalRate}%` : "0%"}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-gray-600">New This Week</span>
-								<span className="text-sm font-medium text-gray-900">
-									{data?.newThisWeek ?? 0}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-gray-600">Rejected</span>
-								<span className="text-sm font-medium text-gray-900">
-									{data?.rejectedCount ?? 0}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-gray-600">Blocked</span>
-								<span className="text-sm font-medium text-gray-900">
-									{data?.blockedCount ?? 0}
-								</span>
-							</div>
-							<div className="flex items-center justify-between">
-								<span className="text-sm text-gray-600">Need Approval</span>
-								<span className="text-sm font-medium text-gray-900">
-									{data?.needForApprovalCount ?? 0}
-								</span>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
+					<QuickStats data={data} />
+				</Suspense>
 
 				{/* Recent Activity */}
-				<Card className="lg:col-span-1 bg-white">
-					<CardHeader className="border-b border-gray-200">
-						<CardTitle className="text-lg font-semibold text-gray-900">
-							Recent Activity
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="p-6">
-						<div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-							{isLoadingActivities ? (
-								<div>Loading activities...</div>
-							) : activitiesError ? (
-								<div className="text-red-600">Failed to load activities</div>
-							) : (
-								activities?.map((activity: ActivityType) => (
-									<div key={activity.id} className="flex items-start space-x-3">
-										<div className="flex-shrink-0 mt-1">
-											{getActivityIcon(activity.type)}
-										</div>
-										<div className="flex-1 min-w-0">
-											<p className="text-sm font-medium text-gray-900">
-												{activity.user}
-											</p>
-											<p className="text-sm text-gray-600">{activity.action}</p>
-											<p className="text-xs text-gray-400 mt-1">
-												{new Date(activity.createdAt).toLocaleString()}
-											</p>
-										</div>
-									</div>
-								))
-							)}
-						</div>
-						<Button variant="ghost" size="sm" className="w-full mt-4">
-							View all activity
-						</Button>
-					</CardContent>
-				</Card>
+				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
+					<RecentActivity 
+						activities={activities}
+						isLoadingActivities={isLoadingActivities}
+						activitiesError={activitiesError}
+					/>
+				</Suspense>
 
 				{/* Pending Actions */}
-				<Card>
-					<CardHeader className="border-b border-gray-200">
-						<CardTitle className="text-lg font-semibold text-gray-900">
-							Pending Actions
-						</CardTitle>
-					</CardHeader>
-					<CardContent className="p-6">
-						<div className="space-y-3">
-							<div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-								<div className="flex items-center space-x-2">
-									<Clock className="h-4 w-4 text-yellow-600" />
-									<span className="text-sm font-medium text-yellow-800">
-										{data?.needForApprovalCount ?? 0} approvals needed
-									</span>
-								</div>
-								<Button
-									size="sm"
-									variant="outline"
-									className="text-yellow-700 border-yellow-300 bg-transparent"
-								>
-									Review
-								</Button>
-							</div>
-							<div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-								<div className="flex items-center space-x-2">
-									<Bell className="h-4 w-4 text-blue-600" />
-									<span className="text-sm font-medium text-blue-800">
-										3 notifications
-									</span>
-								</div>
-								<Button
-									size="sm"
-									variant="outline"
-									className="text-blue-700 border-blue-300 bg-transparent"
-								>
-									View
-								</Button>
-							</div>
-						</div>
-					</CardContent>
-				</Card>
+				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
+					<PendingActions data={data} />
+				</Suspense>
 			</div>
 		</>
 	);
