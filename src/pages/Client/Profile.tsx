@@ -14,14 +14,30 @@ import type { User } from "@/types";
 
 export default function ProfilePage() {
   const { user, token } = useAuth();
-  const [profile, setProfile] = useState<User | null>(user);
+  const defaultUser: User = {
+    id: "",
+    first_name: "",
+    last_name: "",
+    username: "",
+    place_of_assignment: "",
+    phone_number: "",
+    email: "",
+    password: "",
+    role: "",
+    condition: "",
+    createdAt: "",
+    updatedAt: "",
+    profile_picture: "",
+  };
+
+  const [profile, setProfile] = useState<User | null>(user ? { ...defaultUser, ...user } : null);
   const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setProfile(user);
+    setProfile(user ? { ...defaultUser, ...user } : null);
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
