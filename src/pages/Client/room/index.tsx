@@ -465,33 +465,33 @@ export default function Room() {
 	// Add Back handlers for each stage
 	const handleChildDataBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 1" }, token);
+		await updateSession(session_id, { stage: "Stage 1" }, token);
 		setStep(0);
 		setShowChildForm(true);
 	};
 	const handleAvatarDataBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 2" }, token);
+		await updateSession(session_id, { stage: "Stage 2" }, token);
 		setStep(1);
 	};
 	const handleVideoMinigamesBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 3" }, token);
+		await updateSession(session_id, { stage: "Stage 3" }, token);
 		setStep(2);
 	};
 	const handleStage4Back = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 4" }, token);
+		await updateSession(session_id, { stage: "Stage 4" }, token);
 		setStep(3);
 	};
 	const handleEmotionalExpressionsBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 5" }, token);
+		await updateSession(session_id, { stage: "Stage 5" }, token);
 		setStep(4);
 	};
 	const handleSessionNotesBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id!, { stage: "Stage 6" }, token);
+		await updateSession(session_id, { stage: "Stage 6" }, token);
 		setStep(5);
 	};
 
