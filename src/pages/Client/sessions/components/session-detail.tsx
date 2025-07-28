@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { Session } from "@/types";
+import { updateSession } from "@/api/sessions";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
 
 function getStageColor(stage: string) {
 	switch (stage.toLowerCase()) {
@@ -56,6 +59,12 @@ export default function SessionDetailPage() {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const session = (location.state as { session?: Session })?.session;
+	const { token } = useAuth();
+	const [now, setNow] = useState(new Date());
+	useEffect(() => {
+		const interval = setInterval(() => setNow(new Date()), 1000);
+		return () => clearInterval(interval);
+	}, []);
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString("en-US", {
@@ -475,7 +484,9 @@ export default function SessionDetailPage() {
 											})()}
 											<span className="font-semibold text-sm">Time</span>
 											<span className="text-xs text-yellow-700">
-												{session.event.time.charAt(0).toUpperCase() + session.event.time.slice(1)}
+												{session.event.time
+													? session.event.time.charAt(0).toUpperCase() + session.event.time.slice(1)
+													: <span className="italic text-gray-400">None selected</span>}
 											</span>
 										</div>
 
@@ -483,11 +494,9 @@ export default function SessionDetailPage() {
 											<MapPin className="h-8 w-8 text-blue-500 mb-2" />
 											<span className="font-semibold text-sm">Location</span>
 											<span className="text-xs text-yellow-700">
-												{session.event.place ? (
-													session.event.place.charAt(0).toUpperCase() + session.event.place.slice(1)
-												) : (
-													<span className="italic text-gray-400">None selected</span>
-												)}
+												{session.event.place
+													? session.event.place.charAt(0).toUpperCase() + session.event.place.slice(1)
+													: <span className="italic text-gray-400">None selected</span>}
 											</span>
 										</div>
 
@@ -508,7 +517,9 @@ export default function SessionDetailPage() {
 											})()}
 											<span className="font-semibold text-sm">Weather</span>
 											<span className="text-xs text-yellow-700">
-												{session.event.weather.charAt(0).toUpperCase() + session.event.weather.slice(1)}
+												{session.event.weather
+													? session.event.weather.charAt(0).toUpperCase() + session.event.weather.slice(1)
+													: <span className="italic text-gray-400">None selected</span>}
 											</span>
 										</div>
 									</div>
@@ -593,16 +604,56 @@ export default function SessionDetailPage() {
 								<div>{formatDate(session.updatedAt)}</div>
 							</div>
 						</div>
-						{/* Continue button for in-progress sessions */}
-						{!session.end_time && (
-							<Button
-								size="lg"
-								className="ml-auto rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
-								onClick={() => navigate(`/room/${session.session_id}`)}
-							>
-								Continue <ArrowRight className="h-4 w-4" />
-							</Button>
-						)}
+						{/* Button logic for session actions */}
+						<>{(() => {
+							const start = new Date(session.start_time);
+							const notStartedYet = start > now;
+							// Scheduled session: show Start button only when time is reached
+							if (session.status === "scheduled" && !session.end_time) {
+								if (notStartedYet) return null;
+								return (
+									<Button
+										size="lg"
+										className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
+										onClick={async () => {
+											if (!session.session_id) return;
+											if (!token) {
+												alert("No token");
+												return;
+											}
+											try {
+												await updateSession(session.session_id, { status: "in_progress" }, token);
+												navigate(`/room/${session.session_id}`);
+											} catch {
+												alert("Failed to start session. Please try again.");
+											}
+										}}
+									>
+										Start <ArrowRight className="h-4 w-4" />
+									</Button>
+								);
+							}
+							// In-progress session: show Continue button, disabled if not started yet
+							if (session.status === "in_progress" && !session.end_time) {
+								return (
+									<div className="ml-auto flex flex-col items-end">
+										<Button
+											size="lg"
+											className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+											onClick={() => navigate(`/room/${session.session_id}`)}
+											disabled={notStartedYet}
+											title={notStartedYet ? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}` : undefined}
+										>
+											Continue <ArrowRight className="h-4 w-4" />
+										</Button>
+										{notStartedYet && (
+											<span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
+										)}
+									</div>
+								);
+							}
+							return null;
+						})()}</>
 					</CardContent>
 				</Card>
 			</div>
