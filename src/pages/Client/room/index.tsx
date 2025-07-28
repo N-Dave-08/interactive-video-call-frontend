@@ -115,8 +115,9 @@ export default function Room() {
 					setEmotion(session.emotional_expression.selected_feelings[0]);
 				}
 				// When restoring session, check for event property with type assertion
-				if ((session as any)?.event) {
-					setMapEvent((session as any).event);
+				const maybeEventSession = session as Session & { event?: MapEvent };
+				if (maybeEventSession.event) {
+					setMapEvent(maybeEventSession.event);
 				}
 				setInitialLoading(false);
 			} catch (err) {
@@ -399,7 +400,7 @@ export default function Room() {
 	const saveMapEvent = async (event: MapEvent) => {
 		if (!user || !session_id || !token) return;
 		try {
-			await updateSession(session_id, { event } as any, token);
+			await updateSession(session_id, { event } as { event: MapEvent }, token);
 		} catch (err) {
 			// Optionally handle error
 			console.error("Failed to update map event", err);
@@ -500,11 +501,11 @@ export default function Room() {
 		await updateSession(session_id, { stage: "Stage 3" }, token);
 		setStep(2);
 	};
-	const handleStage4Back = async () => {
-		if (!user || !session_id || !token) return;
-		await updateSession(session_id, { stage: "Stage 4" }, token);
-		setStep(3);
-	};
+	// const handleStage4Back = async () => {
+	// 	if (!user || !session_id || !token) return;
+	// 	await updateSession(session_id, { stage: "Stage 4" }, token);
+	// 	setStep(3);
+	// };
 	const handleEmotionalExpressionsBack = async () => {
 		if (!user || !session_id || !token) return;
 		await updateSession(session_id, { stage: "Stage 5" }, token);
