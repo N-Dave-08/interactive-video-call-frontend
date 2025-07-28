@@ -24,6 +24,7 @@ import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types";
 import { debounce } from "lodash";
 import type { MapEvent } from "@/features/map-event-picker";
+import { useBodyMapStore } from "@/store/bodyMapStore";
 
 const steps = [
 	"Child Data",
@@ -47,10 +48,15 @@ export default function Room() {
 	const [loadError, setLoadError] = useState<string | null>(null);
 
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
+	const {
+		setFrontSelectedParts,
+		setBackSelectedParts,
+		clearAll: clearBodyMapStore,
+	} = useBodyMapStore();
 
 	// Stage audio management
 	const currentStage = `stage${step + 1}`;
-	useStageAudio(currentStage);
+	useStageAudio(step === 0 ? undefined : currentStage);
 
 	useEffect(() => {
 		if (session_id === "undefined") {
@@ -71,6 +77,8 @@ export default function Room() {
 				if (!session) {
 					setLoadError("Session not found.");
 					setInitialLoading(false);
+					// Clear body map state if no session
+					clearBodyMapStore();
 					return;
 				}
 				const stage = session?.stage;
@@ -119,6 +127,34 @@ export default function Room() {
 				if (maybeEventSession.event) {
 					setMapEvent(maybeEventSession.event);
 				}
+				// --- BODY MAP ANNOTATIONS RESTORE ---
+				const annotations = session?.emotional_expression?.body_map_annotations || [];
+				// Helper to parse annotation string (e.g. "upperBack:pain")
+				function parseAnnotations(annotations: string[]) {
+					const front: Record<string, { pain: boolean; touch: boolean }> = {};
+					const back: Record<string, { pain: boolean; touch: boolean }> = {};
+					// Define which parts are front/back (customize as needed)
+					const backParts = [
+						"upperBack", "lowerBack", "backHead", "rightShoulderBack", "leftShoulderBack", "rightArmBack", "leftArmBack", "rightHandBack", "leftHandBack", "buttocks", "rightLegBack", "leftLegBack", "rightFootBack", "leftFootBack"
+					];
+					for (const ann of annotations) {
+						const [part, type] = ann.split(":");
+						if (!part || !type) continue;
+						const isBack = backParts.includes(part);
+						const target = isBack ? back : front;
+						if (!target[part]) target[part] = { pain: false, touch: false };
+						if (type === "pain") target[part].pain = true;
+						if (type === "touch") target[part].touch = true;
+					}
+					return { front, back };
+				}
+				if (annotations.length > 0) {
+					const { front, back } = parseAnnotations(annotations);
+					setFrontSelectedParts(front);
+					setBackSelectedParts(back);
+				} else {
+					clearBodyMapStore();
+				}
 				setInitialLoading(false);
 			} catch (err) {
 				console.error("Failed to restore session step:", err);
@@ -127,7 +163,7 @@ export default function Room() {
 			}
 		}
 		restoreStep();
-	}, [session_id, user?.id, token]);
+	}, [session_id, user?.id, token, setFrontSelectedParts, setBackSelectedParts, clearBodyMapStore]);
 
 	// Stage 1 interaction states
 	const [showChildForm, setShowChildForm] = useState(() => {

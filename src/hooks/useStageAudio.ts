@@ -13,14 +13,14 @@ const stageAudioMap: StageAudioConfig = {
   'stage5-feelings': '/ai-voiced/tell-me-how-you-feel.mp3',
   'stage5-bodymap': '/ai-voiced/body-map.mp3',
   'stage5-drawing': '/ai-voiced/draw-something.mp3',
-  'stage6': '/ai-voiced/lets-have-some-fun-together.mp3', // Session notes
+  // 'stage6': '/ai-voiced/lets-have-some-fun-together.mp3', // Session notes
   'stage7': '/sound-effects/yay-celebration.mp3', // Completion - celebration sound
 };
 
 // Global audio manager to prevent overlapping
 let currentAudio: HTMLAudioElement | null = null;
 
-export const useStageAudio = (stage: string, step?: number) => {
+export const useStageAudio = (stage?: string, step?: number) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export const useStageAudio = (stage: string, step?: number) => {
     }
 
     // Get the appropriate audio file for the stage
-    let audioFile = stageAudioMap[stage];
+    let audioFile = stageAudioMap[stage || '']; // Use || '' to handle undefined stage
     
     // Special handling for Stage 1 which has multiple audio files based on step
     if (stage === 'stage1' && typeof step === 'number') {

@@ -9,7 +9,7 @@ import {
 	Sparkles,
 	Star,
 } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import BodyMap from "@/features/bodymap";
@@ -205,6 +205,27 @@ export default function Stage5EmotionalExpressions({
 		</div>
 	);
 
+	const mapVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
+
+	useEffect(() => {
+		if (currentTab === "map-event") {
+			// Stop and reset audio if already playing
+			if (mapVoiceAudioRef.current) {
+				mapVoiceAudioRef.current.pause();
+				mapVoiceAudioRef.current.currentTime = 0;
+			}
+			// Play the map voice audio
+			mapVoiceAudioRef.current?.play().catch(() => {});
+		}
+		// Cleanup: stop audio when leaving tab
+		return () => {
+			if (mapVoiceAudioRef.current) {
+				mapVoiceAudioRef.current.pause();
+				mapVoiceAudioRef.current.currentTime = 0;
+			}
+		};
+	}, [currentTab]);
+
 	function renderTabContent() {
 		switch (currentTab) {
 			case "feelings":
@@ -336,6 +357,10 @@ export default function Stage5EmotionalExpressions({
 			case "map-event":
 				return (
 					<div className="my-8 text-center">
+						{/* Map voice audio for map-event tab */}
+						<audio ref={mapVoiceAudioRef} src="/ai-voiced/map-voice.mp3" preload="auto">
+							<track kind="captions" label="Map event voice instructions" />
+						</audio>
 						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
 							<span role="img" aria-label="map">🗺️</span> Map Event Picker
 						</h3>
