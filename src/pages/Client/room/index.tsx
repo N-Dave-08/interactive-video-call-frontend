@@ -23,6 +23,7 @@ import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types";
 import { debounce } from "lodash";
+import type { MapEvent } from "@/features/map-event-picker";
 
 const steps = [
 	"Child Data",
@@ -113,6 +114,10 @@ export default function Room() {
 				if (session?.emotional_expression?.selected_feelings?.[0]) {
 					setEmotion(session.emotional_expression.selected_feelings[0]);
 				}
+				// When restoring session, check for event property with type assertion
+				if ((session as any)?.event) {
+					setMapEvent((session as any).event);
+				}
 				setInitialLoading(false);
 			} catch (err) {
 				console.error("Failed to restore session step:", err);
@@ -155,6 +160,7 @@ export default function Room() {
 	const [tags, setTags] = useState<string[]>([]);
 	const [bodyMapAnnotations, setBodyMapAnnotations] = useState<string[]>([]);
 	const [drawingData, setDrawingData] = useState<string>("");
+	const [mapEvent, setMapEvent] = useState<MapEvent>({ time: "morning", place: null, weather: "clear" });
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -390,6 +396,16 @@ export default function Room() {
 		}, 400),
 	).current;
 
+	const saveMapEvent = async (event: MapEvent) => {
+		if (!user || !session_id || !token) return;
+		try {
+			await updateSession(session_id, { event } as any, token);
+		} catch (err) {
+			// Optionally handle error
+			console.error("Failed to update map event", err);
+		}
+	};
+
 	// Stage 1: Save on change
 	const handleChildDataChange = (data: typeof childData) => {
 		setChildData(data);
@@ -444,6 +460,11 @@ export default function Room() {
 		setTags(uniqueTags);
 		setTagsInput(val);
 		debouncedSaveSessionNotesTags(sessionNotes, uniqueTags);
+	};
+
+	const handleMapEventChange = (event: MapEvent) => {
+		setMapEvent(event);
+		saveMapEvent(event); // No debounce, instant submit
 	};
 
 	useEffect(() => {
@@ -605,7 +626,7 @@ export default function Room() {
 										value={emotion}
 										onChange={handleEmotionChange}
 										onNext={handleEmotionalExpressionsNext}
-										onBack={handleStage4Back}
+										onBack={handleEmotionalExpressionsBack}
 										loading={loading}
 										error={error || undefined}
 										onBodyMapChange={handleBodyMapChangePersist}
@@ -616,6 +637,8 @@ export default function Room() {
 												? "female"
 												: "male"
 										}
+										mapEvent={mapEvent}
+										onMapEventChange={handleMapEventChange}
 									/>
 								)}
 								{step === 5 && (

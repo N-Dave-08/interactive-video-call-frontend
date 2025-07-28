@@ -17,6 +17,7 @@ import DrawingPad from "@/features/drawing-pad";
 import { useQuestionStore } from "@/store/questionStore";
 import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
+import MapEventPicker from "@/features/map-event-picker";
 
 interface SelectedParts {
 	[key: string]: { pain: boolean; touch: boolean };
@@ -32,6 +33,8 @@ export default function Stage5EmotionalExpressions({
 	onBodyMapChange,
 	onDrawingComplete,
 	gender, // <-- add this
+	mapEvent,
+	onMapEventChange,
 }: {
 	value: string;
 	onChange: (val: string) => void;
@@ -42,16 +45,19 @@ export default function Stage5EmotionalExpressions({
 	onBodyMapChange?: (front: SelectedParts, back: SelectedParts) => void;
 	onDrawingComplete?: (drawingBase64: string) => void;
 	gender: "male" | "female";
+	mapEvent?: import("@/features/map-event-picker").MapEvent;
+	onMapEventChange?: (event: import("@/features/map-event-picker").MapEvent) => void;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 	
 	const [currentTab, setCurrentTab] = React.useState<
-		"feelings" | "bodymap" | "drawingpad"
+		"feelings" | "map-event" | "bodymap" | "drawingpad"
 	>("feelings");
 	
 	// Define questions for each tab
 	const tabQuestions = {
 		feelings: "Okay, tell how you feel.",
+		"map-event": "Pick a place and set the scene!",
 		bodymap: "Can you tell me where you feel things in your body?",
 		drawingpad: "Can you show me your feelings with a drawing?",
 	};
@@ -66,6 +72,7 @@ export default function Stage5EmotionalExpressions({
 	// Stage audio management - use different audio based on current tab
 	const tabAudioMap = {
 		feelings: 'stage5-feelings',
+		"map-event": 'stage5-map',
 		bodymap: 'stage5-bodymap', 
 		drawingpad: 'stage5-drawing'
 	};
@@ -326,6 +333,18 @@ export default function Stage5EmotionalExpressions({
 						)}
 					</div>
 				);
+			case "map-event":
+				return (
+					<div className="my-8 text-center">
+						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
+							<span role="img" aria-label="map">🗺️</span> Map Event Picker
+						</h3>
+						<div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-6 border-3 border-green-200">
+							{/* MapEventPicker component */}
+							<MapEventPicker value={mapEvent} onChange={onMapEventChange} />
+						</div>
+					</div>
+				);
 			case "bodymap":
 				return (
 					<div className="my-8 text-center">
@@ -414,7 +433,7 @@ export default function Stage5EmotionalExpressions({
 	}
 
 	const tabs: {
-		id: "feelings" | "bodymap" | "drawingpad";
+		id: "feelings" | "map-event" | "bodymap" | "drawingpad";
 		label: string;
 		emoji: React.ReactNode;
 		complete: boolean;
@@ -429,6 +448,12 @@ export default function Stage5EmotionalExpressions({
 				/>
 			),
 			complete: !!value,
+		},
+		{
+			id: "map-event",
+			label: "Map Event",
+			emoji: <span role="img" aria-label="map" className="text-xl">🗺️</span>,
+			complete: !!(mapEvent && mapEvent.place),
 		},
 		{
 			id: "bodymap",

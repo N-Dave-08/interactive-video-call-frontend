@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sun, Sunset, Moon, CloudRain, Zap, Wind, Cloud } from "lucide-react"
+import { Sun, Sunset, Moon, CloudRain, Zap, Wind } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 // Rain Component
@@ -119,7 +119,7 @@ const WindyOverlay = () => {
       {/* Additional smaller wind lines for depth */}
       {Array.from({ length: 10 }, (_, i) => (
         <motion.div
-          key={`small-${i}`}
+          key={`small-${i}-${Math.random()}`}
           className="absolute text-gray-300 opacity-40 select-none"
           style={{
             left: "-5%",
@@ -145,12 +145,78 @@ const WindyOverlay = () => {
   )
 }
 
-export default function MapEventPicker() {
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
-  const [time, setTime] = useState<"morning" | "afternoon" | "evening">("morning")
-  const [weather, setWeather] = useState<"clear" | "rain" | "thunderstorm" | "windy" >("clear")
+export interface MapEvent {
+  time: "morning" | "afternoon" | "evening";
+  place: string | null;
+  weather: "clear" | "rain" | "thunderstorm" | "windy";
+}
+
+interface MapEventPickerProps {
+  value?: MapEvent;
+  onChange?: (event: MapEvent) => void;
+}
+
+export default function MapEventPicker({ value, onChange }: MapEventPickerProps) {
+  // If controlled, use value; otherwise, use internal state
+  const isControlled = value !== undefined;
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(value?.place ?? null)
+  const [time, setTime] = useState<MapEvent["time"]>(value?.time ?? "morning")
+  const [weather, setWeather] = useState<MapEvent["weather"]>(value?.weather ?? "clear")
   const timeAudioRef = useRef<HTMLAudioElement | null>(null)
   const weatherAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Only sync internal state from value if value changes and is different
+  useEffect(() => {
+    if (isControlled && value) {
+      setTime(value.time ?? "morning");
+      if (value.place !== selectedLocation) setSelectedLocation(value.place);
+      if (value.weather !== weather) setWeather(value.weather);
+    }
+  }, [value, isControlled, selectedLocation, weather]);
+
+  // Handlers: call onChange if controlled, otherwise update internal state
+  const handleLocationClick = (locationId: string) => {
+    selectSound();
+    const newLocation = (selectedLocation === locationId ? null : locationId);
+    if (!isControlled) {
+      setSelectedLocation(newLocation);
+    }
+    if (onChange) {
+      onChange({
+        time: isControlled && value ? value.time ?? "morning" : time,
+        place: newLocation,
+        weather: isControlled && value ? value.weather ?? "clear" : weather,
+      });
+    }
+  };
+
+  const handleTimeChange = (newTime: "morning" | "afternoon" | "evening") => {
+    selectSound();
+    if (!isControlled) {
+      setTime(newTime);
+    }
+    if (onChange) {
+      onChange({
+        time: newTime,
+        place: isControlled && value ? value.place : selectedLocation,
+        weather: isControlled && value ? value.weather : weather,
+      });
+    }
+  };
+
+  const handleWeatherChange = (newWeather: "clear" | "rain" | "thunderstorm" | "windy") => {
+    selectSound();
+    if (!isControlled) {
+      setWeather(newWeather);
+    }
+    if (onChange) {
+      onChange({
+        time: isControlled && value ? value.time : time,
+        place: isControlled && value ? value.place : selectedLocation,
+        weather: newWeather,
+      });
+    }
+  };
 
   const timeOptions = [
     {
@@ -331,7 +397,7 @@ export default function MapEventPicker() {
         timeAudioRef.current.currentTime = 0
       }
     }
-  }, [time])
+  }, [time, timeOptions])
 
   // Handle weather audio changes
   useEffect(() => {
@@ -353,25 +419,16 @@ export default function MapEventPicker() {
         weatherAudioRef.current.currentTime = 0
       }
     }
-  }, [weather])
+  }, [weather, weatherOptions])
 
-  const handleLocationClick = (locationId: string) => {
-    selectSound()
-    setSelectedLocation((prev) => (prev === locationId ? null : locationId))
-  }
+  // For rendering, use value if controlled, otherwise use internal state
+  const renderTime = isControlled && value ? value.time : time;
+  const renderPlace = isControlled && value ? value.place : selectedLocation;
+  const renderWeather = isControlled && value ? value.weather : weather;
 
-  const handleTimeChange = (newTime: "morning" | "afternoon" | "evening") => {
-    selectSound()
-    setTime(newTime)
-    setSelectedLocation(null)
-  }
 
-  const handleWeatherChange = (newWeather: "clear" | "rain" | "thunderstorm" | "windy" ) => {
-    selectSound()
-    setWeather(newWeather)
-  }
 
-  const selectedLocationData = locations.find((loc) => loc.id === selectedLocation)
+  const selectedLocationData = locations.find((loc) => loc.id === renderPlace)
 
   return (
     <TooltipProvider>
@@ -429,19 +486,19 @@ export default function MapEventPicker() {
                       key={option.value}
                       onClick={() => handleTimeChange(option.value)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-3 font-bold text-sm transition-all transform ${
-                        time === option.value
+                        renderTime === option.value
                           ? `${option.activeColor} ${option.textColor} border-white scale-105 ${option.shadow} shadow-lg`
                           : `${option.color} ${option.textColor} border-white hover:scale-102 ${option.shadow} shadow-md`
                       }`}
                       whileHover={{
-                        scale: time === option.value ? 1.08 : 1.05,
+                        scale: renderTime === option.value ? 1.08 : 1.05,
                         x: 5,
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <IconComponent className="w-6 h-6 flex-shrink-0" />
                       <span className="font-black">{option.label}</span>
-                      {time === option.value && (
+                      {renderTime === option.value && (
                         <motion.div
                           className="ml-auto text-yellow-400 text-lg"
                           animate={{ rotate: 360 }}
@@ -469,19 +526,19 @@ export default function MapEventPicker() {
                       key={option.value}
                       onClick={() => handleWeatherChange(option.value)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-3 font-bold text-sm transition-all transform ${
-                        weather === option.value
+                        renderWeather === option.value
                           ? `${option.activeColor} ${option.textColor} border-white scale-105 shadow-lg`
                           : `${option.color} ${option.textColor} border-white hover:scale-102 shadow-md`
                       }`}
                       whileHover={{
-                        scale: weather === option.value ? 1.08 : 1.05,
+                        scale: renderWeather === option.value ? 1.08 : 1.05,
                         x: 5,
                       }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <IconComponent className="w-6 h-6 flex-shrink-0" />
                       <span className="font-black">{option.label}</span>
-                      {weather === option.value && (
+                      {renderWeather === option.value && (
                         <motion.div
                           className="ml-auto text-yellow-400 text-lg"
                           animate={{ rotate: 360 }}
@@ -512,10 +569,10 @@ export default function MapEventPicker() {
             <div className="relative bg-white rounded-2xl shadow-xl overflow-hidden border-4 border-white">
               <div className="relative w-full">
                 <motion.img
-                  key={time}
-                  src={`/event/${time}/map.png`}
+                  key={renderTime}
+                  src={`/event/${renderTime}/map.png`}
                   className="w-full h-auto block"
-                  alt={`${time} map background`}
+                  alt={`${renderTime} map background`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
@@ -523,7 +580,7 @@ export default function MapEventPicker() {
 
                 {/* Weather Overlays - positioned above map but below tooltips */}
                 <AnimatePresence>
-                  {weather === "rain" && (
+                  {renderWeather === "rain" && (
                     <motion.div
                       key="rain-overlay"
                       initial={{ opacity: 0 }}
@@ -534,7 +591,7 @@ export default function MapEventPicker() {
                       <RainOverlay />
                     </motion.div>
                   )}
-                  {weather === "thunderstorm" && (
+                  {renderWeather === "thunderstorm" && (
                     <motion.div
                       key="thunderstorm-overlay"
                       initial={{ opacity: 0 }}
@@ -545,7 +602,7 @@ export default function MapEventPicker() {
                       <ThunderstormOverlay />
                     </motion.div>
                   )}
-                  {weather === "windy" && (
+                  {renderWeather === "windy" && (
                     <motion.div
                       key="windy-overlay"
                       initial={{ opacity: 0 }}
@@ -561,9 +618,9 @@ export default function MapEventPicker() {
 
                 {/* Selected Location Overlay */}
                 <AnimatePresence>
-                  {selectedLocation && (
+                  {renderPlace && (
                     <motion.div
-                      key={`${selectedLocation}-${time}`}
+                      key={`${renderPlace}-${renderTime}`}
                       className="absolute inset-0 z-20"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -572,7 +629,7 @@ export default function MapEventPicker() {
                     >
                       <motion.img
                         src={selectedLocationData?.image}
-                        className={`w-full h-auto block ${time === "morning" ? "drop-shadow-[5px_0_10px_brown]" : time === "afternoon" ? "drop-shadow-[5px_0_10px_white]" : "drop-shadow-[5px_0_10px_orange]"}`}
+                        className={`w-full h-auto block ${renderTime === "morning" ? "drop-shadow-[5px_0_10px_brown]" : renderTime === "afternoon" ? "drop-shadow-[5px_0_10px_white]" : "drop-shadow-[5px_0_10px_orange]"}`}
                         animate={{ y: [0, -0.8, 0.8, -0.5, 0.5, 0] }}
                         transition={{
                           duration: 1.8,
@@ -632,8 +689,8 @@ export default function MapEventPicker() {
               >
                 ✨
               </motion.span>
-              Time: {time.charAt(0).toUpperCase() + time.slice(1)}, Location: {selectedLocationData.name}, Weather:{" "}
-              {weather.charAt(0).toUpperCase() + weather.slice(1)}
+              Time: {renderTime.charAt(0).toUpperCase() + renderTime.slice(1)}, Location: {selectedLocationData.name}, Weather:{" "}
+              {renderWeather.charAt(0).toUpperCase() + renderWeather.slice(1)}
               <motion.span
                 animate={{ rotate: [0, -10, 10, 0] }}
                 transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }}
@@ -643,6 +700,11 @@ export default function MapEventPicker() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Add the button below the map */}
+        <div className="flex justify-center mt-6">
+          {/* Submit button removed: changes are now submitted automatically */}
+        </div>
       </div>
     </TooltipProvider>
   )
