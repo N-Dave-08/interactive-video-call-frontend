@@ -1,7 +1,7 @@
-import { motion } from "motion/react";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { SpeechBubble } from "./speech-bubble";
+import { motion } from "motion/react";
 
 interface TutorialCharacterProps {
 	name: string;
@@ -142,38 +142,17 @@ export function TutorialCharacter({
 
 	// Character Avatar Component
 	const CharacterAvatar = () => (
-		<motion.div
+		<div
 			className={`flex flex-col items-center ${currentSize.gap} flex-shrink-0`}
-			initial={hasMounted ? false : { opacity: 0, scale: 0, rotate: -180 }}
-			animate={{ opacity: 1, scale: 1, rotate: 0 }}
-			transition={{
-				type: hasMounted ? "tween" : "spring",
-				stiffness: hasMounted ? undefined : 200,
-				damping: hasMounted ? undefined : 15,
-				duration: hasMounted ? 0.3 : undefined,
-				delay: hasMounted ? 0 : delay / 1000,
-			}}
 		>
 			<motion.button
 				className={`${currentSize.container} rounded-full flex items-center justify-center text-white font-bold ${currentSize.text} shadow-lg cursor-pointer select-none overflow-hidden ${color}`}
 				type="button"
-				whileHover={{
-					scale: 1.1,
-					transition: { duration: 0.3 },
-				}}
-				whileTap={{ scale: 0.9 }}
 				onClick={() => setShowBubble((prev) => !prev)}
+				whileHover={{ scale: 1.08 }}
+				whileTap={{ scale: 0.92 }}
 			>
-				<motion.span
-					initial={hasMounted ? false : { scale: 0 }}
-					animate={{ scale: 1 }}
-					transition={{
-						delay: hasMounted ? 0 : delay / 1000 + 0.2,
-						type: hasMounted ? "tween" : "spring",
-						stiffness: hasMounted ? undefined : 500,
-						duration: hasMounted ? 0.2 : undefined,
-					}}
-				>
+				<span>
 					{avatar.endsWith('.png') || avatar.endsWith('.jpg') || avatar.endsWith('.jpeg') || avatar.endsWith('.gif') || avatar.endsWith('.svg') ? (
 						<img 
 							src={avatar} 
@@ -183,23 +162,14 @@ export function TutorialCharacter({
 					) : (
 						avatar
 					)}
-				</motion.span>
+				</span>
 			</motion.button>
-
-			<motion.span
+			<span
 				className={`${currentSize.nameText} font-medium text-center text-muted-foreground max-w-20 truncate`}
-				initial={hasMounted ? false : { opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{
-					delay: hasMounted ? 0 : delay / 1000 + 0.4,
-					type: hasMounted ? "tween" : "spring",
-					stiffness: hasMounted ? undefined : 300,
-					duration: hasMounted ? 0.3 : undefined,
-				}}
 			>
 				{name}
-			</motion.span>
-		</motion.div>
+			</span>
+		</div>
 	);
 
 	// Speech Bubble Component - with childish animations
@@ -226,20 +196,11 @@ export function TutorialCharacter({
 					</div>
 					{/* Action Buttons (keep animation for buttons if desired) */}
 					{showButtons && (
-						<motion.div
+						<div
 							className="flex gap-2"
-							initial={{ opacity: 0, scale: 0.7 }}
-							animate={{ opacity: 1, scale: 1 }}
-							transition={{
-								type: "spring",
-								stiffness: 400,
-								damping: 22,
-							}}
 						>
 							{showHint && (
-								<motion.div
-									whileHover={{ scale: 1.05, rotate: 2 }}
-									whileTap={{ scale: 0.95 }}
+								<div
 								>
 									<Button
 										variant="outline"
@@ -249,12 +210,10 @@ export function TutorialCharacter({
 									>
 										💡 Need a hint?
 									</Button>
-								</motion.div>
+								</div>
 							)}
 							{showNext && (
-								<motion.div
-									whileHover={{ scale: 1.05, rotate: -2 }}
-									whileTap={{ scale: 0.95 }}
+								<div
 								>
 									<Button
 										variant="default"
@@ -264,9 +223,9 @@ export function TutorialCharacter({
 									>
 										Got it! ✨
 									</Button>
-								</motion.div>
+								</div>
 							)}
-						</motion.div>
+						</div>
 					)}
 				</div>
 			)}
@@ -278,68 +237,40 @@ export function TutorialCharacter({
 		switch (bubblePosition) {
 			case "top":
 				return (
-					<motion.div
+					<div
 						className={`flex flex-col items-center ${currentSize.bubbleGap} ${className}`}
-						layout
-						transition={{
-							type: hasMounted ? "tween" : "spring",
-							duration: hasMounted ? 0.5 : undefined,
-							stiffness: hasMounted ? undefined : 200,
-							damping: hasMounted ? undefined : 15,
-						}}
 					>
 						<SpeechBubbleContent />
 						<CharacterAvatar />
-					</motion.div>
+					</div>
 				);
 			case "bottom":
 				return (
-					<motion.div
+					<div
 						className={`flex flex-col items-center ${currentSize.bubbleGap} ${className}`}
-						layout
-						transition={{
-							type: hasMounted ? "tween" : "spring",
-							duration: hasMounted ? 0.5 : undefined,
-							stiffness: hasMounted ? undefined : 200,
-							damping: hasMounted ? undefined : 15,
-						}}
 					>
 						<CharacterAvatar />
 						<SpeechBubbleContent />
-					</motion.div>
+					</div>
 				);
 			case "left":
 				return (
-					<motion.div
+					<div
 						className={`flex items-start ${currentSize.bubbleGap} ${className}`}
-						layout
-						transition={{
-							type: hasMounted ? "tween" : "spring",
-							duration: hasMounted ? 0.5 : undefined,
-							stiffness: hasMounted ? undefined : 200,
-							damping: hasMounted ? undefined : 15,
-						}}
 					>
 						<SpeechBubbleContent />
 						<CharacterAvatar />
-					</motion.div>
+					</div>
 				);
 			case "right":
 			default:
 				return (
-					<motion.div
+					<div
 						className={`flex items-start ${currentSize.bubbleGap} ${className}`}
-						layout
-						transition={{
-							type: hasMounted ? "tween" : "spring",
-							duration: hasMounted ? 0.5 : undefined,
-							stiffness: hasMounted ? undefined : 200,
-							damping: hasMounted ? undefined : 15,
-						}}
 					>
 						<CharacterAvatar />
 						<SpeechBubbleContent />
-					</motion.div>
+					</div>
 				);
 		}
 	};
