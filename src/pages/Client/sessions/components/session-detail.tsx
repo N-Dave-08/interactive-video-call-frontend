@@ -248,7 +248,9 @@ export default function SessionDetailPage() {
 									<div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
 										<Cake className="h-5 w-5 text-pink-400" />
 										<span className="text-sm">
-											{formatDate(session.child_data.birthday)}
+											{session.child_data.birthday && !Number.isNaN(new Date(session.child_data.birthday).getTime())
+												? formatDate(session.child_data.birthday)
+												: <span className="italic text-blue-300">Birthday not set</span>}
 										</span>
 									</div>
 								</div>
