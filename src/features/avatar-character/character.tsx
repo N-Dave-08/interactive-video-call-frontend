@@ -39,8 +39,7 @@ export function TutorialCharacter({
 	// interactive = true,
 }: TutorialCharacterProps) {
 	const [showButtons, setShowButtons] = useState(false);
-	const [showBubble, setShowBubble] = useState(true); // Show bubble immediately
-	const [hasMounted, setHasMounted] = useState(false);
+	const [showBubble, setShowBubble] = useState(true); 
 
 	// Greeting audio effect
 	const greetingAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -63,15 +62,9 @@ export function TutorialCharacter({
 			setShowButtons(true);
 		}, delay + 1500);
 
-		// Set mounted state after a delay
-		const mountedTimer = setTimeout(() => {
-			setHasMounted(true);
-		}, delay + 1500);
-
-		// Cleanup timers
+		// Cleanup timer
 		return () => {
 			clearTimeout(showButtonsTimer);
-			clearTimeout(mountedTimer);
 		};
 	}, [message, delay]);
 
