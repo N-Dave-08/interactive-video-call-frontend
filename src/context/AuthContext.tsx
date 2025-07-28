@@ -60,15 +60,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	// Update user data when query data changes
 	useEffect(() => {
 		if (userData) {
-			// Convert User type to LoginResponse["user"] type
+			// Store all fields from userData, but ensure profile_picture is string or undefined
 			const convertedUser = {
-				id: userData.id,
-				email: userData.email,
-				first_name: userData.first_name,
-				last_name: userData.last_name,
-				place_of_assignment: userData.place_of_assignment,
-				role: userData.role,
-				condition: userData.condition,
+				...userData,
 				profile_picture: userData.profile_picture || undefined,
 			};
 			setUser(convertedUser);
@@ -79,10 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	const login = async (email: string, password: string) => {
 		const response = await loginApi(email, password);
 		setToken(response.token);
-		setUser(response.user);
+		// Store all fields from response.user, but ensure profile_picture is string or undefined
+		const convertedUser = {
+			...response.user,
+			profile_picture: response.user.profile_picture || undefined,
+		};
+		setUser(convertedUser);
 		localStorage.setItem("token", response.token);
-		localStorage.setItem("user", JSON.stringify(response.user));
-		
+		localStorage.setItem("user", JSON.stringify(convertedUser));
 		// Invalidate and refetch user data
 		queryClient.invalidateQueries({ queryKey: ["user"] });
 	};
