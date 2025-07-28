@@ -1,6 +1,7 @@
 import { Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 interface PendingActionsProps {
 	data?: { needForApprovalCount?: number };
@@ -27,8 +28,11 @@ export default function PendingActions({ data }: PendingActionsProps) {
 							size="sm"
 							variant="outline"
 							className="text-yellow-700 border-yellow-300 bg-transparent"
+							asChild
 						>
-							Review
+							<Link to="/users">
+								Review
+							</Link>
 						</Button>
 					</div>
 				</div>

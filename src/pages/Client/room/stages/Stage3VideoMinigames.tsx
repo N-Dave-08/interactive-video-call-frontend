@@ -84,19 +84,23 @@ export default function Stage3VideoMinigames({
 
 	const miniGames = [
 		{
-			name: "Flappy Bird",
-			icon: <Icon icon="fluent-emoji:bird" className="text-5xl mb-4" />,
+			name: "Maze",
+			slug: "maze",
+			icon: <Icon icon="hugeicons:maze" className="text-5xl mb-4 text-blue-500" />,
 		},
 		{
 			name: "Snake",
+			slug: "snake",
 			icon: <Icon icon="fluent-emoji:snake" className="text-5xl mb-4" />,
 		},
 		{
 			name: "Gentle Puzzle",
+			slug: "gentle-puzzle",
 			icon: <Icon icon="mdi:puzzle" className="text-5xl mb-4 text-green-400" />,
 		},
 		{
 			name: "Bubble Pop",
+			slug: "bubble-pop",
 			icon: <Icon icon="fluent-emoji:bubbles" className="text-5xl mb-4" />,
 		},
 	];
@@ -233,7 +237,7 @@ export default function Stage3VideoMinigames({
 						</div>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ">
 							{miniGames.map((game) => {
-								const slug = game.name.toLowerCase().replace(/\s+/g, "-");
+								const slug = game.slug;
 								return (
 									<motion.div
 										key={game.name}

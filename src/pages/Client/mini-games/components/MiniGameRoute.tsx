@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import BubblePop from "@/pages/Client/mini-games/bubble-pop";
-import FlappyBird from "@/pages/Client/mini-games/maze-game";
+import MazeGame from "@/pages/Client/mini-games/maze-game";
 import GentlePuzzle from "@/pages/Client/mini-games/gentle-puzzle";
 import Snake from "@/pages/Client/mini-games/snake";
 
@@ -21,8 +21,8 @@ export default function MiniGameRoute() {
 	const gameName = getGameName(slug);
 
 	let gameContent = null;
-	if (slug === "flappy-bird") {
-		gameContent = <FlappyBird />;
+	if (slug === "maze") {
+		gameContent = <MazeGame />;
 	} else if (slug === "snake") {
 		gameContent = <Snake />;
 	} else if (slug === "gentle-puzzle") {

@@ -537,60 +537,54 @@ export function DataTable({
 			</div>
 
 			{/* Stats Cards */}
-			<div className="grid gap-4 md:grid-cols-4">
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Total Users</CardTitle>
-						<Shield className="h-4 w-4 text-muted-foreground" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold">
-							{statistics ? statistics.totalUsers : tableData.length}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Approved</CardTitle>
-						<CheckCircle className="h-4 w-4 text-green-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-green-600">
-							{statistics
-								? statistics.approvedCount
-								: tableData.filter((u) => u.condition === "approved").length}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Pending</CardTitle>
-						<Clock className="h-4 w-4 text-yellow-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-yellow-600">
-							{statistics
-								? statistics.needForApprovalCount
-								: tableData.filter((u) => u.condition === "pending").length}
-						</div>
-					</CardContent>
-				</Card>
-				<Card>
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Issues</CardTitle>
-						<AlertCircle className="h-4 w-4 text-red-600" />
-					</CardHeader>
-					<CardContent>
-						<div className="text-2xl font-bold text-red-600">
-							{statistics
-								? statistics.rejectedCount + statistics.blockedCount
-								: tableData.filter(
-										(u) =>
-											u.condition === "rejected" || u.condition === "blocked",
-									).length}
-						</div>
-					</CardContent>
-				</Card>
+			<div className="grid gap-4 md:grid-cols-5">
+				{[
+					{
+						title: "Total Users",
+						icon: Shield,
+						iconClass: "text-muted-foreground",
+						value: statistics ? statistics.totalUsers : tableData.length,
+						valueClass: "",
+					},
+					{
+						title: "Admins",
+						icon: UserPlus,
+						iconClass: "text-purple-600",
+						value: statistics ? statistics.adminCount : tableData.filter((u) => u.role === "admin").length,
+						valueClass: "text-purple-600",
+					},
+					{
+						title: "Social Workers",
+						icon: UserPlus,
+						iconClass: "text-sky-600",
+						value: statistics ? statistics.socialWorkerCount : tableData.filter((u) => u.role === "social_worker").length,
+						valueClass: "text-sky-600",
+					},
+					{
+						title: "Approved",
+						icon: CheckCircle,
+						iconClass: "text-green-600",
+						value: statistics ? statistics.approvedCount : tableData.filter((u) => u.condition === "approved").length,
+						valueClass: "text-green-600",
+					},
+					{
+						title: "Pending",
+						icon: Clock,
+						iconClass: "text-yellow-600",
+						value: statistics ? statistics.needForApprovalCount : tableData.filter((u) => u.condition === "pending").length,
+						valueClass: "text-yellow-600",
+					},
+				].map(({ title, icon: Icon, iconClass, value, valueClass }) => (
+					<Card key={title}>
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+							<CardTitle className="text-sm font-medium">{title}</CardTitle>
+							<Icon className={"h-4 w-4 " + iconClass} />
+						</CardHeader>
+						<CardContent>
+							<div className={"text-2xl font-bold " + valueClass}>{value}</div>
+						</CardContent>
+					</Card>
+				))}
 			</div>
 
 			{/* Toolbar */}

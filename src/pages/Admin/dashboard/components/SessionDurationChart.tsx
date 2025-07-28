@@ -18,46 +18,52 @@ export default function SessionDurationChart({ avgSessionDurationData }: Session
 				<p className="text-muted-foreground text-sm">Shows the average duration (in minutes) of completed sessions per day.</p>
 			</CardHeader>
 			<CardContent>
-				<ChartContainer
-					config={{ avgDuration: { label: "Avg. Duration", color: "#6366f1" } }}
-					className="aspect-auto h-[250px] w-full"
-				>
-					<AreaChart data={avgSessionDurationData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
-						<defs>
-							<linearGradient id="fillAvgDuration" x1="0" y1="0" x2="0" y2="1">
-								<stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-								<stop offset="95%" stopColor="#6366f1" stopOpacity={0.1} />
-							</linearGradient>
-						</defs>
-						<CartesianGrid vertical={false} />
-						<XAxis
-							dataKey="date"
-							tickLine={false}
-							axisLine={false}
-							tickMargin={8}
-							minTickGap={32}
-							tickFormatter={(value) => {
-								const date = new Date(value);
-								return date.toLocaleDateString("en-US", {
-									month: "short",
-									day: "numeric",
-								});
-							}}
-						/>
-						<ChartTooltip
-							cursor={false}
-							content={<ChartTooltipContent indicator="dot" />}
-						/>
-						<Area
-							dataKey="avgDuration"
-							type="natural"
-							fill="url(#fillAvgDuration)"
-							stroke="#6366f1"
-							strokeWidth={2}
-							activeDot={{ r: 5 }}
-						/>
-					</AreaChart>
-				</ChartContainer>
+				{avgSessionDurationData.length === 0 ? (
+					<div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground text-sm">
+						No session data available.
+					</div>
+				) : (
+					<ChartContainer
+						config={{ avgDuration: { label: "Avg. Duration", color: "#6366f1" } }}
+						className="aspect-auto h-[250px] w-full"
+					>
+						<AreaChart data={avgSessionDurationData} margin={{ left: 0, right: 0, top: 10, bottom: 0 }}>
+							<defs>
+								<linearGradient id="fillAvgDuration" x1="0" y1="0" x2="0" y2="1">
+									<stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
+									<stop offset="95%" stopColor="#6366f1" stopOpacity={0.1} />
+								</linearGradient>
+							</defs>
+							<CartesianGrid vertical={false} />
+							<XAxis
+								dataKey="date"
+								tickLine={false}
+								axisLine={false}
+								tickMargin={8}
+								minTickGap={32}
+								tickFormatter={(value) => {
+									const date = new Date(value);
+									return date.toLocaleDateString("en-US", {
+										month: "short",
+										day: "numeric",
+									});
+								}}
+							/>
+							<ChartTooltip
+								cursor={false}
+								content={<ChartTooltipContent indicator="dot" />}
+							/>
+							<Area
+								dataKey="avgDuration"
+								type="natural"
+								fill="url(#fillAvgDuration)"
+								stroke="#6366f1"
+								strokeWidth={2}
+								activeDot={{ r: 5 }}
+							/>
+						</AreaChart>
+					</ChartContainer>
+				)}
 			</CardContent>
 		</Card>
 	);
