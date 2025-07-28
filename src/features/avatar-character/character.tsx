@@ -39,12 +39,14 @@ export function TutorialCharacter({
 	// interactive = true,
 }: TutorialCharacterProps) {
 	const [showButtons, setShowButtons] = useState(false);
-	const [showBubble] = useState(true); // Show bubble immediately
+	const [showBubble, setShowBubble] = useState(true); // Show bubble immediately
 	const [hasMounted, setHasMounted] = useState(false);
 
 	// Greeting audio effect
 	const greetingAudioRef = useRef<HTMLAudioElement | null>(null);
+
 	useEffect(() => {
+		// Play greeting audio if message matches
 		if (
 			greetingAudioRef.current &&
 			message === "Hello! Let's have some fun together."
@@ -52,31 +54,28 @@ export function TutorialCharacter({
 			greetingAudioRef.current.currentTime = 0;
 			greetingAudioRef.current.play();
 		}
-	// Add message as a dependency for linter compliance
-	}, [message]);
 
-	// const handleComplete = () => {
-	// 	setIsComplete(true);
-	// 	setTimeout(() => setShowButtons(true), 300);
-	// };
+		// Auto-show speech bubble on message change
+		setShowBubble(true);
 
-	// Auto-show buttons after a delay
-	useEffect(() => {
-		const timer = setTimeout(() => {
+		// Show buttons after a delay
+		const showButtonsTimer = setTimeout(() => {
 			setShowButtons(true);
-		}, delay + 1500); // Show buttons 1.5 seconds after component mounts
+		}, delay + 1500);
 
-		return () => clearTimeout(timer);
-	}, [delay]);
-
-	// Set mounted state after initial animation
-	useEffect(() => {
-		const timer = setTimeout(() => {
+		// Set mounted state after a delay
+		const mountedTimer = setTimeout(() => {
 			setHasMounted(true);
-		}, delay + 1500); // After all mounting animations complete
+		}, delay + 1500);
 
-		return () => clearTimeout(timer);
-	}, [delay]);
+		// Cleanup timers
+		return () => {
+			clearTimeout(showButtonsTimer);
+			clearTimeout(mountedTimer);
+		};
+	}, [message, delay]);
+
+
 
 	const getVariantByType = () => {
 		switch (type) {
@@ -163,6 +162,7 @@ export function TutorialCharacter({
 					transition: { duration: 0.3 },
 				}}
 				whileTap={{ scale: 0.9 }}
+				onClick={() => setShowBubble((prev) => !prev)}
 			>
 				<motion.span
 					initial={hasMounted ? false : { scale: 0 }}
@@ -206,54 +206,8 @@ export function TutorialCharacter({
 	const SpeechBubbleContent = () => (
 		<>
 			{showBubble && (
-				<motion.div
-					className="space-y-3"
-					initial={
-						hasMounted
-							? false
-							: {
-									opacity: 0,
-									scale: 0.5,
-									x:
-										bubblePosition === "left"
-											? 90
-											: bubblePosition === "right"
-												? -90
-												: 0,
-									y:
-										bubblePosition === "top"
-											? 30
-											: bubblePosition === "bottom"
-												? -30
-												: 0,
-								}
-					}
-					animate={{
-						opacity: 1,
-						scale: 1,
-						rotate: 0,
-						x: 0,
-						y: 0,
-					}}
-					transition={{
-						type: hasMounted ? "tween" : "spring",
-						stiffness: hasMounted ? undefined : 150,
-						damping: hasMounted ? undefined : 12,
-						duration: hasMounted ? 0.4 : undefined,
-						delay: hasMounted ? 0 : delay / 1000 + 0.6,
-					}}
-				>
-					<motion.div
-						initial={hasMounted ? false : { scale: 0.8 }}
-						animate={{ scale: 1 }}
-						transition={{
-							type: hasMounted ? "tween" : "spring",
-							stiffness: hasMounted ? undefined : 300,
-							damping: hasMounted ? undefined : 20,
-							duration: hasMounted ? 0.3 : undefined,
-							delay: hasMounted ? 0 : delay / 1000 + 0.8,
-						}}
-					>
+				<div className="space-y-3">
+					<div>
 						<SpeechBubble
 							variant={getVariantByType()}
 							tailPosition={
@@ -269,9 +223,8 @@ export function TutorialCharacter({
 						>
 							<p className="text-base leading-relaxed">{message}</p>
 						</SpeechBubble>
-					</motion.div>
-
-					{/* Action Buttons */}
+					</div>
+					{/* Action Buttons (keep animation for buttons if desired) */}
 					{showButtons && (
 						<motion.div
 							className="flex gap-2"
@@ -315,7 +268,7 @@ export function TutorialCharacter({
 							)}
 						</motion.div>
 					)}
-				</motion.div>
+				</div>
 			)}
 		</>
 	);
