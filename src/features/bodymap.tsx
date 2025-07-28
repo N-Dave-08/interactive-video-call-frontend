@@ -2,6 +2,7 @@ import { Icon } from "@iconify/react";
 import { RotateCcw } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { useBodyMapStore } from "../store/bodyMapStore";
 
 // Define interface for body part
 interface BodyPart {
@@ -35,10 +36,13 @@ const BodyMap: React.FC<BodyMapProps> = ({
 	onSkip,
 	gender = "male", // <-- default to male
 }) => {
-	const [frontSelectedParts, setFrontSelectedParts] = useState<SelectedParts>(
-		{},
-	);
-	const [backSelectedParts, setBackSelectedParts] = useState<SelectedParts>({});
+	const {
+		frontSelectedParts,
+		backSelectedParts,
+		setFrontSelectedParts,
+		setBackSelectedParts,
+		clearAll,
+	} = useBodyMapStore();
 	const [mode, setMode] = useState<"pain" | "touch">("pain");
 	const [hoveredPart, setHoveredPart] = useState<string | null>(null);
 
@@ -219,33 +223,25 @@ const BodyMap: React.FC<BodyMapProps> = ({
 
 		const setSelected =
 			view === "front" ? setFrontSelectedParts : setBackSelectedParts;
-		setSelected((prev) => {
-			const current = prev[partId] || { pain: false, touch: false };
-			const updated = {
-				...prev,
-				[partId]: {
-					pain: mode === "pain" ? !current.pain : current.pain,
-					touch: mode === "touch" ? !current.touch : current.touch,
-				},
-			};
-			if (onSelectionChange) {
-				if (view === "front") {
-					onSelectionChange(updated, backSelectedParts);
-				} else {
-					onSelectionChange(frontSelectedParts, updated);
-				}
-			}
-			return updated;
-		});
-		if (onBodyPartClick) onBodyPartClick(partId, view);
-	};
-
-	const clearAll = (): void => {
-		setFrontSelectedParts({});
-		setBackSelectedParts({});
+		const selectedParts =
+			view === "front" ? frontSelectedParts : backSelectedParts;
+		const current = selectedParts[partId] || { pain: false, touch: false };
+		const updated = {
+			...selectedParts,
+			[partId]: {
+				pain: mode === "pain" ? !current.pain : current.pain,
+				touch: mode === "touch" ? !current.touch : current.touch,
+			},
+		};
+		setSelected(updated);
 		if (onSelectionChange) {
-			onSelectionChange({}, {});
+			if (view === "front") {
+				onSelectionChange(updated, backSelectedParts);
+			} else {
+				onSelectionChange(frontSelectedParts, updated);
+			}
 		}
+		if (onBodyPartClick) onBodyPartClick(partId, view);
 	};
 
 	const getPartFill = (partId: string, view: "front" | "back"): string => {

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sun, Sunset, Moon, CloudRain, Zap, Wind } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useMapEventStore } from "../store/mapEventStore";
 
 // Rain Component
 const RainDrop = ({ delay, duration, left }: { delay: number; duration: number; left: string }) => (
@@ -156,63 +157,48 @@ interface MapEventPickerProps {
   onChange?: (event: MapEvent) => void;
 }
 
-export default function MapEventPicker({ value, onChange }: MapEventPickerProps) {
-  // If controlled, use value; otherwise, use internal state
-  const isControlled = value !== undefined;
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(value?.place ?? null)
-  const [time, setTime] = useState<MapEvent["time"]>(value?.time ?? "morning")
-  const [weather, setWeather] = useState<MapEvent["weather"]>(value?.weather ?? "clear")
+export default function MapEventPicker({ onChange }: MapEventPickerProps) {
+  // Always use internal state for time and weather
+  const [time, setTime] = useState<MapEvent["time"]>("morning")
+  const [weather, setWeather] = useState<MapEvent["weather"]>("clear")
   const timeAudioRef = useRef<HTMLAudioElement | null>(null)
   const weatherAudioRef = useRef<HTMLAudioElement | null>(null)
+  const { selectedPlace, setSelectedPlace } = useMapEventStore();
 
-  // Only sync internal state from value if value changes and is different
-  useEffect(() => {
-    if (isControlled && value) {
-      setTime(value.time ?? "morning");
-      if (value.place !== selectedLocation) setSelectedLocation(value.place);
-      if (value.weather !== weather) setWeather(value.weather);
-    }
-  }, [value, isControlled, selectedLocation, weather]);
+  // Removed useEffect syncing from value
 
   // Handlers: call onChange if controlled, otherwise update internal state
   const handleLocationClick = (locationId: string) => {
+    setSelectedPlace(locationId);
     selectSound();
-    const newLocation = (selectedLocation === locationId ? null : locationId);
-    if (!isControlled) {
-      setSelectedLocation(newLocation);
-    }
     if (onChange) {
       onChange({
-        time: isControlled && value ? value.time ?? "morning" : time,
-        place: newLocation,
-        weather: isControlled && value ? value.weather ?? "clear" : weather,
+        time,
+        place: locationId,
+        weather,
       });
     }
   };
 
   const handleTimeChange = (newTime: "morning" | "afternoon" | "evening") => {
     selectSound();
-    if (!isControlled) {
-      setTime(newTime);
-    }
+    setTime(newTime);
     if (onChange) {
       onChange({
         time: newTime,
-        place: isControlled && value ? value.place : selectedLocation,
-        weather: isControlled && value ? value.weather : weather,
+        place: selectedPlace,
+        weather,
       });
     }
   };
 
   const handleWeatherChange = (newWeather: "clear" | "rain" | "thunderstorm" | "windy") => {
     selectSound();
-    if (!isControlled) {
-      setWeather(newWeather);
-    }
+    setWeather(newWeather);
     if (onChange) {
       onChange({
-        time: isControlled && value ? value.time : time,
-        place: isControlled && value ? value.place : selectedLocation,
+        time,
+        place: selectedPlace,
         weather: newWeather,
       });
     }
@@ -422,9 +408,9 @@ export default function MapEventPicker({ value, onChange }: MapEventPickerProps)
   }, [weather, weatherOptions])
 
   // For rendering, use value if controlled, otherwise use internal state
-  const renderTime = isControlled && value ? value.time : time;
-  const renderPlace = isControlled && value ? value.place : selectedLocation;
-  const renderWeather = isControlled && value ? value.weather : weather;
+  const renderTime = time;
+  const renderPlace = selectedPlace;
+  const renderWeather = weather;
 
 
 
@@ -613,7 +599,6 @@ export default function MapEventPicker({ value, onChange }: MapEventPickerProps)
                       <WindyOverlay />
                     </motion.div>
                   )}
-                
                 </AnimatePresence>
 
                 {/* Selected Location Overlay */}
@@ -689,7 +674,7 @@ export default function MapEventPicker({ value, onChange }: MapEventPickerProps)
               >
                 ✨
               </motion.span>
-              Time: {renderTime.charAt(0).toUpperCase() + renderTime.slice(1)}, Location: {selectedLocationData.name}, Weather:{" "}
+              Time: {renderTime.charAt(0).toUpperCase() + renderTime.slice(1)}, Location: {selectedLocationData.name}, Weather: {" "}
               {renderWeather.charAt(0).toUpperCase() + renderWeather.slice(1)}
               <motion.span
                 animate={{ rotate: [0, -10, 10, 0] }}
