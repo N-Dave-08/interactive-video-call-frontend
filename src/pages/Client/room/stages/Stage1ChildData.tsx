@@ -241,15 +241,6 @@ export default function Stage1ChildData({
 									Female
 								</div>
 							</SelectItem>
-							<SelectItem
-								value="other"
-								className="font-bold text-lg py-3 px-4 rounded-xl hover:bg-yellow-50 focus:bg-yellow-100 cursor-pointer"
-							>
-								<div className="flex items-center gap-3">
-									<Icon icon="fluent-emoji:rainbow" className="w-6 h-6" />
-									Other
-								</div>
-							</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
@@ -312,7 +303,11 @@ export default function Stage1ChildData({
 					id={currentField.id}
 					type={currentField.type || "text"}
 					placeholder={currentField.placeholder}
-					value={currentValue}
+					value={
+						currentField.id === "age" && String(currentValue) === "0"
+							? ""
+							: currentValue
+					}
 					onChange={(e) =>
 						onChange({ ...value, [currentField.id]: e.target.value })
 					}
@@ -329,7 +324,7 @@ export default function Stage1ChildData({
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ type: "spring", stiffness: 100, damping: 15 }}
 		>
-			<StageCardLayout cardClassName="max-w-2xl">
+			<StageCardLayout>
 				<div className="relative">
 					<FloatingElements />
 					<motion.div
