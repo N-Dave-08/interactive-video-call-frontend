@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
-import { login as loginApi } from "@/api/auth";
+
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -61,8 +61,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 	async function onSubmit(values: LoginFormValues) {
 		setLoading(true);
 		try {
-			const data = await loginApi(values.email, values.password);
-			login(data.user, data.token);
+			await login(values.email, values.password);
 			navigate("/dashboard");
 		} catch (err: unknown) {
 			let message = "Login failed";

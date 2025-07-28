@@ -129,3 +129,16 @@ export async function createUser(data: Partial<User>, token: string): Promise<vo
 		throw new Error("Failed to create user");
 	}
 }
+
+export async function removeUserProfilePicture(userId: string, token: string): Promise<void> {
+	const response = await fetch(
+		`${import.meta.env.VITE_API_BASE_URL}/api/users/remove/${userId}/profile_picture`,
+		{
+			method: "DELETE",
+			headers: { Authorization: `Bearer ${token}` },
+		},
+	);
+	if (!response.ok) {
+		throw new Error("Failed to remove profile picture");
+	}
+}

@@ -6,14 +6,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { CameraIcon } from "lucide-react"
+import { CameraIcon, Trash2Icon } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
-import { updateUserInfo, updateUserProfilePicture } from "@/api/users"
+import { updateUserInfo, updateUserProfilePicture, removeUserProfilePicture } from "@/api/users"
 import SpinnerLoading from "@/components/ui/spinner-loading"
+import { toast } from "sonner"
 import type { User } from "@/types";
 
 export default function ProfilePage() {
-  const { user, token } = useAuth();
+  const { user, token, invalidateUser, updateUserState } = useAuth();
   const defaultUser: User = {
     id: "",
     first_name: "",
@@ -33,12 +34,37 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState<User | null>(user ? { ...defaultUser, ...user } : null);
   const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     setProfile(user ? { ...defaultUser, ...user } : null);
   }, [user]);
+
+  // Check if there are any changes
+  const hasChanges = () => {
+    if (!user || !profile) return false;
+    
+    // Check if profile picture is being changed
+    if (previewImage) return true;
+    
+    // Check if any profile fields have changed (only fields that exist in both user and profile)
+    return (
+      profile.first_name !== user.first_name ||
+      profile.last_name !== user.last_name ||
+      profile.email !== user.email ||
+      profile.place_of_assignment !== user.place_of_assignment
+    );
+  };
+
+  // Cleanup preview image URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+    };
+  }, [previewImage]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -59,20 +85,61 @@ export default function ProfilePage() {
     if (!profile) return;
 	if (e.target.files?.[0]) {
       const file = e.target.files[0];
-      try {
-        setSaving(true);
-        if (!token) throw new Error("No token");
-        const newUrl = await updateUserProfilePicture(profile.id, file, token);
-        setProfile((prev) => ({
-          ...(prev as User),
-          profile_picture: newUrl,
-        }));
-        setSuccess(true);
-      } catch {
-        setError("Failed to update profile picture");
-      } finally {
-        setSaving(false);
+      
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImage(previewUrl);
+      setSelectedFile(file);
+      
+      // Reset the input
+      e.target.value = '';
+    }
+  };
+
+
+
+  const handleCancelProfilePicture = () => {
+    // Clear preview and selected file
+    if (previewImage) {
+      URL.revokeObjectURL(previewImage);
+    }
+    setPreviewImage(null);
+    setSelectedFile(null);
+    toast.info("Profile picture change cancelled");
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!profile) return;
+    if (!token) {
+      toast.error("No token available to remove profile picture.");
+      return;
+    }
+    try {
+      setSaving(true);
+      const loadingToast = toast.loading("Removing profile picture...");
+      await removeUserProfilePicture(profile.id, token);
+      
+      // Update local profile state
+      setProfile((prev) => ({
+        ...(prev as User),
+        profile_picture: "",
+      }));
+      
+      // Immediately update user context for instant UI feedback
+      updateUserState({ profile_picture: undefined });
+      
+      toast.dismiss(loadingToast);
+      toast.success("Profile picture removed successfully!");
+      // Invalidate user query to update NavUser component
+      invalidateUser();
+    } catch (err) {
+      if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to remove profile picture");
       }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -80,9 +147,22 @@ export default function ProfilePage() {
     e.preventDefault();
     if (!profile) return;
     setSaving(true);
-    setError(null);
-    setSuccess(false);
     try {
+      const loadingToast = toast.loading("Updating profile...");
+      
+      // First, save profile picture if there's a selected file
+      if (selectedFile && token) {
+        const newUrl = await updateUserProfilePicture(profile.id, selectedFile, token);
+        updateUserState({ profile_picture: newUrl });
+        setProfile((prev) => ({
+          ...(prev as User),
+          profile_picture: newUrl,
+        }));
+        setPreviewImage(null);
+        setSelectedFile(null);
+      }
+      
+      // Then save profile info
       if (!token) throw new Error("No token");
       const updateData: Partial<User> = {
         first_name: profile?.first_name,
@@ -94,12 +174,25 @@ export default function ProfilePage() {
         role: profile?.role,
       };
       await updateUserInfo(profile.id, updateData, token);
-      setSuccess(true);
+      
+      // Immediately update user context for instant UI feedback
+      updateUserState({
+        first_name: profile?.first_name,
+        last_name: profile?.last_name,
+        email: profile?.email,
+        place_of_assignment: profile?.place_of_assignment,
+        role: profile?.role,
+      });
+      
+      toast.dismiss(loadingToast);
+      toast.success("Profile updated successfully!");
+      // Invalidate user query to update NavUser component
+      invalidateUser();
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        toast.error(err.message);
       } else {
-        setError("Failed to update profile");
+        toast.error("Failed to update profile");
       }
     } finally {
       setSaving(false);
@@ -109,9 +202,6 @@ export default function ProfilePage() {
   if (loading) {
     return <SpinnerLoading />;
   }
-  if (error) {
-    return <div className="flex justify-center items-center min-h-screen text-red-600">{error}</div>;
-  }
   if (!profile) {
     return null;
   }
@@ -120,7 +210,14 @@ export default function ProfilePage() {
     <div className="flex justify-center items-center">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">User Profile</CardTitle>
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            User Profile
+            {hasChanges() && (
+              <span className="text-sm text-orange-600 font-normal">
+                (Unsaved changes)
+              </span>
+            )}
+          </CardTitle>
           <CardDescription>Manage your personal information and settings.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -128,7 +225,10 @@ export default function ProfilePage() {
             <div className="flex flex-col items-center gap-4">
               <div className="relative group">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={profile.profile_picture ?? undefined} alt="User Avatar" />
+                  <AvatarImage 
+                    src={previewImage || (profile.profile_picture ?? undefined)} 
+                    alt="User Avatar" 
+                  />
                   <AvatarFallback>
                     {profile.first_name?.[0]}
                     {profile.last_name?.[0]}
@@ -148,7 +248,33 @@ export default function ProfilePage() {
                   onChange={handleAvatarChange}
                   className="hidden"
                 />
+                {profile.profile_picture && !previewImage && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleRemoveAvatar}
+                    className="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                    disabled={saving}
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                    <span className="sr-only">Remove avatar</span>
+                  </Button>
+                )}
               </div>
+              
+              {/* Cancel button for profile picture changes */}
+              {previewImage && (
+                <div className="flex gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelProfilePicture}
+                    disabled={saving}
+                  >
+                    Cancel Picture
+                  </Button>
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">First Name</Label>
@@ -211,9 +337,11 @@ export default function ProfilePage() {
               </div>
             </div>
             <CardFooter className="flex flex-col items-end p-0 pt-6 gap-2">
-              <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</Button>
-              {success && <span className="text-green-600 text-sm">Profile updated successfully!</span>}
-              {error && <span className="text-red-600 text-sm">{error}</span>}
+              {hasChanges() && (
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+              )}
             </CardFooter>
           </form>
         </CardContent>
