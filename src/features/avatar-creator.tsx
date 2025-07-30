@@ -61,6 +61,15 @@ export default function AvatarCreator({
 		background: string;
 	}) => void;
 }) {
+	// Helper function to get grid container classes based on item count
+	const getGridContainerClasses = (itemCount: number) => {
+		const maxItemsForTwoRows = 8; // 4 columns × 2 rows
+		if (itemCount <= maxItemsForTwoRows) {
+			return "grid grid-cols-4 gap-3 p-1";
+		} else {
+			return "grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1";
+		}
+	};
 	const menuSelectSound = () => {
 		const audio = new Audio("/avatar-assets/sounds/menuselect.mp3");
 		audio.play().catch(() => {}); // Ignore errors if audio fails
@@ -407,7 +416,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
+										<div className={getGridContainerClasses(headOptions.length)}>
 											{headOptions.map((head, index) => (
 												<motion.button
 													key={head.id}
@@ -471,7 +480,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
+										<div className={getGridContainerClasses(hairOptions.length)}>
 											{hairOptions.map((hair, index) => (
 												<motion.button
 													key={hair.id}
@@ -535,7 +544,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
+										<div className={getGridContainerClasses(expressionOptions.length)}>
 											{expressionOptions.map((expression, index) => (
 												<motion.button
 													key={expression.id}
@@ -604,7 +613,7 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className="grid grid-cols-4 gap-3 max-h-[200px] overflow-y-auto p-1">
+										<div className={getGridContainerClasses(clothesOptions.length)}>
 											{clothesOptions.map((clothes, index) => (
 												<motion.button
 													key={clothes.id}
