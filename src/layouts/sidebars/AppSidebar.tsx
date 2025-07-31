@@ -4,6 +4,7 @@ import {
 	LayoutDashboard,
 	LibraryBig,
 	User,
+	Video,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { NavUser } from "@/components/nav/ClientNav";
@@ -62,6 +63,11 @@ const adminItems = [
 		title: "Sessions",
 		url: "/sessions",
 		icon: LibraryBig,
+	},
+	{
+		title: "Videos",
+		url: "/videos",
+		icon: Video,
 	},
 ];
 
@@ -126,7 +132,7 @@ export default function AppSidebar() {
 					user={{
 						name: user ? `${user.first_name} ${user.last_name}` : "No name",
 						email: user?.email || "no email",
-						avatar: user?.profile_picture || "/placeholder.svg"
+						avatar: user?.profile_picture || "/placeholder.svg",
 					}}
 				/>
 			</SidebarFooter>

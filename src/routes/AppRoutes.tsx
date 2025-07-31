@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/layouts/AppLayout";
 import AdminDashboard from "@/pages/Admin/dashboard";
 import UsersPage from "@/pages/Admin/users";
+import VideosPage from "@/pages/Admin/videos";
 import LoginPage from "@/pages/Auth/login";
 import RegisterPage from "@/pages/Auth/register";
 import ClientDashboard from "@/pages/Client/dashboard";
@@ -61,9 +62,15 @@ export default function AppRoutes() {
 				<Route path="dashboard" element={<DashboardRoute />} />
 				<Route path="profile" element={<ProfilePage />} />
 				<Route path="schedule" element={<SchedulePage />} />
-				<Route path="sessions" element={user?.role === "admin" ? <SessionsAdmin /> : <SessionsPage />} />
+				<Route
+					path="sessions"
+					element={
+						user?.role === "admin" ? <SessionsAdmin /> : <SessionsPage />
+					}
+				/>
 				<Route path="sessions/:sessionId" element={<SessionDetailPage />} />
 				<Route path="/users" element={<UsersPage />} />
+				<Route path="/videos" element={<VideosPage />} />
 			</Route>
 			<Route path="/login" element={<LoginPage />} />
 			<Route path="/register" element={<RegisterPage />} />
