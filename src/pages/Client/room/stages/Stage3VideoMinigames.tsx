@@ -37,7 +37,7 @@ export default function Stage3VideoMinigames({
 	const [videosError, setVideosError] = useState<string | null>(null);
 
 	// Stage audio management
-	useStageAudio('stage3');
+	useStageAudio("stage3");
 
 	useEffect(() => {
 		if (showVideosPanel) {
@@ -51,7 +51,9 @@ export default function Stage3VideoMinigames({
 	}, [showVideosPanel]);
 
 	useEffect(() => {
-		setQuestion("Ready to have some fun? Let's watch some videos or play some games!");
+		setQuestion(
+			"Ready to have some fun? Let's watch some videos or play some games!",
+		);
 	}, [setQuestion]);
 
 	// Function to update URL parameter
@@ -84,9 +86,14 @@ export default function Stage3VideoMinigames({
 
 	const miniGames = [
 		{
-			name: "Maze",
-			slug: "maze",
-			icon: <Icon icon="hugeicons:maze" className="text-5xl mb-4 text-blue-500" />,
+			name: "Flappy Bird",
+			slug: "flappy-bird",
+			icon: (
+				<Icon
+					icon="fluent-emoji:bird"
+					className="text-5xl mb-4 text-yellow-500"
+				/>
+			),
 		},
 		{
 			name: "Snake",
@@ -99,9 +106,9 @@ export default function Stage3VideoMinigames({
 			icon: <Icon icon="mdi:grid" className="text-5xl mb-4 text-green-400" />,
 		},
 		{
-			name: "Bubble Pop",
-			slug: "bubble-pop",
-			icon: <Icon icon="fluent-emoji:bubbles" className="text-5xl mb-4" />,
+			name: "Arkanoid",
+			slug: "arkanoid",
+			icon: <Icon icon="hugeicons:smile" className="text-5xl mb-4" />,
 		},
 	];
 
