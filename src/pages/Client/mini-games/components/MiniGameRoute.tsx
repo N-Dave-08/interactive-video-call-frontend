@@ -6,6 +6,7 @@ import BubblePop from "@/pages/Client/mini-games/bubble-pop";
 import MazeGame from "@/pages/Client/mini-games/maze-game";
 import GentlePuzzle from "@/pages/Client/mini-games/gentle-puzzle";
 import Snake from "@/pages/Client/mini-games/snake";
+import SuperMario from "@/pages/Client/mini-games/super-mario";
 
 function getGameName(slug?: string) {
 	if (!slug) return "";
@@ -29,6 +30,8 @@ export default function MiniGameRoute() {
 		gameContent = <GentlePuzzle />;
 	} else if (slug === "bubble-pop") {
 		gameContent = <BubblePop />;
+	} else if (slug === "super-mario") {
+		gameContent = <SuperMario />;
 	} else {
 		gameContent = (
 			<Card className="p-8 text-center text-2xl font-bold text-gray-500">

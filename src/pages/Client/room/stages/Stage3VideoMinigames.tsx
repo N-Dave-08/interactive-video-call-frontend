@@ -103,6 +103,11 @@ export default function Stage3VideoMinigames({
 			slug: "bubble-pop",
 			icon: <Icon icon="fluent-emoji:bubbles" className="text-5xl mb-4" />,
 		},
+		{
+			name: "Super Mario",
+			slug: "super-mario",
+			icon: <Icon icon="fluent-emoji:video-game" className="text-5xl mb-4 text-red-500" />,
+		},
 	];
 
 	return (
