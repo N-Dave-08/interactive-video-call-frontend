@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import MiniGameLayout from "../layouts/MiniGameLayout"
 
 interface Position {
   x: number
@@ -230,49 +229,47 @@ export default function MazeGame() {
   }
 
   return (
-    <MiniGameLayout>
-      <div className="flex flex-col items-center justify-center p-4">
-        {/* Maze */}
-        <div
-          className="relative border-4 border-gray-700 bg-black"
-          style={{
-            width: MAZE_SIZE * CELL_SIZE,
-            height: MAZE_SIZE * CELL_SIZE,
-          }}
-        >
-          {renderMaze()}
-        </div>
-
-        {/* Controls */}
-        <div className="mt-4 text-center bg-white/60 px-4 py-1 rounded-lg">
-          <p className="text-sm">Use WASD or Arrow Keys to move</p>
-        </div>
-
-        {/* Game Over Modals */}
-        {gameState === "won" && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <Card className="p-8 text-center">
-              <h2 className="text-3xl font-bold text-green-500 mb-4">Victory! 🏆</h2>
-              <p className="text-gray-600 mb-4">You escaped the maze!</p>
-              <Button onClick={startGame} className="w-full">
-                Play Again
-              </Button>
-            </Card>
-          </div>
-        )}
-
-        {gameState === "lost" && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <Card className="p-8 text-center">
-              <h2 className="text-3xl font-bold text-red-500 mb-4">Game Over! 💀</h2>
-              <p className="text-gray-600 mb-4">A monster caught you!</p>
-              <Button onClick={startGame} className="w-full">
-                Play Again
-              </Button>
-            </Card>
-          </div>
-        )}
+    <div className="flex flex-col items-center justify-center min-h-screen  p-4">
+      {/* Maze */}
+      <div
+        className="relative border-4 border-gray-700 bg-black"
+        style={{
+          width: MAZE_SIZE * CELL_SIZE,
+          height: MAZE_SIZE * CELL_SIZE,
+        }}
+      >
+        {renderMaze()}
       </div>
-    </MiniGameLayout>
+
+      {/* Controls */}
+      <div className="mt-4 text-center bg-white/60 px-4 py-1 rounded-lg">
+        <p className="text-sm">Use WASD or Arrow Keys to move</p>
+      </div>
+
+      {/* Game Over Modals */}
+      {gameState === "won" && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <Card className="p-8 text-center">
+            <h2 className="text-3xl font-bold text-green-500 mb-4">Victory! 🏆</h2>
+            <p className="text-gray-600 mb-4">You escaped the maze!</p>
+            <Button onClick={startGame} className="w-full">
+              Play Again
+            </Button>
+          </Card>
+        </div>
+      )}
+
+      {gameState === "lost" && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <Card className="p-8 text-center">
+            <h2 className="text-3xl font-bold text-red-500 mb-4">Game Over! 💀</h2>
+            <p className="text-gray-600 mb-4">A monster caught you!</p>
+            <Button onClick={startGame} className="w-full">
+              Play Again
+            </Button>
+          </Card>
+        </div>
+      )}
+    </div>
   )
 }
