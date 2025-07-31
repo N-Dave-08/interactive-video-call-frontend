@@ -2,10 +2,10 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import MazeGame from "@/pages/Client/mini-games/maze-game";
 import Snake from "@/pages/Client/mini-games/snake";
 import Tetris from "@/pages/Client/mini-games/tetris";
 import Arkanoid from "@/pages/Client/mini-games/arkanoid";
+import FlappyBird from "@/pages/Client/mini-games/flappy-bird";
 
 function getGameName(slug?: string) {
 	if (!slug) return "";
@@ -21,8 +21,8 @@ export default function MiniGameRoute() {
 	const gameName = getGameName(slug);
 
 	let gameContent = null;
-	if (slug === "maze") {
-		gameContent = <MazeGame />;
+	if (slug === "flappy-bird") {
+		gameContent = <FlappyBird />;
 	} else if (slug === "snake") {
 		gameContent = <Snake />;
 	} else if (slug === "tetris") {

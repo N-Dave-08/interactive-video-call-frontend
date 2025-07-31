@@ -86,10 +86,13 @@ export default function Stage3VideoMinigames({
 
 	const miniGames = [
 		{
-			name: "Maze",
-			slug: "maze",
+			name: "Flappy Bird",
+			slug: "flappy-bird",
 			icon: (
-				<Icon icon="hugeicons:maze" className="text-5xl mb-4 text-blue-500" />
+				<Icon
+					icon="fluent-emoji:bird"
+					className="text-5xl mb-4 text-yellow-500"
+				/>
 			),
 		},
 		{
