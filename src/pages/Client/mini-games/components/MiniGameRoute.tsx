@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import BubblePop from "@/pages/Client/mini-games/bubble-pop";
 import MazeGame from "@/pages/Client/mini-games/maze-game";
-import GentlePuzzle from "@/pages/Client/mini-games/gentle-puzzle";
 import Snake from "@/pages/Client/mini-games/snake";
+import Tetris from "@/pages/Client/mini-games/tetris";
 
 function getGameName(slug?: string) {
 	if (!slug) return "";
@@ -25,8 +25,8 @@ export default function MiniGameRoute() {
 		gameContent = <MazeGame />;
 	} else if (slug === "snake") {
 		gameContent = <Snake />;
-	} else if (slug === "gentle-puzzle") {
-		gameContent = <GentlePuzzle />;
+	} else if (slug === "tetris") {
+		gameContent = <Tetris />;
 	} else if (slug === "bubble-pop") {
 		gameContent = <BubblePop />;
 	} else {

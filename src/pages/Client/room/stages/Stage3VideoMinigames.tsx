@@ -94,9 +94,9 @@ export default function Stage3VideoMinigames({
 			icon: <Icon icon="fluent-emoji:snake" className="text-5xl mb-4" />,
 		},
 		{
-			name: "Gentle Puzzle",
-			slug: "gentle-puzzle",
-			icon: <Icon icon="mdi:puzzle" className="text-5xl mb-4 text-green-400" />,
+			name: "Tetris",
+			slug: "tetris",
+			icon: <Icon icon="mdi:grid" className="text-5xl mb-4 text-green-400" />,
 		},
 		{
 			name: "Bubble Pop",
