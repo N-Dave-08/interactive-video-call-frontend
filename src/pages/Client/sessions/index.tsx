@@ -1,4 +1,11 @@
-import { Calendar, Heart, Sparkles, Star, CalendarIcon, ClockIcon } from "lucide-react";
+import {
+	Calendar,
+	Heart,
+	Sparkles,
+	Star,
+	CalendarIcon,
+	ClockIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
@@ -25,15 +32,19 @@ export default function SessionsPage() {
 		queryKey: ["sessions", user?.id],
 		queryFn: () =>
 			user && token
-				? fetchSessionsBySocialWorkerId(user.id, token).then((res: SessionsListResponse) => res.data)
+				? fetchSessionsBySocialWorkerId(user.id, token).then(
+						(res: SessionsListResponse) => res.data,
+					)
 				: Promise.resolve([]),
 		enabled: !!user && user.role === "social_worker",
 		refetchInterval: 5000, // 5 seconds for real-time updates
 	});
 
 	const handleSessionDeleted = (sessionId: string) => {
-		queryClient.setQueryData(["sessions", user?.id], (old: Session[] | undefined): Session[] =>
-			Array.isArray(old) ? old.filter((s) => s.session_id !== sessionId) : []
+		queryClient.setQueryData(
+			["sessions", user?.id],
+			(old: Session[] | undefined): Session[] =>
+				Array.isArray(old) ? old.filter((s) => s.session_id !== sessionId) : [],
 		);
 	};
 
@@ -113,6 +124,8 @@ export default function SessionsPage() {
 				setOpen={setOpen}
 				onSessionCreated={(session) => {
 					localStorage.removeItem("showChildForm");
+					// Clear drawing pad data for new session
+					localStorage.removeItem("drawing-pad-data");
 					const now = new Date();
 					const start = new Date(session.start_time);
 					if (!session.start_time || start <= now) {
@@ -132,7 +145,8 @@ export default function SessionsPage() {
 										{start.toLocaleString()}
 									</div>
 									<div className="text-sm text-blue-700 mt-1">
-										You will be able to start this session at the scheduled time.
+										You will be able to start this session at the scheduled
+										time.
 									</div>
 								</div>
 							</div>
@@ -145,16 +159,18 @@ export default function SessionsPage() {
 
 			{isLoading ? (
 				<SessionCardsSkeleton />
-			) : (data.length === 0 ? (
+			) : data.length === 0 ? (
 				<SessionsEmptyState onCreateSession={() => setOpen(true)} />
 			) : (
 				<SessionCards
 					sessions={Array.isArray(data) ? data : []}
 					user={{ first_name: user.first_name, last_name: user.last_name }}
 					onSessionDeleted={handleSessionDeleted}
-					onSessionUpdated={() => queryClient.invalidateQueries({ queryKey: ["sessions", user?.id] })}
+					onSessionUpdated={() =>
+						queryClient.invalidateQueries({ queryKey: ["sessions", user?.id] })
+					}
 				/>
-			))}
+			)}
 		</>
 	);
 }
