@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import PublicRoute from "@/components/PublicRoute";
 import { useAuth } from "@/hooks/useAuth";
 import AppLayout from "@/layouts/AppLayout";
 import AdminDashboard from "@/pages/Admin/dashboard";
@@ -29,7 +30,14 @@ export default function AppRoutes() {
 	const { user } = useAuth();
 	return (
 		<Routes>
-			<Route path="/" element={<LandingPage />} />
+			<Route
+				path="/"
+				element={
+					<PublicRoute>
+						<LandingPage />
+					</PublicRoute>
+				}
+			/>
 			<Route
 				path="/room"
 				element={
@@ -72,8 +80,22 @@ export default function AppRoutes() {
 				<Route path="/users" element={<UsersPage />} />
 				<Route path="/videos" element={<VideosPage />} />
 			</Route>
-			<Route path="/login" element={<LoginPage />} />
-			<Route path="/register" element={<RegisterPage />} />
+			<Route
+				path="/login"
+				element={
+					<PublicRoute>
+						<LoginPage />
+					</PublicRoute>
+				}
+			/>
+			<Route
+				path="/register"
+				element={
+					<PublicRoute>
+						<RegisterPage />
+					</PublicRoute>
+				}
+			/>
 		</Routes>
 	);
 }

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import PrivacyProlicyModal from "./modals/privacy-policy-modal";
 
 const menuItems = [
@@ -14,6 +15,7 @@ const menuItems = [
 export default function Navbar() {
 	const [menuState, setMenuState] = useState(false);
 	const [isScrolled, setIsScrolled] = useState(false);
+	const { user, token } = useAuth();
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -111,32 +113,56 @@ export default function Navbar() {
 										</a>
 									</li>
 								))}
+								{/* Add dashboard link for authenticated users in mobile menu */}
+								{token && user && (
+									<li>
+										<Link
+											to="/dashboard"
+											className="text-zinc-500 hover:text-zinc-900 block duration-150"
+										>
+											<span>Dashboard</span>
+										</Link>
+									</li>
+								)}
 							</ul>
 						</div>
-						<div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
-							<Button
-								variant="outline"
-								size="sm"
-								className={cn(isScrolled && "lg:hidden")}
-							>
-								<Link to="/login">
-									<span>Login</span>
-								</Link>
-							</Button>
-							<Button size="sm" className={cn(isScrolled && "lg:hidden")}>
-								<Link to="/register">
-									<span>Sign Up</span>
-								</Link>
-							</Button>
-							<Button
-								size="sm"
-								className={cn(isScrolled ? "lg:inline-flex" : "hidden")}
-							>
-								<a href="/get-started">
-									<span>Get Started</span>
-								</a>
-							</Button>
-						</div>
+						{/* Show auth buttons if user is not logged in */}
+						{!token && !user && (
+							<div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+								<Button
+									variant="outline"
+									size="sm"
+									className={cn(isScrolled && "lg:hidden")}
+								>
+									<Link to="/login">
+										<span>Login</span>
+									</Link>
+								</Button>
+								<Button size="sm" className={cn(isScrolled && "lg:hidden")}>
+									<Link to="/register">
+										<span>Sign Up</span>
+									</Link>
+								</Button>
+								<Button
+									size="sm"
+									className={cn(isScrolled ? "lg:inline-flex" : "hidden")}
+								>
+									<a href="/get-started">
+										<span>Get Started</span>
+									</a>
+								</Button>
+							</div>
+						)}
+						{/* Show dashboard button if user is logged in */}
+						{token && user && (
+							<div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+								<Button size="sm">
+									<Link to="/dashboard">
+										<span>Dashboard</span>
+									</Link>
+								</Button>
+							</div>
+						)}
 					</div>
 				</div>
 			</div>
