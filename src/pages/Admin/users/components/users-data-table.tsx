@@ -23,10 +23,8 @@ import {
 	ChevronsRight,
 	Clock,
 	Columns,
-	Download,
 	Edit,
 	Filter,
-	GripVertical,
 	Mail,
 	MapPin,
 	MoreVertical,
@@ -163,18 +161,7 @@ const columns: ColumnDef<User>[] = [
 		enableSorting: false,
 		enableHiding: false,
 	},
-	{
-		id: "drag",
-		header: "",
-		cell: () => (
-			<div className="cursor-grab active:cursor-grabbing">
-				<GripVertical className="h-4 w-4 text-muted-foreground" />
-			</div>
-		),
-		enableSorting: false,
-		enableHiding: false,
-		size: 40,
-	},
+
 	{
 		header: "User",
 		cell: ({ row }) => {
@@ -526,10 +513,6 @@ export function DataTable({
 		<div className="space-y-6">
 			{/* Header */}
 			<div className="flex items-center gap-2">
-				<Button variant="outline" size="sm">
-					<Download className="h-4 w-4 mr-2" />
-					Export
-				</Button>
 				<Button size="sm" onClick={() => setAddDialogOpen(true)}>
 					<UserPlus className="h-4 w-4 mr-2" />
 					Add User
@@ -550,28 +533,36 @@ export function DataTable({
 						title: "Admins",
 						icon: UserPlus,
 						iconClass: "text-purple-600",
-						value: statistics ? statistics.adminCount : tableData.filter((u) => u.role === "admin").length,
+						value: statistics
+							? statistics.adminCount
+							: tableData.filter((u) => u.role === "admin").length,
 						valueClass: "text-purple-600",
 					},
 					{
 						title: "Social Workers",
 						icon: UserPlus,
 						iconClass: "text-sky-600",
-						value: statistics ? statistics.socialWorkerCount : tableData.filter((u) => u.role === "social_worker").length,
+						value: statistics
+							? statistics.socialWorkerCount
+							: tableData.filter((u) => u.role === "social_worker").length,
 						valueClass: "text-sky-600",
 					},
 					{
 						title: "Approved",
 						icon: CheckCircle,
 						iconClass: "text-green-600",
-						value: statistics ? statistics.approvedCount : tableData.filter((u) => u.condition === "approved").length,
+						value: statistics
+							? statistics.approvedCount
+							: tableData.filter((u) => u.condition === "approved").length,
 						valueClass: "text-green-600",
 					},
 					{
 						title: "Pending",
 						icon: Clock,
 						iconClass: "text-yellow-600",
-						value: statistics ? statistics.needForApprovalCount : tableData.filter((u) => u.condition === "pending").length,
+						value: statistics
+							? statistics.needForApprovalCount
+							: tableData.filter((u) => u.condition === "pending").length,
 						valueClass: "text-yellow-600",
 					},
 				].map(({ title, icon: Icon, iconClass, value, valueClass }) => (
@@ -673,10 +664,6 @@ export function DataTable({
 						<Button variant="outline" size="sm">
 							<Mail className="h-4 w-4 mr-2" />
 							Email Selected
-						</Button>
-						<Button variant="outline" size="sm">
-							<Download className="h-4 w-4 mr-2" />
-							Export Selected
 						</Button>
 						<Button
 							variant="destructive"
