@@ -27,6 +27,8 @@ interface DrawingPadProps {
 	markCompleteTrigger?: boolean;
 }
 
+const STORAGE_KEY = "drawing-pad-data";
+
 export default function DrawingPad({
 	onComplete,
 	markCompleteTrigger,
@@ -37,6 +39,41 @@ export default function DrawingPad({
 	const [brushSize, setBrushSize] = useState([5]);
 	const [isEraser, setIsEraser] = useState(false);
 	const [lastPoint, setLastPoint] = useState<Point | null>(null);
+	const [isInitialized, setIsInitialized] = useState(false);
+
+	// Save drawing to localStorage
+	const saveDrawing = useCallback(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		try {
+			const drawingData = canvas.toDataURL("image/png");
+			localStorage.setItem(STORAGE_KEY, drawingData);
+		} catch (error) {
+			console.error("Failed to save drawing:", error);
+		}
+	}, []);
+
+	// Load drawing from localStorage
+	const loadDrawing = useCallback(() => {
+		const canvas = canvasRef.current;
+		const ctx = canvas?.getContext("2d");
+		if (!canvas || !ctx) return;
+
+		try {
+			const savedData = localStorage.getItem(STORAGE_KEY);
+			if (savedData) {
+				const img = new Image();
+				img.onload = () => {
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.drawImage(img, 0, 0);
+				};
+				img.src = savedData;
+			}
+		} catch (error) {
+			console.error("Failed to load drawing:", error);
+		}
+	}, []);
 
 	const startDrawing = useCallback(
 		(
@@ -100,7 +137,9 @@ export default function DrawingPad({
 	const stopDrawing = useCallback(() => {
 		setIsDrawing(false);
 		setLastPoint(null);
-	}, []);
+		// Save drawing after each stroke
+		setTimeout(saveDrawing, 100);
+	}, [saveDrawing]);
 
 	const clearCanvas = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -111,6 +150,9 @@ export default function DrawingPad({
 		// Set white background
 		ctx.fillStyle = "#FFFFFF";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// Clear saved data
+		localStorage.removeItem(STORAGE_KEY);
 	}, []);
 
 	const downloadDrawing = useCallback(() => {
@@ -136,10 +178,23 @@ export default function DrawingPad({
 		}
 	}, [markCompleteTrigger, getBase64, onComplete]);
 
+	// Save drawing when component unmounts or page unloads
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			saveDrawing();
+		};
+
+		window.addEventListener("beforeunload", handleBeforeUnload);
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+			saveDrawing();
+		};
+	}, [saveDrawing]);
+
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		const ctx = canvas?.getContext("2d");
-		if (!canvas || !ctx) return;
+		if (!canvas || !ctx || isInitialized) return;
 
 		// Set canvas size
 		canvas.width = 800;
@@ -148,6 +203,10 @@ export default function DrawingPad({
 		// Set white background
 		ctx.fillStyle = "#FFFFFF";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		// Load saved drawing
+		loadDrawing();
+		setIsInitialized(true);
 
 		// Prevent scrolling when touching the canvas
 		const preventDefault = (e: Event) => e.preventDefault();
@@ -160,7 +219,7 @@ export default function DrawingPad({
 			canvas.removeEventListener("touchend", preventDefault);
 			canvas.removeEventListener("touchmove", preventDefault);
 		};
-	}, []);
+	}, [loadDrawing, isInitialized]);
 
 	return (
 		<div className="w-full max-w-6xl mx-auto p-4 space-y-4">
@@ -269,7 +328,7 @@ export default function DrawingPad({
 					<div className="text-center space-y-1">
 						<p className="text-sm text-muted-foreground">
 							Click and drag to draw • Use the eraser tool to remove parts •
-							Clear to start over
+							Clear to start over • Your drawing is automatically saved
 						</p>
 						<p className="text-xs text-muted-foreground">
 							Touch and drag on mobile devices
