@@ -122,8 +122,33 @@ export default function Room() {
 						gender: session.child_data.gender ?? "", // Restore gender
 					});
 				}
+				// Restore avatar data
+				if (session?.avatar_data) {
+					setAvatarData({
+						head:
+							session.avatar_data.head ??
+							"/avatar-assets/heads/default-head-clear.png",
+						hair: session.avatar_data.hair ?? "/avatar-assets/hairs/HairB1.png",
+						expression:
+							session.avatar_data.expression ??
+							"/avatar-assets/expressions/F1.png",
+						clothes:
+							session.avatar_data.clothes ??
+							"/avatar-assets/clothes/boy-uniform.png",
+						background:
+							session.avatar_data.background ?? "/avatar-assets/bg/bg3.jpg",
+					});
+				}
 				if (session?.emotional_expression?.selected_feelings?.[0]) {
 					setEmotion(session.emotional_expression.selected_feelings[0]);
+				}
+				// Restore session notes and tags
+				if (session?.session_notes) {
+					setSessionNotes(session.session_notes);
+				}
+				if (session?.tags && Array.isArray(session.tags)) {
+					setTags(session.tags);
+					setTagsInput(session.tags.join(", "));
 				}
 				// When restoring session, check for event property with type assertion
 				const maybeEventSession = session as Session & { event?: MapEvent };
@@ -392,55 +417,6 @@ export default function Room() {
 		}
 	};
 
-	// const handleBodyMapChange = async (
-	// 	front: SelectedParts,
-	// 	back: SelectedParts,
-	// ) => {
-	// 	// Build string annotations like 'upperBack:pain'
-	// 	const annotations: string[] = [];
-	// 	for (const [part, sel] of Object.entries(front)) {
-	// 		if (sel.pain) annotations.push(`${part}:pain`);
-	// 		if (sel.touch) annotations.push(`${part}:touch`);
-	// 	}
-	// 	for (const [part, sel] of Object.entries(back)) {
-	// 		if (sel.pain) annotations.push(`${part}:pain`);
-	// 		if (sel.touch) annotations.push(`${part}:touch`);
-	// 	}
-	// 	setBodyMapAnnotations(annotations);
-	// 	if (session_id && user) {
-	// 		try {
-	// 			await updateSession(session_id, {
-	// 				emotional_expression: {
-	// 					method: "bodymap",
-	// 					drawing_data: drawingData,
-	// 					selected_feelings: [emotion],
-	// 					body_map_annotations: annotations,
-	// 				},
-	// 			});
-	// 		} catch (err) {
-	// 			console.error("Failed to update body map:", err);
-	// 		}
-	// 	}
-	// };
-
-	// const handleDrawingChange = async (drawingBase64: string) => {
-	// 	setDrawingData(drawingBase64);
-	// 	if (session_id && user) {
-	// 		try {
-	// 			await updateSession(session_id, {
-	// 				emotional_expression: {
-	// 					method: "drawing",
-	// 					drawing_data: drawingBase64,
-	// 					selected_feelings: [emotion],
-	// 					body_map_annotations: bodyMapAnnotations, // now string[]
-	// 				},
-	// 			});
-	// 		} catch (err) {
-	// 			console.error("Failed to update drawing:", err);
-	// 		}
-	// 	}
-	// };
-
 	// Debounced save functions for each stage
 	const debouncedSaveChildData = useRef(
 		debounce(async (data) => {
@@ -603,36 +579,32 @@ export default function Room() {
 	}, [step, searchParams, setSearchParams]);
 
 	// Add Back handlers for each stage
-	const handleChildDataBack = async () => {
+	const handleAvatarDataBack = async () => {
 		if (!user || !session_id || !token) return;
 		await updateSession(session_id, { stage: "Stage 1" }, token);
 		setStep(0);
 		setShowChildForm(true);
 	};
-	const handleAvatarDataBack = async () => {
+
+	const handleVideoMinigamesBack = async () => {
 		if (!user || !session_id || !token) return;
 		await updateSession(session_id, { stage: "Stage 2" }, token);
 		setStep(1);
 	};
-	const handleVideoMinigamesBack = async () => {
+	const handleStage4Back = async () => {
 		if (!user || !session_id || !token) return;
 		await updateSession(session_id, { stage: "Stage 3" }, token);
 		setStep(2);
 	};
-	// const handleStage4Back = async () => {
-	// 	if (!user || !session_id || !token) return;
-	// 	await updateSession(session_id, { stage: "Stage 4" }, token);
-	// 	setStep(3);
-	// };
 	const handleEmotionalExpressionsBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id, { stage: "Stage 5" }, token);
-		setStep(4);
+		await updateSession(session_id, { stage: "Stage 4" }, token);
+		setStep(3);
 	};
 	const handleSessionNotesBack = async () => {
 		if (!user || !session_id || !token) return;
-		await updateSession(session_id, { stage: "Stage 6" }, token);
-		setStep(5);
+		await updateSession(session_id, { stage: "Stage 5" }, token);
+		setStep(4);
 	};
 
 	return (
@@ -719,7 +691,7 @@ export default function Room() {
 										value={avatarData}
 										onChange={handleAvatarDataChange}
 										onNext={handleAvatarDataNext}
-										onBack={handleChildDataBack}
+										onBack={handleAvatarDataBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -727,7 +699,7 @@ export default function Room() {
 								{step === 2 && (
 									<Stage3VideoMinigames
 										onNext={handleVideoMinigamesNext}
-										onBack={handleAvatarDataBack}
+										onBack={handleVideoMinigamesBack}
 										loading={loading}
 										error={error || undefined}
 									/>
@@ -737,7 +709,7 @@ export default function Room() {
 										value={conversationData}
 										onChange={handleConversationDataChange}
 										onNext={handleStage4Next}
-										onBack={handleVideoMinigamesBack}
+										onBack={handleStage4Back}
 										loading={loading}
 										error={error || undefined}
 									/>

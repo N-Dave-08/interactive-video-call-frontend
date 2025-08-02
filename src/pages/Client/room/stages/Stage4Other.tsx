@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
-import {
-	ArrowLeft,
-	ArrowRight,
-	Sparkles,
-	Star,
-	Heart,
-	Clock,
-	Zap,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, Star, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -235,202 +227,153 @@ export default function Stage4Other({
 	const currentQuestion = questions[currentQuestionIndex];
 
 	return (
-		<motion.div
-			initial={{ opacity: 0, y: 50 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.6, ease: "easeOut" }}
-		>
-			<StageCardLayout>
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2, duration: 0.5 }}
-					className="text-center mb-8"
-				>
-					<div className="flex justify-center items-center gap-4 mb-6">
-						<div className="w-16 h-16 bg-gradient-to-br from-orange-200 to-pink-200 rounded-full flex items-center justify-center shadow-xl border-4 border-white animate-pulse">
-							<div className="text-3xl animate-bounce">🐰</div>
-						</div>
-						<div
-							className="text-4xl animate-spin"
-							style={{ animationDuration: "3s" }}
-						>
-							✨
-						</div>
-						<div className="w-16 h-16 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full flex items-center justify-center shadow-xl border-4 border-white animate-pulse">
-							<div
-								className="text-3xl animate-bounce"
-								style={{ animationDelay: "0.5s" }}
-							>
-								🎈
+		<StageCardLayout>
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.2, duration: 0.5 }}
+				className="text-center mb-8"
+			>
+				<h2 className="text-3xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-2">
+					Let's Chat!
+				</h2>
+				<p className="text-gray-600 text-lg font-semibold">
+					A super fun way to connect with amazing kids!
+				</p>
+			</motion.div>
+
+			{/* Main Question Card */}
+			<motion.div
+				initial={{ opacity: 0, scale: 0.9 }}
+				animate={{ opacity: 1, scale: 1 }}
+				transition={{ delay: 0.3, duration: 0.5 }}
+				className="mb-8"
+			>
+				<div className="overflow-hidden shadow-xl border-0 transform hover:scale-[1.02] transition-all duration-500 rounded-lg">
+					<div
+						className={`bg-gradient-to-r rounded-lg ${currentQuestion.bgColor} text-white p-8 text-center relative overflow-hidden`}
+					>
+						<div className="relative z-10 max-w-3xl mx-auto">
+							<div className="text-6xl mb-4 animate-bounce">
+								{currentQuestion.emoji}
 							</div>
+							<h3 className="text-2xl md:text-3xl font-black mb-3 leading-tight drop-shadow-lg">
+								{currentQuestion.text}
+							</h3>
+							<p className="text-white/95 text-lg md:text-xl font-bold">
+								{currentQuestion.subtitle}
+							</p>
 						</div>
 					</div>
-					<h2 className="text-4xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent mb-2">
-						Let's Chat!
-					</h2>
-					<p className="text-gray-600 text-xl font-semibold">
-						A super fun way to connect with amazing kids!
-					</p>
-				</motion.div>
+				</div>
+			</motion.div>
 
-				{/* Main Question Card */}
-				<motion.div
-					initial={{ opacity: 0, scale: 0.9 }}
-					animate={{ opacity: 1, scale: 1 }}
-					transition={{ delay: 0.3, duration: 0.5 }}
-					className="mb-8"
+			{/* Ask Next Question Button */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.4, duration: 0.5 }}
+				className="flex justify-center mb-8"
+			>
+				<Button
+					onClick={handleNextQuestion}
+					disabled={isAsking}
+					className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-8 py-4 text-lg font-black rounded-full shadow-xl transform transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:scale-100 border-4 border-white/30"
 				>
-					<Card className="overflow-hidden shadow-2xl border-0 transform hover:scale-[1.02] transition-all duration-500">
-						<CardContent className="p-0">
-							<div
-								className={`bg-gradient-to-r ${currentQuestion.bgColor} text-white p-8 text-center relative overflow-hidden`}
-							>
-								{/* Floating decorative elements */}
-								<div className="absolute top-4 right-6 animate-pulse">
-									<Sparkles className="w-6 h-6 text-white/80" />
-								</div>
-								<div className="absolute bottom-4 left-6 animate-bounce">
-									<Star className="w-6 h-6 text-white/80" />
-								</div>
-								<div className="absolute top-4 left-6 animate-ping">
-									<Heart className="w-5 h-5 text-white/60" />
-								</div>
-								<div className="absolute bottom-4 right-6 animate-pulse">
-									<Zap className="w-5 h-5 text-white/70" />
-								</div>
+					{isAsking ? "Getting new question..." : "Ask Next Question"}
+				</Button>
+			</motion.div>
 
-								<div className="relative z-10 max-w-3xl mx-auto">
-									<div className="text-6xl mb-4 animate-bounce">
-										{currentQuestion.emoji}
-									</div>
-									<h3 className="text-2xl md:text-3xl font-black mb-3 leading-tight drop-shadow-lg">
-										{currentQuestion.text}
-									</h3>
-									<p className="text-white/95 text-lg md:text-xl font-bold">
-										{currentQuestion.subtitle}
-									</p>
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-				</motion.div>
+			{/* Feature Cards */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.5, duration: 0.5 }}
+				className="grid md:grid-cols-2 gap-6 mb-8"
+			>
+				<Card className="bg-gradient-to-br from-sky-100 via-blue-100 to-cyan-200 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+					<CardContent className="p-6 text-center">
+						<div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center shadow-xl">
+							<Clock className="w-8 h-8 text-white" />
+						</div>
+						<h4 className="font-black text-gray-800 text-xl mb-2">
+							Take Your Time!
+						</h4>
+						<p className="text-gray-600 text-sm leading-relaxed font-semibold">
+							Let the child think and express themselves freely! No rush!
+						</p>
+					</CardContent>
+				</Card>
 
-				{/* Ask Next Question Button */}
+				<Card className="bg-gradient-to-br from-emerald-100 via-green-100 to-lime-200 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+					<CardContent className="p-6 text-center">
+						<div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-xl">
+							<Star className="w-8 h-8 text-white" />
+						</div>
+						<h4 className="font-black text-gray-800 text-xl mb-2">
+							No Wrong Answers!
+						</h4>
+						<p className="text-gray-600 text-sm leading-relaxed font-semibold">
+							Every answer is perfect and special! You're amazing!
+						</p>
+					</CardContent>
+				</Card>
+			</motion.div>
+
+			{/* Progress Badge */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ delay: 0.6, duration: 0.5 }}
+				className="flex justify-center mb-8"
+			>
+				<Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 text-sm font-black rounded-full shadow-lg">
+					{questionsAsked} questions asked • {questions.length} total questions
+				</Badge>
+			</motion.div>
+
+			{/* Navigation Buttons */}
+			<div className="sticky bottom-0 w-full z-20">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.4, duration: 0.5 }}
-					className="flex justify-center mb-8"
+					transition={{ delay: 0.7, duration: 0.5 }}
+					className="flex justify-between items-center mt-8"
 				>
 					<Button
-						onClick={handleNextQuestion}
-						disabled={isAsking}
-						className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-8 py-4 text-lg font-black rounded-full shadow-2xl transform transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:scale-100 border-4 border-white/30"
+						type="button"
+						variant="outline"
+						onClick={onBack}
+						className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent"
 					>
-						<Sparkles className="w-6 h-6 mr-2 animate-spin" />
-						{isAsking ? "Getting new question..." : "Ask Next Question"}
-						<Sparkles className="w-6 h-6 ml-2" />
+						<ArrowLeft className="w-5 h-5 mr-2" />
+						Back
+					</Button>
+
+					<Button
+						type="button"
+						onClick={onNext}
+						disabled={loading}
+						className="px-8 py-3 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+					>
+						{loading ? (
+							<motion.div
+								animate={{ rotate: 360 }}
+								transition={{
+									duration: 1,
+									repeat: Number.POSITIVE_INFINITY,
+									ease: "linear",
+								}}
+								className="w-6 h-6 border-2 border-white border-t-transparent rounded-full mr-2"
+							/>
+						) : (
+							<ArrowRight className="w-5 h-5 mr-2" />
+						)}
+						{loading ? "Saving..." : "Next Step!"}
 					</Button>
 				</motion.div>
-
-				{/* Feature Cards */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.5, duration: 0.5 }}
-					className="grid md:grid-cols-2 gap-6 mb-8"
-				>
-					<Card className="bg-gradient-to-br from-sky-100 via-blue-100 to-cyan-200 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-sky-500 rounded-full flex items-center justify-center shadow-xl">
-								<Clock className="w-8 h-8 text-white" />
-							</div>
-							<h4 className="font-black text-gray-800 text-xl mb-2">
-								Take Your Time!
-							</h4>
-							<p className="text-gray-600 text-sm leading-relaxed font-semibold">
-								Let the child think and express themselves freely! No rush!
-							</p>
-						</CardContent>
-					</Card>
-
-					<Card className="bg-gradient-to-br from-emerald-100 via-green-100 to-lime-200 border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-						<CardContent className="p-6 text-center">
-							<div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-xl">
-								<Star className="w-8 h-8 text-white" />
-							</div>
-							<h4 className="font-black text-gray-800 text-xl mb-2">
-								No Wrong Answers!
-							</h4>
-							<p className="text-gray-600 text-sm leading-relaxed font-semibold">
-								Every answer is perfect and special! You're amazing!
-							</p>
-						</CardContent>
-					</Card>
-				</motion.div>
-
-				{/* Progress and Navigation */}
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.6, duration: 0.5 }}
-					className="space-y-4"
-				>
-					{/* Progress Badge */}
-					<div className="flex justify-center">
-						<Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-4 py-2 text-sm font-black rounded-full shadow-lg">
-							{questionsAsked} questions asked • {questions.length} total
-							questions
-						</Badge>
-					</div>
-
-					{/* Navigation Buttons */}
-					<div className="flex justify-between items-center">
-						<Button
-							type="button"
-							variant="outline"
-							onClick={onBack}
-							className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent"
-						>
-							<ArrowLeft className="w-5 h-5 mr-2" />
-							Back
-						</Button>
-
-						<Button
-							type="button"
-							onClick={onNext}
-							disabled={loading}
-							className="px-8 py-3 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-						>
-							{loading ? (
-								<motion.div
-									animate={{ rotate: 360 }}
-									transition={{
-										duration: 1,
-										repeat: Number.POSITIVE_INFINITY,
-										ease: "linear",
-									}}
-									className="w-6 h-6 border-2 border-white border-t-transparent rounded-full mr-2"
-								/>
-							) : (
-								<ArrowRight className="w-5 h-5 mr-2" />
-							)}
-							{loading ? "Saving..." : "Next Step!"}
-						</Button>
-					</div>
-
-					{error && (
-						<motion.div
-							initial={{ opacity: 0, scale: 0.9 }}
-							animate={{ opacity: 1, scale: 1 }}
-							className="mt-2 p-3 bg-red-100 border border-red-300 rounded-xl text-red-700 text-center text-sm"
-						>
-							{error}
-						</motion.div>
-					)}
-				</motion.div>
-			</StageCardLayout>
-		</motion.div>
+				{error && <div className="text-red-500 text-center mt-2">{error}</div>}
+			</div>
+		</StageCardLayout>
 	);
 }
