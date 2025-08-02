@@ -9,7 +9,7 @@ import {
 	Sparkles,
 	Star,
 } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import BodyMap from "@/features/bodymap";
@@ -32,7 +32,7 @@ export default function Stage5EmotionalExpressions({
 	error,
 	onBodyMapChange,
 	onDrawingComplete,
-	gender, // <-- add this
+	gender,
 	mapEvent,
 	onMapEventChange,
 }: {
@@ -46,14 +46,16 @@ export default function Stage5EmotionalExpressions({
 	onDrawingComplete?: (drawingBase64: string) => void;
 	gender: "male" | "female";
 	mapEvent?: import("@/features/map-event-picker").MapEvent;
-	onMapEventChange?: (event: import("@/features/map-event-picker").MapEvent) => void;
+	onMapEventChange?: (
+		event: import("@/features/map-event-picker").MapEvent,
+	) => void;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
-	
+
 	const [currentTab, setCurrentTab] = React.useState<
 		"feelings" | "map-event" | "bodymap" | "drawingpad"
 	>("feelings");
-	
+
 	// Define questions for each tab
 	const tabQuestions = {
 		feelings: "Okay, tell how you feel.",
@@ -71,10 +73,10 @@ export default function Stage5EmotionalExpressions({
 
 	// Stage audio management - use different audio based on current tab
 	const tabAudioMap = {
-		feelings: 'stage5-feelings',
-		"map-event": 'stage5-map',
-		bodymap: 'stage5-bodymap', 
-		drawingpad: 'stage5-drawing'
+		feelings: "stage5-feelings",
+		"map-event": "stage5-map",
+		bodymap: "stage5-bodymap",
+		drawingpad: "stage5-drawing",
 	};
 	useStageAudio(tabAudioMap[currentTab]);
 
@@ -204,27 +206,6 @@ export default function Stage5EmotionalExpressions({
 			))}
 		</div>
 	);
-
-	const mapVoiceAudioRef = useRef<HTMLAudioElement | null>(null);
-
-	useEffect(() => {
-		if (currentTab === "map-event") {
-			// Stop and reset audio if already playing
-			if (mapVoiceAudioRef.current) {
-				mapVoiceAudioRef.current.pause();
-				mapVoiceAudioRef.current.currentTime = 0;
-			}
-			// Play the map voice audio
-			mapVoiceAudioRef.current?.play().catch(() => {});
-		}
-		// Cleanup: stop audio when leaving tab
-		return () => {
-			if (mapVoiceAudioRef.current) {
-				mapVoiceAudioRef.current.pause();
-				mapVoiceAudioRef.current.currentTime = 0;
-			}
-		};
-	}, [currentTab]);
 
 	function renderTabContent() {
 		switch (currentTab) {
@@ -357,12 +338,11 @@ export default function Stage5EmotionalExpressions({
 			case "map-event":
 				return (
 					<div className="my-8 text-center">
-						{/* Map voice audio for map-event tab */}
-						<audio ref={mapVoiceAudioRef} src="/ai-voiced/map-voice.mp3" preload="auto">
-							<track kind="captions" label="Map event voice instructions" />
-						</audio>
 						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
-							<span role="img" aria-label="map">🗺️</span> Map Event Picker
+							<span role="img" aria-label="map">
+								🗺️
+							</span>{" "}
+							Map Event Picker
 						</h3>
 						<div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-6 border-3 border-green-200">
 							{/* MapEventPicker component */}
@@ -477,7 +457,11 @@ export default function Stage5EmotionalExpressions({
 		{
 			id: "map-event",
 			label: "Map Event",
-			emoji: <span role="img" aria-label="map" className="text-xl">🗺️</span>,
+			emoji: (
+				<span role="img" aria-label="map" className="text-xl">
+					🗺️
+				</span>
+			),
 			complete: !!(mapEvent && mapEvent.place),
 		},
 		{

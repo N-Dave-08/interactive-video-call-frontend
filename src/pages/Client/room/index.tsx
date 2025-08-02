@@ -69,7 +69,10 @@ export default function Room() {
 		async function restoreStep() {
 			if (!session_id || !user?.id || !token) return;
 			try {
-				const sessionsResp = await fetchSessionsBySocialWorkerId(user.id, token);
+				const sessionsResp = await fetchSessionsBySocialWorkerId(
+					user.id,
+					token,
+				);
 				const sessions = sessionsResp?.data || [];
 				const session = (sessions as Session[]).find(
 					(s: Session) => s.session_id === session_id,
@@ -128,14 +131,28 @@ export default function Room() {
 					setMapEvent(maybeEventSession.event);
 				}
 				// --- BODY MAP ANNOTATIONS RESTORE ---
-				const annotations = session?.emotional_expression?.body_map_annotations || [];
+				const annotations =
+					session?.emotional_expression?.body_map_annotations || [];
 				// Helper to parse annotation string (e.g. "upperBack:pain")
 				function parseAnnotations(annotations: string[]) {
 					const front: Record<string, { pain: boolean; touch: boolean }> = {};
 					const back: Record<string, { pain: boolean; touch: boolean }> = {};
 					// Define which parts are front/back (customize as needed)
 					const backParts = [
-						"upperBack", "lowerBack", "backHead", "rightShoulderBack", "leftShoulderBack", "rightArmBack", "leftArmBack", "rightHandBack", "leftHandBack", "buttocks", "rightLegBack", "leftLegBack", "rightFootBack", "leftFootBack"
+						"upperBack",
+						"lowerBack",
+						"backHead",
+						"rightShoulderBack",
+						"leftShoulderBack",
+						"rightArmBack",
+						"leftArmBack",
+						"rightHandBack",
+						"leftHandBack",
+						"buttocks",
+						"rightLegBack",
+						"leftLegBack",
+						"rightFootBack",
+						"leftFootBack",
 					];
 					for (const ann of annotations) {
 						const [part, type] = ann.split(":");
@@ -163,7 +180,14 @@ export default function Room() {
 			}
 		}
 		restoreStep();
-	}, [session_id, user?.id, token, setFrontSelectedParts, setBackSelectedParts, clearBodyMapStore]);
+	}, [
+		session_id,
+		user?.id,
+		token,
+		setFrontSelectedParts,
+		setBackSelectedParts,
+		clearBodyMapStore,
+	]);
 
 	// Stage 1 interaction states
 	const [showChildForm, setShowChildForm] = useState(() => {
@@ -197,7 +221,17 @@ export default function Room() {
 	const [tags, setTags] = useState<string[]>([]);
 	const [bodyMapAnnotations, setBodyMapAnnotations] = useState<string[]>([]);
 	const [drawingData, setDrawingData] = useState<string>("");
-	const [mapEvent, setMapEvent] = useState<MapEvent>({ time: "morning", place: null, weather: "clear" });
+	const [mapEvent, setMapEvent] = useState<MapEvent>({
+		time: "morning",
+		place: null,
+		weather: "clear",
+	});
+
+	const [conversationData, setConversationData] = useState({
+		currentQuestionIndex: 0,
+		questionsAsked: 0,
+		totalQuestions: 0,
+	});
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = () => {
@@ -213,14 +247,18 @@ export default function Room() {
 		setError(null);
 		try {
 			// Update to the NEXT stage
-			await updateSession(session_id, {
-				child_data: {
-					...childData,
-					age: Number(childData.age),
-					gender: childData.gender,
+			await updateSession(
+				session_id,
+				{
+					child_data: {
+						...childData,
+						age: Number(childData.age),
+						gender: childData.gender,
+					},
+					stage: "Stage 2",
 				},
-				stage: "Stage 2",
-			}, token);
+				token,
+			);
 			setStep(1);
 			setShowChildForm(false);
 			localStorage.removeItem("showChildForm");
@@ -238,16 +276,20 @@ export default function Room() {
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(session_id, {
-				avatar_data: {
-					head: avatarData.head,
-					hair: avatarData.hair,
-					expression: avatarData.expression,
-					clothes: avatarData.clothes,
-					background: avatarData.background,
+			await updateSession(
+				session_id,
+				{
+					avatar_data: {
+						head: avatarData.head,
+						hair: avatarData.hair,
+						expression: avatarData.expression,
+						clothes: avatarData.clothes,
+						background: avatarData.background,
+					},
+					stage: "Stage 3",
 				},
-				stage: "Stage 3",
-			}, token);
+				token,
+			);
 			setStep(2);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -262,9 +304,13 @@ export default function Room() {
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(session_id, {
-				stage: "Stage 4",
-			}, token);
+			await updateSession(
+				session_id,
+				{
+					stage: "Stage 4",
+				},
+				token,
+			);
 			setStep(3);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -279,9 +325,13 @@ export default function Room() {
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(session_id, {
-				stage: "Stage 5",
-			}, token);
+			await updateSession(
+				session_id,
+				{
+					stage: "Stage 5",
+				},
+				token,
+			);
 			setStep(4);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -296,15 +346,19 @@ export default function Room() {
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(session_id, {
-				emotional_expression: {
-					method: "drawing",
-					drawing_data: drawingData, // Use the actual drawing data
-					selected_feelings: [emotion],
-					body_map_annotations: bodyMapAnnotations,
+			await updateSession(
+				session_id,
+				{
+					emotional_expression: {
+						method: "drawing",
+						drawing_data: drawingData, // Use the actual drawing data
+						selected_feelings: [emotion],
+						body_map_annotations: bodyMapAnnotations,
+					},
+					stage: "Stage 6",
 				},
-				stage: "Stage 6",
-			}, token);
+				token,
+			);
 			setStep(5);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -314,18 +368,21 @@ export default function Room() {
 		}
 	};
 
-
 	const handleSessionNotesNext = async () => {
 		if (!user || !session_id || !token) return;
 		setLoading(true);
 		setError(null);
 		try {
-			await updateSession(session_id, {
-				session_notes: sessionNotes,
-				tags: tags, // use deduplicated tags
-				stage: "Completion",
-				status: "completed",
-			}, token);
+			await updateSession(
+				session_id,
+				{
+					session_notes: sessionNotes,
+					tags: tags, // use deduplicated tags
+					stage: "Completion",
+					status: "completed",
+				},
+				token,
+			);
 			setStep(6);
 		} catch (err: unknown) {
 			if (err instanceof Error) setError(err.message);
@@ -334,7 +391,6 @@ export default function Room() {
 			setLoading(false);
 		}
 	};
-
 
 	// const handleBodyMapChange = async (
 	// 	front: SelectedParts,
@@ -389,46 +445,62 @@ export default function Room() {
 	const debouncedSaveChildData = useRef(
 		debounce(async (data) => {
 			if (session_id && user && token) {
-				await updateSession(session_id, {
-					child_data: {
-						...data,
-						age: Number(data.age),
-						gender: data.gender,
+				await updateSession(
+					session_id,
+					{
+						child_data: {
+							...data,
+							age: Number(data.age),
+							gender: data.gender,
+						},
 					},
-				}, token);
+					token,
+				);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveAvatarData = useRef(
 		debounce(async (data) => {
 			if (session_id && user && token) {
-				await updateSession(session_id, {
-					avatar_data: data,
-				}, token);
+				await updateSession(
+					session_id,
+					{
+						avatar_data: data,
+					},
+					token,
+				);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveEmotionalExpression = useRef(
 		debounce(async (emotion, drawingData, bodyMapAnnotations) => {
 			if (session_id && user && token) {
-				await updateSession(session_id, {
-					emotional_expression: {
-						method: "drawing",
-						drawing_data: drawingData,
-						selected_feelings: [emotion],
-						body_map_annotations: bodyMapAnnotations,
+				await updateSession(
+					session_id,
+					{
+						emotional_expression: {
+							method: "drawing",
+							drawing_data: drawingData,
+							selected_feelings: [emotion],
+							body_map_annotations: bodyMapAnnotations,
+						},
 					},
-				}, token);
+					token,
+				);
 			}
 		}, 400),
 	).current;
 	const debouncedSaveSessionNotesTags = useRef(
 		debounce(async (notes, tags) => {
 			if (session_id && user && token) {
-				await updateSession(session_id, {
-					session_notes: notes,
-					tags: tags,
-				}, token);
+				await updateSession(
+					session_id,
+					{
+						session_notes: notes,
+						tags: tags,
+					},
+					token,
+				);
 			}
 		}, 400),
 	).current;
@@ -468,15 +540,21 @@ export default function Room() {
 	};
 	const handleBodyMapChangePersist = async (
 		front: Record<string, { pain: boolean; touch: boolean }>,
-		back: Record<string, { pain: boolean; touch: boolean }>
+		back: Record<string, { pain: boolean; touch: boolean }>,
 	) => {
 		// Build string annotations like 'upperBack:pain'
 		const annotations: string[] = [];
-		for (const [part, sel] of Object.entries(front) as [string, { pain: boolean; touch: boolean }][]) {
+		for (const [part, sel] of Object.entries(front) as [
+			string,
+			{ pain: boolean; touch: boolean },
+		][]) {
 			if (sel.pain) annotations.push(`${part}:pain`);
 			if (sel.touch) annotations.push(`${part}:touch`);
 		}
-		for (const [part, sel] of Object.entries(back) as [string, { pain: boolean; touch: boolean }][]) {
+		for (const [part, sel] of Object.entries(back) as [
+			string,
+			{ pain: boolean; touch: boolean },
+		][]) {
 			if (sel.pain) annotations.push(`${part}:pain`);
 			if (sel.touch) annotations.push(`${part}:touch`);
 		}
@@ -502,6 +580,10 @@ export default function Room() {
 	const handleMapEventChange = (event: MapEvent) => {
 		setMapEvent(event);
 		saveMapEvent(event); // No debounce, instant submit
+	};
+
+	const handleConversationDataChange = (data: typeof conversationData) => {
+		setConversationData(data);
 	};
 
 	useEffect(() => {
@@ -652,6 +734,8 @@ export default function Room() {
 								)}
 								{step === 3 && (
 									<Stage4Other
+										value={conversationData}
+										onChange={handleConversationDataChange}
 										onNext={handleStage4Next}
 										onBack={handleVideoMinigamesBack}
 										loading={loading}
