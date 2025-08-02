@@ -462,7 +462,7 @@ export default function Stage5EmotionalExpressions({
 					🗺️
 				</span>
 			),
-			complete: !!(mapEvent && mapEvent.place),
+			complete: !!mapEvent?.place,
 		},
 		{
 			id: "bodymap",
