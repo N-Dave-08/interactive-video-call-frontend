@@ -19,7 +19,7 @@ export default function LandingPage() {
 
 	return (
 		<div className="flex flex-col min-h-screen">
-			asdasd
+			asdasd THIS IS FOR CPASTONE VERISON !
 			<BlurBackground />
 			<Navbar />
 			{sections.map((Section, idx) => (
