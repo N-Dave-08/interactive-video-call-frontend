@@ -1,5 +1,5 @@
 import { useQuestionStore } from "@/store/questionStore";
-import { TutorialCharacter } from "./character";
+import { Character } from "./character";
 
 export interface AvatarCharacterProps {
 	message?: string;
@@ -23,7 +23,7 @@ export default function AvatarCharacter({
 	const question = useQuestionStore((s) => s.question);
 	return (
 		<div className="pointer-events-auto">
-			<TutorialCharacter
+			<Character
 				name={""}
 				avatar="/assistant/girl.png"
 				color="bg-red-100"
