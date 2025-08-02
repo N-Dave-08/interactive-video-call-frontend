@@ -20,6 +20,7 @@ export default function LandingPage() {
 	return (
 		<div className="flex flex-col min-h-screen">
 			<BlurBackground />
+			CASPTONE VERSION TEST
 			<Navbar />
 			{sections.map((Section, idx) => (
 				<div
