@@ -75,7 +75,7 @@ interface Tetromino {
 }
 
 export default function Tetris() {
-	const [board, setBoard] = useState<number[][]>(createEmptyBoard());
+	const [board, setBoard] = useState<(string | number)[][]>(createEmptyBoard());
 	const [currentPiece, setCurrentPiece] = useState<Tetromino | null>(null);
 	const [nextPiece, setNextPiece] = useState<Tetromino | null>(null);
 	const [score, setScore] = useState(0);
@@ -89,7 +89,7 @@ export default function Tetris() {
 	const dropSpeedRef = useRef<number>(INITIAL_DROP_SPEED);
 
 	// Create empty board
-	function createEmptyBoard(): number[][] {
+	function createEmptyBoard(): (string | number)[][] {
 		return Array.from({ length: BOARD_HEIGHT }, () =>
 			Array(BOARD_WIDTH).fill(0),
 		);
@@ -128,7 +128,7 @@ export default function Tetris() {
 							return false;
 						}
 
-						if (newY >= 0 && board[newY][newX]) {
+						if (newY >= 0 && board[newY][newX] !== 0) {
 							return false;
 						}
 					}
@@ -151,7 +151,7 @@ export default function Tetris() {
 						const boardY = piece.position.y + y;
 
 						if (boardY >= 0) {
-							newBoard[boardY][boardX] = 1;
+							newBoard[boardY][boardX] = piece.color;
 						}
 					}
 				}
@@ -159,14 +159,14 @@ export default function Tetris() {
 
 			// Clear lines immediately after placing piece
 			const linesToRemove = newBoard.filter((row) =>
-				row.every((cell) => cell === 1),
+				row.every((cell) => cell !== 0),
 			);
 			const linesCleared = linesToRemove.length;
 
 			if (linesCleared > 0) {
 				// Remove completed lines
 				const boardAfterClearing = newBoard.filter(
-					(row) => !row.every((cell) => cell === 1),
+					(row) => !row.every((cell) => cell !== 0),
 				);
 
 				// Add empty rows at the top
@@ -416,7 +416,7 @@ export default function Tetris() {
 	};
 
 	// Render board cell
-	const renderCell = (value: number, x: number, y: number) => {
+	const renderCell = (value: string | number, x: number, y: number) => {
 		const isCurrentPiece =
 			currentPiece &&
 			y >= currentPiece.position.y &&
@@ -429,8 +429,8 @@ export default function Tetris() {
 
 		const cellClass = isCurrentPiece
 			? currentPiece.color
-			: value
-				? "bg-gray-600 dark:bg-gray-400"
+			: value !== 0
+				? (value as string)
 				: "bg-gray-100 dark:bg-gray-800";
 
 		return (
