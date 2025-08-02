@@ -136,7 +136,7 @@ export default function Room() {
 							session.avatar_data.clothes ??
 							"/avatar-assets/clothes/boy-uniform.png",
 						background:
-							session.avatar_data.background ?? "/avatar-assets/bg/bg3.jpg",
+							session.avatar_data.background ?? "/avatar-assets/bg/bg1.jpg",
 					});
 				}
 				if (session?.emotional_expression?.selected_feelings?.[0]) {
@@ -236,7 +236,7 @@ export default function Room() {
 		hair: "/avatar-assets/hairs/HairB1.png",
 		expression: "/avatar-assets/expressions/F1.png",
 		clothes: "/avatar-assets/clothes/boy-uniform.png",
-		background: "/avatar-assets/bg/bg3.jpg",
+		background: "/avatar-assets/bg/bg1.jpg",
 	});
 	const [emotion, setEmotion] = useState("");
 	const [loading, setLoading] = useState(false);
