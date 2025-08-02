@@ -23,7 +23,7 @@ import Stage7Completion from "@/pages/Client/room/stages/Stage7Completion";
 import { useQuestionStore } from "@/store/questionStore";
 import type { ChildData, Session } from "@/types";
 import { debounce } from "lodash";
-import type { MapEvent } from "@/features/map-event-picker";
+// import type { MapEvent } from "@/features/map-event-picker";
 import { useBodyMapStore } from "@/store/bodyMapStore";
 
 const steps = [
@@ -151,10 +151,10 @@ export default function Room() {
 					setTagsInput(session.tags.join(", "));
 				}
 				// When restoring session, check for event property with type assertion
-				const maybeEventSession = session as Session & { event?: MapEvent };
-				if (maybeEventSession.event) {
-					setMapEvent(maybeEventSession.event);
-				}
+				// const maybeEventSession = session as Session & { event?: MapEvent };
+				// if (maybeEventSession.event) {
+				// 	setMapEvent(maybeEventSession.event);
+				// }
 				// --- BODY MAP ANNOTATIONS RESTORE ---
 				const annotations =
 					session?.emotional_expression?.body_map_annotations || [];
@@ -246,11 +246,11 @@ export default function Room() {
 	const [tags, setTags] = useState<string[]>([]);
 	const [bodyMapAnnotations, setBodyMapAnnotations] = useState<string[]>([]);
 	const [drawingData, setDrawingData] = useState<string>("");
-	const [mapEvent, setMapEvent] = useState<MapEvent>({
-		time: "morning",
-		place: null,
-		weather: "clear",
-	});
+	// const [mapEvent, setMapEvent] = useState<MapEvent>({
+	// 	time: "morning",
+	// 	place: null,
+	// 	weather: "clear",
+	// });
 
 	const [conversationData, setConversationData] = useState({
 		currentQuestionIndex: 0,
@@ -481,15 +481,15 @@ export default function Room() {
 		}, 400),
 	).current;
 
-	const saveMapEvent = async (event: MapEvent) => {
-		if (!user || !session_id || !token) return;
-		try {
-			await updateSession(session_id, { event } as { event: MapEvent }, token);
-		} catch (err) {
-			// Optionally handle error
-			console.error("Failed to update map event", err);
-		}
-	};
+	// const saveMapEvent = async (event: MapEvent) => {
+	// 	if (!user || !session_id || !token) return;
+	// 	try {
+	// 		await updateSession(session_id, { event } as { event: MapEvent }, token);
+	// 	} catch (err) {
+	// 		// Optionally handle error
+	// 		console.error("Failed to update map event", err);
+	// 	}
+	// };
 
 	// Stage 1: Save on change
 	const handleChildDataChange = (data: typeof childData) => {
@@ -553,10 +553,10 @@ export default function Room() {
 		debouncedSaveSessionNotesTags(sessionNotes, uniqueTags);
 	};
 
-	const handleMapEventChange = (event: MapEvent) => {
-		setMapEvent(event);
-		saveMapEvent(event); // No debounce, instant submit
-	};
+	// const handleMapEventChange = (event: MapEvent) => {
+	// 	setMapEvent(event);
+	// 	saveMapEvent(event); // No debounce, instant submit
+	// };
 
 	const handleConversationDataChange = (data: typeof conversationData) => {
 		setConversationData(data);
@@ -730,8 +730,8 @@ export default function Room() {
 												? "female"
 												: "male"
 										}
-										mapEvent={mapEvent}
-										onMapEventChange={handleMapEventChange}
+										// mapEvent={mapEvent}
+										// onMapEventChange={handleMapEventChange}
 									/>
 								)}
 								{step === 5 && (
