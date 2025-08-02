@@ -80,12 +80,6 @@ export default function AvatarCreator({
 		audio.play().catch(() => {}); // Ignore errors if audio fails
 	};
 
-	// Default values from your options
-	const defaultHead = "/avatar-assets/heads/default-head-clear.png";
-	const defaultHair = "/avatar-assets/hairs/HairB1.png";
-	const defaultExpression = "/avatar-assets/expressions/F1.png";
-	const defaultClothes = "/avatar-assets/clothes/boy-uniform.png";
-
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [activeTab, setActiveTab] = useState("head");
 
@@ -96,11 +90,11 @@ export default function AvatarCreator({
 
 	const handleReset = () => {
 		onChange({
-			head: defaultHead,
-			hair: defaultHair,
-			expression: defaultExpression,
-			clothes: defaultClothes,
-			background: selectedBackground,
+			head: "/avatar-assets/heads/default-head-clear.png",
+			hair: "/avatar-assets/hairs/HairB1.png",
+			expression: "/avatar-assets/expressions/F1.png",
+			clothes: "/avatar-assets/clothes/boy-uniform.png",
+			background: "/avatar-assets/bg/bg1.jpg",
 		});
 		selectStyleSound();
 	};
@@ -226,10 +220,7 @@ export default function AvatarCreator({
 											/>
 											{/* Clothes overlay with breathing animation */}
 											<motion.img
-												src={
-													selectedClothes ||
-													"/placeholder.svg?height=192&width=192"
-												}
+												src={selectedClothes}
 												className="absolute inset-0 w-full h-full object-contain top-[-10px]"
 												alt="Avatar clothes"
 												animate={{ scale: [1, 1.02, 1] }}
@@ -251,10 +242,7 @@ export default function AvatarCreator({
 												}}
 											>
 												<img
-													src={
-														selectedHead ||
-														"/placeholder.svg?height=192&width=192"
-													}
+													src={selectedHead}
 													className="w-full h-full object-contain"
 													alt="Avatar head"
 												/>
@@ -271,10 +259,7 @@ export default function AvatarCreator({
 												}}
 											>
 												<img
-													src={
-														selectedHair ||
-														"/placeholder.svg?height=192&width=192"
-													}
+													src={selectedHair}
 													className="w-full h-full object-contain"
 													alt="Avatar hair"
 												/>
@@ -291,10 +276,7 @@ export default function AvatarCreator({
 												}}
 											>
 												<img
-													src={
-														selectedExpression ||
-														"/placeholder.svg?height=192&width=192"
-													}
+													src={selectedExpression}
 													className="w-full h-full object-contain"
 													alt="Avatar expression"
 												/>
@@ -416,7 +398,9 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className={getGridContainerClasses(headOptions.length)}>
+										<div
+											className={getGridContainerClasses(headOptions.length)}
+										>
 											{headOptions.map((head, index) => (
 												<motion.button
 													key={head.id}
@@ -447,10 +431,7 @@ export default function AvatarCreator({
 														}`}
 													>
 														<img
-															src={
-																head.image ||
-																"/placeholder.svg?height=48&width=48"
-															}
+															src={head.image}
 															className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-110"
 															alt={head.name}
 														/>
@@ -480,7 +461,9 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className={getGridContainerClasses(hairOptions.length)}>
+										<div
+											className={getGridContainerClasses(hairOptions.length)}
+										>
 											{hairOptions.map((hair, index) => (
 												<motion.button
 													key={hair.id}
@@ -511,10 +494,7 @@ export default function AvatarCreator({
 														}`}
 													>
 														<img
-															src={
-																hair.image ||
-																"/placeholder.svg?height=48&width=48"
-															}
+															src={hair.image}
 															className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-110"
 															alt={hair.name}
 														/>
@@ -544,7 +524,11 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className={getGridContainerClasses(expressionOptions.length)}>
+										<div
+											className={getGridContainerClasses(
+												expressionOptions.length,
+											)}
+										>
 											{expressionOptions.map((expression, index) => (
 												<motion.button
 													key={expression.id}
@@ -580,10 +564,7 @@ export default function AvatarCreator({
 														}`}
 													>
 														<img
-															src={
-																expression.image ||
-																"/placeholder.svg?height=48&width=48"
-															}
+															src={expression.image}
 															className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-110"
 															alt={expression.name}
 														/>
@@ -613,7 +594,9 @@ export default function AvatarCreator({
 												</p>
 											</div>
 										</div>
-										<div className={getGridContainerClasses(clothesOptions.length)}>
+										<div
+											className={getGridContainerClasses(clothesOptions.length)}
+										>
 											{clothesOptions.map((clothes, index) => (
 												<motion.button
 													key={clothes.id}
@@ -646,10 +629,7 @@ export default function AvatarCreator({
 														}`}
 													>
 														<img
-															src={
-																clothes.image ||
-																"/placeholder.svg?height=48&width=48"
-															}
+															src={clothes.image}
 															className="w-3/4 h-3/4 object-contain transition-transform duration-300 group-hover:scale-110"
 															alt={clothes.name}
 														/>
