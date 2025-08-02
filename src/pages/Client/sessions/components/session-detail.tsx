@@ -11,7 +11,13 @@ import {
 	Tag,
 	Target,
 	UserCheck,
-	Sun, Sunset, Moon, CloudRain, Zap, Wind, MapPin,
+	// Sun,
+	// Sunset,
+	// Moon,
+	// CloudRain,
+	// Zap,
+	// Wind,
+	// MapPin,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -248,9 +254,16 @@ export default function SessionDetailPage() {
 									<div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
 										<Cake className="h-5 w-5 text-pink-400" />
 										<span className="text-sm">
-											{session.child_data.birthday && !Number.isNaN(new Date(session.child_data.birthday).getTime())
-												? formatDate(session.child_data.birthday)
-												: <span className="italic text-blue-300">Birthday not set</span>}
+											{session.child_data.birthday &&
+											!Number.isNaN(
+												new Date(session.child_data.birthday).getTime(),
+											) ? (
+												formatDate(session.child_data.birthday)
+											) : (
+												<span className="italic text-blue-300">
+													Birthday not set
+												</span>
+											)}
 										</span>
 									</div>
 								</div>
@@ -461,7 +474,8 @@ export default function SessionDetailPage() {
 						</Card>
 
 						{/* Map Event Card - Redesigned */}
-						<Card className="bg-white/90 backdrop-blur-md border border-yellow-100 shadow-xl p-6 rounded-3xl">
+						{/* Map Event - DISABLED */}
+						{/* <Card className="bg-white/90 backdrop-blur-md border border-yellow-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
 								<CardTitle className="flex items-center gap-2 text-lg text-yellow-700">
 									<MapPin className="h-5 w-5 text-yellow-400" />
@@ -529,7 +543,7 @@ export default function SessionDetailPage() {
 									<span className="italic text-gray-400">No map event recorded for this session.</span>
 								)}
 							</CardContent>
-						</Card>
+						</Card> */}
 
 						{/* Session Notes */}
 						<Card className="bg-white/90 backdrop-blur-md border border-indigo-100 shadow-xl p-6 rounded-3xl">
@@ -607,55 +621,68 @@ export default function SessionDetailPage() {
 							</div>
 						</div>
 						{/* Button logic for session actions */}
-						<>{(() => {
-							const start = new Date(session.start_time);
-							const notStartedYet = start > now;
-							// Scheduled session: show Start button only when time is reached
-							if (session.status === "scheduled" && !session.end_time) {
-								if (notStartedYet) return null;
-								return (
-									<Button
-										size="lg"
-										className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
-										onClick={async () => {
-											if (!session.session_id) return;
-											if (!token) {
-												alert("No token");
-												return;
-											}
-											try {
-												await updateSession(session.session_id, { status: "in_progress" }, token);
-												navigate(`/room/${session.session_id}`);
-											} catch {
-												alert("Failed to start session. Please try again.");
-											}
-										}}
-									>
-										Start <ArrowRight className="h-4 w-4" />
-									</Button>
-								);
-							}
-							// In-progress session: show Continue button, disabled if not started yet
-							if (session.status === "in_progress" && !session.end_time) {
-								return (
-									<div className="ml-auto flex flex-col items-end">
+						<>
+							{(() => {
+								const start = new Date(session.start_time);
+								const notStartedYet = start > now;
+								// Scheduled session: show Start button only when time is reached
+								if (session.status === "scheduled" && !session.end_time) {
+									if (notStartedYet) return null;
+									return (
 										<Button
 											size="lg"
-											className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-											onClick={() => navigate(`/room/${session.session_id}`)}
-											disabled={notStartedYet}
-											title={notStartedYet ? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}` : undefined}
+											className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
+											onClick={async () => {
+												if (!session.session_id) return;
+												if (!token) {
+													alert("No token");
+													return;
+												}
+												try {
+													await updateSession(
+														session.session_id,
+														{ status: "in_progress" },
+														token,
+													);
+													navigate(`/room/${session.session_id}`);
+												} catch {
+													alert("Failed to start session. Please try again.");
+												}
+											}}
 										>
-											Continue <ArrowRight className="h-4 w-4" />
+											Start <ArrowRight className="h-4 w-4" />
 										</Button>
-										{notStartedYet && (
-											<span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
-										)}
-									</div>
-								);
-							}
-							return null;
-						})()}</>
+									);
+								}
+								// In-progress session: show Continue button, disabled if not started yet
+								if (session.status === "in_progress" && !session.end_time) {
+									return (
+										<div className="ml-auto flex flex-col items-end">
+											<Button
+												size="lg"
+												className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+												onClick={() => navigate(`/room/${session.session_id}`)}
+												disabled={notStartedYet}
+												title={
+													notStartedYet
+														? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}`
+														: undefined
+												}
+											>
+												Continue <ArrowRight className="h-4 w-4" />
+											</Button>
+											{notStartedYet && (
+												<span className="text-xs text-gray-500 mt-1">
+													Available at {formatDate(session.start_time)}{" "}
+													{formatTime(session.start_time)}
+												</span>
+											)}
+										</div>
+									);
+								}
+								return null;
+							})()}
+						</>
 					</CardContent>
 				</Card>
 			</div>
