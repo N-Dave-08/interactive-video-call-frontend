@@ -157,37 +157,44 @@ export default function Tetris() {
 				}
 			}
 
-			setBoard(newBoard);
-		},
-		[board],
-	);
-
-	// Clear completed lines
-	const clearLines = useCallback(() => {
-		const newBoard = board.filter((row) => row.some((cell) => cell === 0));
-		const linesCleared = board.length - newBoard.length;
-
-		if (linesCleared > 0) {
-			const newLines = lines + linesCleared;
-			const newLevel = Math.floor(newLines / 10) + 1;
-			const newScore = score + linesCleared * 100 * level;
-
-			setLines(newLines);
-			setLevel(newLevel);
-			setScore(newScore);
-
-			// Add empty rows at the top
-			while (newBoard.length < BOARD_HEIGHT) {
-				newBoard.unshift(Array(BOARD_WIDTH).fill(0));
-			}
-
-			setBoard(newBoard);
-			dropSpeedRef.current = Math.max(
-				INITIAL_DROP_SPEED - (newLevel - 1) * SPEED_INCREASE,
-				100,
+			// Clear lines immediately after placing piece
+			const linesToRemove = newBoard.filter((row) =>
+				row.every((cell) => cell === 1),
 			);
-		}
-	}, [board, lines, score, level]);
+			const linesCleared = linesToRemove.length;
+
+			if (linesCleared > 0) {
+				// Remove completed lines
+				const boardAfterClearing = newBoard.filter(
+					(row) => !row.every((cell) => cell === 1),
+				);
+
+				// Add empty rows at the top
+				while (boardAfterClearing.length < BOARD_HEIGHT) {
+					boardAfterClearing.unshift(Array(BOARD_WIDTH).fill(0));
+				}
+
+				// Update score and level
+				const newLines = lines + linesCleared;
+				const newLevel = Math.floor(newLines / 10) + 1;
+				const newScore = score + linesCleared * 100 * level;
+
+				setLines(newLines);
+				setLevel(newLevel);
+				setScore(newScore);
+				setBoard(boardAfterClearing);
+
+				// Update drop speed
+				dropSpeedRef.current = Math.max(
+					INITIAL_DROP_SPEED - (newLevel - 1) * SPEED_INCREASE,
+					100,
+				);
+			} else {
+				setBoard(newBoard);
+			}
+		},
+		[board, lines, score, level],
+	);
 
 	// Move piece
 	const movePiece = useCallback(
@@ -207,7 +214,6 @@ export default function Tetris() {
 			} else if (dy > 0) {
 				// Piece has landed
 				placePiece(currentPiece);
-				clearLines();
 
 				// Check for game over
 				if (
@@ -234,7 +240,6 @@ export default function Tetris() {
 			isPaused,
 			isValidPosition,
 			placePiece,
-			clearLines,
 			nextPiece,
 			createTetromino,
 		],
@@ -287,7 +292,6 @@ export default function Tetris() {
 			...currentPiece,
 			position: newPosition,
 		});
-		clearLines();
 
 		// Check for game over
 		if (
@@ -312,7 +316,6 @@ export default function Tetris() {
 		isPaused,
 		isValidPosition,
 		placePiece,
-		clearLines,
 		nextPiece,
 		createTetromino,
 	]);
