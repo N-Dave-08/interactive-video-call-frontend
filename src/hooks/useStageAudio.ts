@@ -10,7 +10,7 @@ const stageAudioMap: StageAudioConfig = {
 	stage3: "/ai-voiced/stage3.mp3",
 	stage4: "/ai-voiced/stage4-audio.mp3",
 	"stage5-feelings": "/ai-voiced/feelings-audio.mp3",
-	"stage5-map": "/ai-voiced/map-event-audio.mp3",
+	// "stage5-map": "/ai-voiced/map-event-audio.mp3",
 	"stage5-bodymap": "/ai-voiced/body-map.mp3",
 	"stage5-drawing": "/ai-voiced/draw-something.mp3",
 	// 'stage6': '/ai-voiced/lets-have-some-fun-together.mp3', // Session notes

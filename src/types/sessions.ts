@@ -43,7 +43,7 @@ export interface Session {
 	createdAt: string;
 	updatedAt: string;
 	user: UserInfo;
-	event?: import("@/features/map-event-picker").MapEvent;
+	// event?: import("@/features/map-event-picker").MapEvent;
 }
 
 export interface SessionsListResponse {
