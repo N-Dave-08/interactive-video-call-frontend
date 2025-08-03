@@ -188,8 +188,11 @@ export function Character({
 		</motion.div>
 	);
 
+	const speechBubbleRef = useRef<HTMLDivElement>(null);
+
 	const SpeechBubbleContent = () => (
 		<motion.div
+			ref={speechBubbleRef}
 			className="space-y-3"
 			initial={
 				hasMountedOnce
@@ -224,6 +227,15 @@ export function Character({
 				damping: 12,
 				duration: 0.4,
 				delay: hasMountedOnce ? 0 : delay / 1000 + 0.6,
+			}}
+			onAnimationComplete={() => {
+				if (!showBubble && speechBubbleRef.current) {
+					// When bubble is hidden, remove from layout after animation
+					speechBubbleRef.current.style.display = "none";
+				} else if (showBubble && speechBubbleRef.current) {
+					// When bubble is shown, ensure it's visible in layout
+					speechBubbleRef.current.style.display = "block";
+				}
 			}}
 		>
 			<motion.div
