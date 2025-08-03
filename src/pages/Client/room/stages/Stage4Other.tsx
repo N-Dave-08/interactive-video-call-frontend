@@ -208,7 +208,8 @@ export default function Stage4Other({
 		setIsAsking(true);
 		setTimeout(() => {
 			const newIndex = (currentQuestionIndex + 1) % questions.length;
-			const newQuestionsAsked = questionsAsked + 1;
+			// Don't increment questionsAsked beyond the total number of questions
+			const newQuestionsAsked = Math.min(questionsAsked + 1, questions.length);
 
 			setCurrentQuestionIndex(newIndex);
 			setQuestionsAsked(newQuestionsAsked);
@@ -277,10 +278,18 @@ export default function Stage4Other({
 			>
 				<Button
 					onClick={handleNextQuestion}
-					disabled={isAsking}
-					className="bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-8 py-4 text-lg font-black rounded-full shadow-xl transform transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:scale-100 border-4 border-white/30"
+					disabled={isAsking || questionsAsked >= questions.length}
+					className={`px-8 py-4 text-lg font-black rounded-full shadow-xl transform transition-all duration-300 border-4 border-white/30 ${
+						isAsking || questionsAsked >= questions.length
+							? "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50 scale-100"
+							: "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white hover:scale-110"
+					}`}
 				>
-					{isAsking ? "Getting new question..." : "Ask Next Question"}
+					{isAsking
+						? "Getting new question..."
+						: questionsAsked >= questions.length
+							? "All questions asked!"
+							: "Ask Next Question"}
 				</Button>
 			</motion.div>
 
@@ -333,18 +342,18 @@ export default function Stage4Other({
 			</motion.div>
 
 			{/* Navigation Buttons */}
-			<div className="sticky bottom-0 w-full z-20">
+			<div className="sticky bottom-0 w-full z-20 bg-white/80 backdrop-blur-sm py-4">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.7, duration: 0.5 }}
-					className="flex justify-between items-center mt-8"
+					className="flex justify-between items-center"
 				>
 					<Button
 						type="button"
 						variant="outline"
 						onClick={onBack}
-						className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent"
+						className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent relative z-10"
 					>
 						<ArrowLeft className="w-5 h-5 mr-2" />
 						Back
@@ -353,8 +362,12 @@ export default function Stage4Other({
 					<Button
 						type="button"
 						onClick={onNext}
-						disabled={loading}
-						className="px-8 py-3 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+						disabled={loading || questionsAsked < questions.length}
+						className={`px-8 py-3 text-base font-semibold rounded-2xl shadow-lg transition-all duration-300 relative z-10 ${
+							loading || questionsAsked < questions.length
+								? "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
+								: "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-xl transform hover:scale-105 cursor-pointer"
+						}`}
 					>
 						{loading ? (
 							<motion.div
@@ -369,7 +382,11 @@ export default function Stage4Other({
 						) : (
 							<ArrowRight className="w-5 h-5 mr-2" />
 						)}
-						{loading ? "Saving..." : "Next Step!"}
+						{loading
+							? "Saving..."
+							: questionsAsked >= questions.length
+								? "Next Step!"
+								: `Ask ${questions.length - questionsAsked} more questions!`}
 					</Button>
 				</motion.div>
 				{error && <div className="text-red-500 text-center mt-2">{error}</div>}
