@@ -106,9 +106,14 @@ export default function Stage3VideoMinigames({
 			icon: <Icon icon="mdi:grid" className="text-5xl mb-4 text-green-400" />,
 		},
 		{
-			name: "Empty",
-			slug: "empty",
-			icon: <Icon icon="hugeicons:smile" className="text-5xl mb-4" />,
+			name: "Galaga",
+			slug: "galaga",
+			icon: (
+				<Icon
+					icon="fluent-emoji:rocket"
+					className="text-5xl mb-4 text-red-500"
+				/>
+			),
 		},
 	];
 
