@@ -1,6 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { Apple, Chrome as Google } from "lucide-react";
-import { AlertTriangle, Shield, Lock } from "lucide-react";
+import {
+	AlertTriangle,
+	Shield,
+	Lock,
+	UserX,
+	Network,
+	Mail,
+	Key,
+} from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -41,9 +49,20 @@ const loginSchema = z.object({
 });
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+interface ErrorInfo {
+	title: string;
+	description: string;
+	icon: React.ComponentType<{ className?: string }>;
+	sections: Array<{
+		icon: React.ComponentType<{ className?: string }>;
+		title: string;
+		description: string;
+	}>;
+}
+
 export function LoginForm({ className }: React.ComponentProps<"form">) {
 	const [loading, setLoading] = useState(false);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
 	const navigate = useNavigate();
 	const { login } = useAuth();
 	const form = useForm<LoginFormValues>({
@@ -65,6 +84,172 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 			typeof (error as { response?: unknown }).response === "object" &&
 			(error as { response: unknown }).response instanceof Response
 		);
+	}
+
+	function getErrorInfo(errorMessage: string): ErrorInfo {
+		const message = errorMessage.toLowerCase();
+
+		// Invalid credentials
+		if (
+			message.includes("invalid") ||
+			message.includes("incorrect") ||
+			message.includes("wrong")
+		) {
+			return {
+				title: "Invalid Credentials",
+				description: "The email or password you entered is incorrect.",
+				icon: UserX,
+				sections: [
+					{
+						icon: Mail,
+						title: "Check Your Email",
+						description:
+							"Make sure you're using the correct email address associated with your account.",
+					},
+					{
+						icon: Key,
+						title: "Verify Your Password",
+						description:
+							"Ensure your password is correct and check for any typos or caps lock.",
+					},
+				],
+			};
+		}
+
+		// Account not found
+		if (
+			message.includes("not found") ||
+			message.includes("doesn't exist") ||
+			message.includes("no account")
+		) {
+			return {
+				title: "Account Not Found",
+				description:
+					"We couldn't find an account with the email address you provided.",
+				icon: UserX,
+				sections: [
+					{
+						icon: Mail,
+						title: "Email Address",
+						description:
+							"Double-check the email address you entered. It might be misspelled or you might be using a different email.",
+					},
+					{
+						icon: Shield,
+						title: "Create Account",
+						description:
+							"If you don't have an account yet, you can sign up for a new account using the link below.",
+					},
+				],
+			};
+		}
+
+		// Account locked/disabled
+		if (
+			message.includes("locked") ||
+			message.includes("disabled") ||
+			message.includes("suspended") ||
+			message.includes("restricted")
+		) {
+			return {
+				title: "Account Restricted",
+				description:
+					"Your account has been temporarily restricted due to security concerns.",
+				icon: Lock,
+				sections: [
+					{
+						icon: Shield,
+						title: "Security Review",
+						description:
+							"Your account is under review for unusual activity or policy violations. This is a precautionary measure.",
+					},
+					{
+						icon: Lock,
+						title: "Access Temporarily Disabled",
+						description:
+							"Login access has been disabled while we complete our review. You'll be notified once the restriction is lifted.",
+					},
+				],
+			};
+		}
+
+		// Network/connection errors
+		if (
+			message.includes("network") ||
+			message.includes("connection") ||
+			message.includes("timeout") ||
+			message.includes("unreachable")
+		) {
+			return {
+				title: "Connection Error",
+				description:
+					"We're having trouble connecting to our servers right now.",
+				icon: Network,
+				sections: [
+					{
+						icon: Network,
+						title: "Check Your Connection",
+						description:
+							"Make sure you have a stable internet connection and try again.",
+					},
+					{
+						icon: Shield,
+						title: "Server Status",
+						description:
+							"Our servers might be experiencing temporary issues. Please try again in a few minutes.",
+					},
+				],
+			};
+		}
+
+		// Too many attempts
+		if (
+			message.includes("too many") ||
+			message.includes("rate limit") ||
+			message.includes("attempts")
+		) {
+			return {
+				title: "Too Many Attempts",
+				description:
+					"You've made too many login attempts. Please wait before trying again.",
+				icon: Lock,
+				sections: [
+					{
+						icon: Shield,
+						title: "Security Protection",
+						description:
+							"This is a security measure to protect your account from unauthorized access attempts.",
+					},
+					{
+						icon: Lock,
+						title: "Wait and Retry",
+						description:
+							"Please wait a few minutes before attempting to log in again, or try resetting your password.",
+					},
+				],
+			};
+		}
+
+		// Default error
+		return {
+			title: "Login Failed",
+			description: errorMessage,
+			icon: AlertTriangle,
+			sections: [
+				{
+					icon: Shield,
+					title: "Authentication Error",
+					description:
+						"There was an issue with your login attempt. Please check your credentials and try again.",
+				},
+				{
+					icon: Lock,
+					title: "Need Help?",
+					description:
+						"If you continue to have problems, you can reset your password or contact support for assistance.",
+				},
+			],
+		};
 	}
 
 	async function onSubmit(values: LoginFormValues) {
@@ -89,7 +274,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 			} else if (err instanceof Error) {
 				message = err.message;
 			}
-			setErrorMessage(message);
+			setErrorInfo(getErrorInfo(message));
 		} finally {
 			setLoading(false);
 		}
@@ -206,51 +391,42 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 				</div>
 			</div>
 
-			<AlertDialog
-				open={!!errorMessage}
-				onOpenChange={() => setErrorMessage(null)}
-			>
+			<AlertDialog open={!!errorInfo} onOpenChange={() => setErrorInfo(null)}>
 				<AlertDialogContent className="max-w-md">
 					<AlertDialogHeader className="text-center">
 						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-							<AlertTriangle className="h-6 w-6 text-red-600" />
+							{errorInfo && <errorInfo.icon className="h-6 w-6 text-red-600" />}
 						</div>
 						<AlertDialogTitle className="text-xl font-bold text-gray-900">
-							Login Failed
+							{errorInfo?.title}
 						</AlertDialogTitle>
 						<AlertDialogDescription className="text-gray-600 mt-2">
-							{errorMessage}
+							{errorInfo?.description}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 
 					<div className="space-y-4 mt-6">
-						<div className="flex items-start space-x-3">
-							<div className="flex-shrink-0">
-								<Shield className="h-5 w-5 text-gray-400" />
-							</div>
-							<div>
-								<h4 className="font-semibold text-gray-900">
-									Authentication Error
-								</h4>
-								<p className="text-sm text-gray-600 mt-1">
-									The email or password you entered is incorrect. Please check
-									your credentials and try again.
-								</p>
-							</div>
-						</div>
-
-						<div className="flex items-start space-x-3">
-							<div className="flex-shrink-0">
-								<Lock className="h-5 w-5 text-gray-400" />
-							</div>
-							<div>
-								<h4 className="font-semibold text-gray-900">Account Access</h4>
-								<p className="text-sm text-gray-600 mt-1">
-									If you're having trouble logging in, you can reset your
-									password or contact support for assistance.
-								</p>
-							</div>
-						</div>
+						{errorInfo?.sections.map((section, index) => {
+							const IconComponent = section.icon;
+							return (
+								<div
+									key={`${section.title}-${index}`}
+									className="flex items-start space-x-3"
+								>
+									<div className="flex-shrink-0">
+										<IconComponent className="h-5 w-5 text-gray-400" />
+									</div>
+									<div>
+										<h4 className="font-semibold text-gray-900">
+											{section.title}
+										</h4>
+										<p className="text-sm text-gray-600 mt-1">
+											{section.description}
+										</p>
+									</div>
+								</div>
+							);
+						})}
 					</div>
 
 					<div className="flex flex-col gap-2 mt-6">
@@ -259,7 +435,7 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 						</AlertDialogAction>
 						<Button
 							variant="ghost"
-							onClick={() => setErrorMessage(null)}
+							onClick={() => setErrorInfo(null)}
 							className="w-full text-gray-600 hover:text-gray-800"
 						>
 							Close
