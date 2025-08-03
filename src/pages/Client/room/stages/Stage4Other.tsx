@@ -362,9 +362,9 @@ export default function Stage4Other({
 					<Button
 						type="button"
 						onClick={onNext}
-						disabled={loading || questionsAsked < questions.length}
+						disabled={loading}
 						className={`px-8 py-3 text-base font-semibold rounded-2xl shadow-lg transition-all duration-300 relative z-10 ${
-							loading || questionsAsked < questions.length
+							loading
 								? "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
 								: "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-xl transform hover:scale-105 cursor-pointer"
 						}`}
@@ -382,11 +382,7 @@ export default function Stage4Other({
 						) : (
 							<ArrowRight className="w-5 h-5 mr-2" />
 						)}
-						{loading
-							? "Saving..."
-							: questionsAsked >= questions.length
-								? "Next Step!"
-								: `Ask ${questions.length - questionsAsked} more questions!`}
+						{loading ? "Saving..." : "Next Step!"}
 					</Button>
 				</motion.div>
 				{error && <div className="text-red-500 text-center mt-2">{error}</div>}
