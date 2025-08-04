@@ -460,16 +460,34 @@ export default function Galaga() {
 		ctx.fillStyle = "#0a0a2e";
 		ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-		// Draw moving stars
-		ctx.fillStyle = "#ffffff";
+		// Draw moving stars with different sizes and colors
 		const time = Date.now() * 0.001; // Get current time for animation
 		for (let i = 0; i < 100; i++) {
-			// Use more random positioning for natural star distribution
-			const x = (i * 37 + Math.sin(i * 0.1) * 50) % GAME_WIDTH;
+			// Use better seeded random positioning for scattered star distribution
+			const seed = i * 37;
+			// Use sine and cosine with different frequencies for more random-like distribution
+			const x = Math.abs(Math.sin(seed * 0.1) * GAME_WIDTH);
 			const y =
-				(i * 73 + Math.cos(i * 0.1) * 30 + (time * 30 + i * 1.5)) %
+				Math.abs(Math.cos(seed * 0.15) * GAME_HEIGHT + time * 30 + seed * 0.5) %
 				(GAME_HEIGHT + 20);
-			ctx.fillRect(x, y, 1, 1);
+
+			// Consistent star size based on seed
+			const size = 1 + (seed % 3);
+
+			// Consistent star colors based on seed
+			const colors = [
+				"#ffffff", // white
+				"#87ceeb", // sky blue
+				"#ffff00", // yellow
+				"#add8e6", // light blue
+				"#f0f8ff", // alice blue
+				"#e6f3ff", // very light blue
+				"#fffacd", // lemon chiffon
+			];
+			const color = colors[seed % colors.length];
+
+			ctx.fillStyle = color;
+			ctx.fillRect(x, y, size, size);
 		}
 
 		// Draw player (X-Wing) - blinking when invulnerable
