@@ -485,7 +485,11 @@ export default function Room() {
 	const saveMapEvent = async (event: MapEvent) => {
 		if (!user || !session_id || !token) return;
 		try {
-			await updateSession(session_id, { event } as any, token);
+			await updateSession(
+				session_id,
+				{ event } as Partial<Session> & { event: MapEvent },
+				token,
+			);
 		} catch (err) {
 			// Optionally handle error
 			console.error("Failed to update map event", err);
