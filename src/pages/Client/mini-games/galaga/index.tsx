@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import MiniGameLayout from "../layouts/MiniGameLayout";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw, Settings } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
-import { Card } from "@/components/ui/card";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
 interface GameObject {
 	x: number;
@@ -21,7 +19,6 @@ interface GameState {
 	score: number;
 	lives: number;
 	gameOver: boolean;
-	level: number;
 	player: GameObject;
 	enemies: GameObject[];
 	bullets: GameObject[];
@@ -31,11 +28,19 @@ interface GameState {
 	invulnerabilityTimer: number;
 }
 
-const GAME_WIDTH = 800;
-const GAME_HEIGHT = 600;
-const PLAYER_SIZE = 30;
-const ENEMY_SIZE = 25;
-const BULLET_SIZE = 4;
+interface GameImages {
+	xwing: HTMLImageElement | null;
+	tieFighter: HTMLImageElement | null;
+	outerSpace: HTMLImageElement | null;
+	xwingBlast: HTMLImageElement | null;
+	tieFighterBlast: HTMLImageElement | null;
+}
+
+const GAME_WIDTH = 1200;
+const GAME_HEIGHT = 800;
+const PLAYER_SIZE = 40;
+const ENEMY_SIZE = 35;
+const BULLET_SIZE = 20;
 
 // Game speed configuration
 const INITIAL_GAME_SPEED = 2;
@@ -48,22 +53,21 @@ const ENEMY_BULLET_SPEED = 3;
 export default function Galaga() {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const animationRef = useRef<number | undefined>(undefined);
-	const [showSettings, setShowSettings] = useState(false);
-	const [gameConfig, setGameConfig] = useState({
-		gameSpeed: INITIAL_GAME_SPEED,
-		maxSpeed: MAX_GAME_SPEED,
-		speedIncreaseRate: SPEED_INCREASE_RATE,
-		enemySpawnRate: ENEMY_SPAWN_RATE,
-		bulletSpeed: BULLET_SPEED,
-		enemyBulletSpeed: ENEMY_BULLET_SPEED,
+	const firingRef = useRef<NodeJS.Timeout | null>(null);
+	const [images, setImages] = useState<GameImages>({
+		xwing: null,
+		tieFighter: null,
+		outerSpace: null,
+		xwingBlast: null,
+		tieFighterBlast: null,
 	});
+
 	const [gameState, setGameState] = useState<GameState>({
 		isPlaying: false,
 		isPaused: false,
 		score: 0,
 		lives: 3,
 		gameOver: false,
-		level: 1,
 		player: {
 			x: GAME_WIDTH / 2 - PLAYER_SIZE / 2,
 			y: GAME_HEIGHT - 80,
@@ -74,10 +78,46 @@ export default function Galaga() {
 		enemies: [],
 		bullets: [],
 		enemyBullets: [],
-		gameSpeed: gameConfig.gameSpeed,
+		gameSpeed: INITIAL_GAME_SPEED,
 		isInvulnerable: false,
 		invulnerabilityTimer: 0,
 	});
+
+	// Load Star Wars images
+	useEffect(() => {
+		const loadImage = (src: string): Promise<HTMLImageElement> => {
+			return new Promise((resolve, reject) => {
+				const img = new Image();
+				img.onload = () => resolve(img);
+				img.onerror = reject;
+				img.src = src;
+			});
+		};
+
+		const loadAllImages = async () => {
+			try {
+				const [xwing, tieFighter, xwingBlast, tieFighterBlast] =
+					await Promise.all([
+						loadImage("/star-wars-assets/xwing.png"),
+						loadImage("/star-wars-assets/tiefighter.png"),
+						loadImage("/star-wars-assets/xwingblast.png"),
+						loadImage("/star-wars-assets/tiefighterblast.png"),
+					]);
+
+				setImages({
+					xwing,
+					tieFighter,
+					outerSpace: null,
+					xwingBlast,
+					tieFighterBlast,
+				});
+			} catch (error) {
+				console.warn("Some Star Wars assets failed to load:", error);
+			}
+		};
+
+		loadAllImages();
+	}, []);
 
 	const generateEnemy = useCallback(() => {
 		return {
@@ -91,19 +131,16 @@ export default function Galaga() {
 		};
 	}, []);
 
-	const generateEnemyBullet = useCallback(
-		(enemy: GameObject) => {
-			return {
-				x: enemy.x + enemy.width / 2 - BULLET_SIZE / 2,
-				y: enemy.y + enemy.height,
-				width: BULLET_SIZE,
-				height: BULLET_SIZE,
-				type: "enemyBullet" as const,
-				speed: gameConfig.enemyBulletSpeed,
-			};
-		},
-		[gameConfig.enemyBulletSpeed],
-	);
+	const generateEnemyBullet = useCallback((enemy: GameObject) => {
+		return {
+			x: enemy.x + enemy.width / 2 - BULLET_SIZE / 2,
+			y: enemy.y + enemy.height,
+			width: BULLET_SIZE,
+			height: BULLET_SIZE,
+			type: "enemyBullet" as const,
+			speed: ENEMY_BULLET_SPEED,
+		};
+	}, []);
 
 	const checkCollision = useCallback(
 		(obj1: GameObject, obj2: GameObject): boolean => {
@@ -166,7 +203,6 @@ export default function Galaga() {
 			score: 0,
 			lives: 3,
 			gameOver: false,
-			level: 1,
 			player: {
 				x: GAME_WIDTH / 2 - PLAYER_SIZE / 2,
 				y: GAME_HEIGHT - 80,
@@ -177,11 +213,11 @@ export default function Galaga() {
 			enemies: [],
 			bullets: [],
 			enemyBullets: [],
-			gameSpeed: gameConfig.gameSpeed,
+			gameSpeed: INITIAL_GAME_SPEED,
 			isInvulnerable: false,
 			invulnerabilityTimer: 0,
 		});
-	}, [gameConfig.gameSpeed]);
+	}, []);
 
 	const startGame = useCallback(() => {
 		setGameState((prev) => ({
@@ -191,13 +227,27 @@ export default function Galaga() {
 			gameOver: false,
 			score: 0,
 			lives: 3,
-			level: 1,
 			enemies: [],
 			bullets: [],
 			enemyBullets: [],
-			gameSpeed: gameConfig.gameSpeed,
+			gameSpeed: INITIAL_GAME_SPEED,
 		}));
-	}, [gameConfig.gameSpeed]);
+	}, []);
+
+	const startFiring = useCallback(() => {
+		if (firingRef.current) return; // already firing
+		shoot(); // shoot immediately
+		firingRef.current = setInterval(() => {
+			shoot();
+		}, 200); // adjust the interval as needed
+	}, [shoot]);
+
+	const stopFiring = useCallback(() => {
+		if (firingRef.current) {
+			clearInterval(firingRef.current);
+			firingRef.current = null;
+		}
+	}, []);
 
 	const togglePause = useCallback(() => {
 		setGameState((prev) => ({
@@ -217,7 +267,7 @@ export default function Galaga() {
 			const updatedBullets = prev.bullets
 				.map((bullet) => ({
 					...bullet,
-					y: bullet.y - gameConfig.bulletSpeed,
+					y: bullet.y - BULLET_SPEED,
 				}))
 				.filter((bullet) => bullet.y > -BULLET_SIZE);
 
@@ -239,7 +289,7 @@ export default function Galaga() {
 
 			// Generate new enemies
 			const newEnemies = [...updatedEnemies];
-			if (Math.random() < gameConfig.enemySpawnRate) {
+			if (Math.random() < ENEMY_SPAWN_RATE) {
 				newEnemies.push(generateEnemy());
 			}
 
@@ -254,16 +304,23 @@ export default function Galaga() {
 			// Check bullet-enemy collisions
 			let newScore = prev.score;
 			let newEnemiesAfterCollision = [...newEnemies];
-			const newBulletsAfterCollision = [...updatedBullets];
+			let newBulletsAfterCollision = [...updatedBullets];
 
-			updatedBullets.forEach((bullet) => {
+			// Check each bullet against enemies
+			newBulletsAfterCollision = newBulletsAfterCollision.filter((bullet) => {
+				let bulletHit = false;
+
+				// Check if this bullet hits any enemy
 				newEnemiesAfterCollision = newEnemiesAfterCollision.filter((enemy) => {
-					if (checkCollision(bullet, enemy)) {
+					if (!bulletHit && checkCollision(bullet, enemy)) {
 						newScore += 10;
+						bulletHit = true; // Mark bullet as hit
 						return false; // Remove enemy
 					}
 					return true;
 				});
+
+				return !bulletHit; // Remove bullet if it hit an enemy
 			});
 
 			// Check player-enemy collisions
@@ -311,15 +368,9 @@ export default function Galaga() {
 
 			// Increase game speed
 			const newGameSpeed = Math.min(
-				prev.gameSpeed + gameConfig.speedIncreaseRate,
-				gameConfig.maxSpeed,
+				prev.gameSpeed + SPEED_INCREASE_RATE,
+				MAX_GAME_SPEED,
 			);
-
-			// Level up
-			let newLevel = prev.level;
-			if (newScore > 0 && newScore % 100 === 0) {
-				newLevel++;
-			}
 
 			return {
 				...prev,
@@ -329,7 +380,6 @@ export default function Galaga() {
 				score: newScore,
 				lives: newLives,
 				gameOver,
-				level: newLevel,
 				gameSpeed: newGameSpeed,
 				isInvulnerable,
 				invulnerabilityTimer,
@@ -341,7 +391,6 @@ export default function Galaga() {
 		gameState.isPlaying,
 		gameState.isPaused,
 		gameState.gameOver,
-		gameConfig,
 		generateEnemy,
 		generateEnemyBullet,
 		checkCollision,
@@ -356,6 +405,13 @@ export default function Galaga() {
 		};
 	}, [gameLoop]);
 
+	// Cleanup firing on unmount
+	useEffect(() => {
+		return () => {
+			stopFiring();
+		};
+	}, [stopFiring]);
+
 	useEffect(() => {
 		const handleKeyPress = (e: KeyboardEvent) => {
 			if (e.code === "Space") {
@@ -368,21 +424,27 @@ export default function Galaga() {
 			movePlayer(e.clientX);
 		};
 
-		const handleMouseClick = (e: MouseEvent) => {
+		const handleMouseDown = (e: MouseEvent) => {
 			if (e.target === canvasRef.current) {
-				shoot();
+				startFiring();
 			}
+		};
+
+		const handleMouseUp = () => {
+			stopFiring();
 		};
 
 		window.addEventListener("keydown", handleKeyPress);
 		window.addEventListener("mousemove", handleMouseMove);
-		window.addEventListener("click", handleMouseClick);
+		window.addEventListener("mousedown", handleMouseDown);
+		window.addEventListener("mouseup", handleMouseUp);
 		return () => {
 			window.removeEventListener("keydown", handleKeyPress);
 			window.removeEventListener("mousemove", handleMouseMove);
-			window.removeEventListener("click", handleMouseClick);
+			window.removeEventListener("mousedown", handleMouseDown);
+			window.removeEventListener("mouseup", handleMouseUp);
 		};
-	}, [shoot, movePlayer]);
+	}, [shoot, movePlayer, startFiring, stopFiring]);
 
 	const renderGame = useCallback(() => {
 		const canvas = canvasRef.current;
@@ -398,60 +460,103 @@ export default function Galaga() {
 		ctx.fillStyle = "#0a0a2e";
 		ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-		// Draw stars
+		// Draw moving stars
 		ctx.fillStyle = "#ffffff";
-		for (let i = 0; i < 50; i++) {
-			const x = (i * 37) % GAME_WIDTH;
-			const y = (i * 73) % GAME_HEIGHT;
+		const time = Date.now() * 0.001; // Get current time for animation
+		for (let i = 0; i < 100; i++) {
+			// Use more random positioning for natural star distribution
+			const x = (i * 37 + Math.sin(i * 0.1) * 50) % GAME_WIDTH;
+			const y =
+				(i * 73 + Math.cos(i * 0.1) * 30 + (time * 30 + i * 1.5)) %
+				(GAME_HEIGHT + 20);
 			ctx.fillRect(x, y, 1, 1);
 		}
 
-		// Draw player (blinking when invulnerable)
+		// Draw player (X-Wing) - blinking when invulnerable
 		if (
 			!gameState.isInvulnerable ||
 			Math.floor(gameState.invulnerabilityTimer / 10) % 2 === 0
 		) {
-			ctx.fillStyle = "#00ff00";
-			ctx.fillRect(
-				gameState.player.x,
-				gameState.player.y,
-				gameState.player.width,
-				gameState.player.height,
-			);
-
-			// Draw player details
-			ctx.fillStyle = "#ffffff";
-			ctx.fillRect(gameState.player.x + 5, gameState.player.y + 5, 20, 20);
+			if (images.xwing) {
+				ctx.drawImage(
+					images.xwing,
+					gameState.player.x,
+					gameState.player.y,
+					gameState.player.width,
+					gameState.player.height,
+				);
+			} else {
+				// Fallback to green rectangle
+				ctx.fillStyle = "#00ff00";
+				ctx.fillRect(
+					gameState.player.x,
+					gameState.player.y,
+					gameState.player.width,
+					gameState.player.height,
+				);
+			}
 		}
 
-		// Draw enemies
+		// Draw enemies (TIE Fighters)
 		gameState.enemies.forEach((enemy) => {
-			ctx.fillStyle = "#ff0000";
-			ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+			if (images.tieFighter) {
+				ctx.drawImage(
+					images.tieFighter,
+					enemy.x,
+					enemy.y,
+					enemy.width,
+					enemy.height,
+				);
+			} else {
+				// Fallback to red rectangle for TIE Fighter
+				ctx.fillStyle = "#ff0000";
+				ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
 
-			// Enemy details
-			ctx.fillStyle = "#ffffff";
-			ctx.fillRect(enemy.x + 5, enemy.y + 5, 15, 15);
+				// Draw TIE Fighter details
+				ctx.fillStyle = "#ffffff";
+				ctx.fillRect(enemy.x + 8, enemy.y + 8, 19, 19);
+			}
 		});
 
-		// Draw bullets
+		// Draw player bullets (X-Wing blasts)
 		gameState.bullets.forEach((bullet) => {
-			ctx.fillStyle = "#ffff00";
-			ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+			if (images.xwingBlast) {
+				ctx.drawImage(
+					images.xwingBlast,
+					bullet.x,
+					bullet.y,
+					bullet.width,
+					bullet.height,
+				);
+			} else {
+				// Fallback to yellow rectangle
+				ctx.fillStyle = "#ffff00";
+				ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+			}
 		});
 
-		// Draw enemy bullets
+		// Draw enemy bullets (TIE Fighter blasts)
 		gameState.enemyBullets.forEach((bullet) => {
-			ctx.fillStyle = "#ff00ff";
-			ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+			if (images.tieFighterBlast) {
+				ctx.drawImage(
+					images.tieFighterBlast,
+					bullet.x,
+					bullet.y,
+					bullet.width,
+					bullet.height,
+				);
+			} else {
+				// Fallback to purple rectangle
+				ctx.fillStyle = "#ff00ff";
+				ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+			}
 		});
 
-		// Draw UI
+		// Draw UI with Star Wars theme
 		ctx.fillStyle = "#ffffff";
-		ctx.font = "20px Arial";
+		ctx.font = "bold 20px Arial";
 		ctx.fillText(`Score: ${gameState.score}`, 20, 30);
 		ctx.fillText(`Lives: ${gameState.lives}`, 20, 60);
-		ctx.fillText(`Level: ${gameState.level}`, 20, 90);
 
 		// Draw game over screen
 		if (gameState.gameOver) {
@@ -459,7 +564,7 @@ export default function Galaga() {
 			ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
 			ctx.fillStyle = "#ffffff";
-			ctx.font = "48px Arial";
+			ctx.font = "bold 48px Arial";
 			ctx.textAlign = "center";
 			ctx.fillText("GAME OVER", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 50);
 			ctx.font = "24px Arial";
@@ -470,7 +575,7 @@ export default function Galaga() {
 			);
 			ctx.textAlign = "left";
 		}
-	}, [gameState]);
+	}, [gameState, images]);
 
 	useEffect(() => {
 		renderGame();
@@ -479,13 +584,6 @@ export default function Galaga() {
 	return (
 		<MiniGameLayout>
 			<div className="flex flex-col items-center gap-6">
-				<div className="text-center">
-					<h1 className="text-4xl font-bold text-white mb-2">Galaga</h1>
-					<p className="text-white/80 mb-4">
-						Move mouse to control ship, click or press Space to shoot!
-					</p>
-				</div>
-
 				<div className="relative">
 					<canvas
 						ref={canvasRef}
@@ -539,156 +637,6 @@ export default function Galaga() {
 						</div>
 					)}
 				</div>
-
-				<div className="flex gap-4">
-					<Button
-						onClick={shoot}
-						disabled={
-							!gameState.isPlaying || gameState.isPaused || gameState.gameOver
-						}
-					>
-						Shoot
-					</Button>
-					<Button
-						onClick={() => movePlayer(gameState.player.x - 50)}
-						disabled={
-							!gameState.isPlaying || gameState.isPaused || gameState.gameOver
-						}
-					>
-						← Left
-					</Button>
-					<Button
-						onClick={() => movePlayer(gameState.player.x + 50)}
-						disabled={
-							!gameState.isPlaying || gameState.isPaused || gameState.gameOver
-						}
-					>
-						Right →
-					</Button>
-					<Button onClick={resetGame} variant="outline">
-						Reset
-					</Button>
-					<Button
-						onClick={() => setShowSettings(!showSettings)}
-						variant="outline"
-						className="bg-white/10 text-white border-white/20"
-					>
-						<Settings className="h-4 w-4" />
-					</Button>
-				</div>
-
-				{showSettings && (
-					<Card className="p-6 bg-white/10 backdrop-blur-sm border-white/20">
-						<h3 className="text-lg font-bold text-white mb-4">Game Settings</h3>
-						<div className="space-y-4">
-							<div>
-								<label
-									htmlFor="game-speed-slider"
-									className="text-white text-sm font-medium"
-								>
-									Game Speed: {gameConfig.gameSpeed.toFixed(1)}
-								</label>
-								<Slider
-									id="game-speed-slider"
-									value={[gameConfig.gameSpeed]}
-									onValueChange={(value) =>
-										setGameConfig((prev) => ({ ...prev, gameSpeed: value[0] }))
-									}
-									max={8}
-									min={1}
-									step={0.5}
-									className="mt-2"
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="max-speed-slider"
-									className="text-white text-sm font-medium"
-								>
-									Max Speed: {gameConfig.maxSpeed.toFixed(1)}
-								</label>
-								<Slider
-									id="max-speed-slider"
-									value={[gameConfig.maxSpeed]}
-									onValueChange={(value) =>
-										setGameConfig((prev) => ({ ...prev, maxSpeed: value[0] }))
-									}
-									max={10}
-									min={4}
-									step={0.5}
-									className="mt-2"
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="enemy-spawn-slider"
-									className="text-white text-sm font-medium"
-								>
-									Enemy Spawn Rate:{" "}
-									{(gameConfig.enemySpawnRate * 100).toFixed(1)}%
-								</label>
-								<Slider
-									id="enemy-spawn-slider"
-									value={[gameConfig.enemySpawnRate]}
-									onValueChange={(value) =>
-										setGameConfig((prev) => ({
-											...prev,
-											enemySpawnRate: value[0],
-										}))
-									}
-									max={0.05}
-									min={0.01}
-									step={0.001}
-									className="mt-2"
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="bullet-speed-slider"
-									className="text-white text-sm font-medium"
-								>
-									Bullet Speed: {gameConfig.bulletSpeed}
-								</label>
-								<Slider
-									id="bullet-speed-slider"
-									value={[gameConfig.bulletSpeed]}
-									onValueChange={(value) =>
-										setGameConfig((prev) => ({
-											...prev,
-											bulletSpeed: value[0],
-										}))
-									}
-									max={15}
-									min={5}
-									step={1}
-									className="mt-2"
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="enemy-bullet-slider"
-									className="text-white text-sm font-medium"
-								>
-									Enemy Bullet Speed: {gameConfig.enemyBulletSpeed}
-								</label>
-								<Slider
-									id="enemy-bullet-slider"
-									value={[gameConfig.enemyBulletSpeed]}
-									onValueChange={(value) =>
-										setGameConfig((prev) => ({
-											...prev,
-											enemyBulletSpeed: value[0],
-										}))
-									}
-									max={8}
-									min={1}
-									step={0.5}
-									className="mt-2"
-								/>
-							</div>
-						</div>
-					</Card>
-				)}
 			</div>
 		</MiniGameLayout>
 	);
