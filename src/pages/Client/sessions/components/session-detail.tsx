@@ -11,13 +11,12 @@ import {
 	Tag,
 	Target,
 	UserCheck,
-	// Sun,
-	// Sunset,
-	// Moon,
-	// CloudRain,
-	// Zap,
-	// Wind,
-	// MapPin,
+	Sun,
+	Cloud,
+	CloudRain,
+	Zap,
+	Wind,
+	MapPin,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -474,76 +473,125 @@ export default function SessionDetailPage() {
 						</Card>
 
 						{/* Map Event Card - Redesigned */}
-						{/* Map Event - DISABLED */}
-						{/* <Card className="bg-white/90 backdrop-blur-md border border-yellow-100 shadow-xl p-6 rounded-3xl">
+						<Card className="bg-white/90 backdrop-blur-md border border-purple-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg text-yellow-700">
-									<MapPin className="h-5 w-5 text-yellow-400" />
-									Map Event
+								<CardTitle className="flex items-center gap-2 text-lg text-purple-700">
+									<MapPin className="h-5 w-5 text-purple-400" />
+									Event Details
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
 								{session.event ? (
-									<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-yellow-900">
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+									<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-purple-900">
+										<div className="flex flex-col items-center justify-center p-3 bg-purple-50 rounded-xl border border-purple-100">
 											{(() => {
 												switch (session.event.time) {
 													case "morning":
-														return <Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														);
 													case "afternoon":
-														return <Sunset className="h-8 w-8 text-orange-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-orange-500 mb-2" />
+														);
 													case "evening":
-														return <Moon className="h-8 w-8 text-indigo-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-red-500 mb-2" />
+														);
+													case "night":
+														return (
+															<Clock className="h-8 w-8 text-indigo-500 mb-2" />
+														);
 													default:
-														return null
+														return (
+															<Clock className="h-8 w-8 text-gray-500 mb-2" />
+														);
 												}
 											})()}
 											<span className="font-semibold text-sm">Time</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.time
-													? session.event.time.charAt(0).toUpperCase() + session.event.time.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-purple-700">
+												{session.event.time ? (
+													session.event.time.charAt(0).toUpperCase() +
+													session.event.time.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
-											<MapPin className="h-8 w-8 text-blue-500 mb-2" />
+										<div className="flex flex-col items-center justify-center p-3 bg-green-50 rounded-xl border border-green-100">
+											<MapPin className="h-8 w-8 text-green-500 mb-2" />
 											<span className="font-semibold text-sm">Location</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.place
-													? session.event.place.charAt(0).toUpperCase() + session.event.place.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-green-700">
+												{session.event.place ? (
+													session.event.place.charAt(0).toUpperCase() +
+													session.event.place.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+										<div className="flex flex-col items-center justify-center p-3 bg-blue-50 rounded-xl border border-blue-100">
 											{(() => {
 												switch (session.event.weather) {
-													case "clear":
-														return <Sun className="h-8 w-8 text-yellow-400 mb-2" />
-													case "rain":
-														return <CloudRain className="h-8 w-8 text-blue-400 mb-2" />
-													case "thunderstorm":
-														return <Zap className="h-8 w-8 text-purple-500 mb-2" />
+													case "sunny":
+														return (
+															<Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														);
+													case "cloudy":
+														return (
+															<Cloud className="h-8 w-8 text-gray-500 mb-2" />
+														);
+													case "rainy":
+														return (
+															<CloudRain className="h-8 w-8 text-blue-500 mb-2" />
+														);
 													case "windy":
-														return <Wind className="h-8 w-8 text-teal-400 mb-2" />
+														return (
+															<Wind className="h-8 w-8 text-teal-500 mb-2" />
+														);
+													case "stormy":
+														return (
+															<Zap className="h-8 w-8 text-purple-500 mb-2" />
+														);
+													case "foggy":
+														return (
+															<Cloud className="h-8 w-8 text-gray-600 mb-2" />
+														);
 													default:
-														return null
+														return (
+															<Cloud className="h-8 w-8 text-gray-500 mb-2" />
+														);
 												}
 											})()}
 											<span className="font-semibold text-sm">Weather</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.weather
-													? session.event.weather.charAt(0).toUpperCase() + session.event.weather.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-blue-700">
+												{session.event.weather ? (
+													session.event.weather.charAt(0).toUpperCase() +
+													session.event.weather.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 									</div>
 								) : (
-									<span className="italic text-gray-400">No map event recorded for this session.</span>
+									<div className="text-center py-8">
+										<MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+										<span className="italic text-gray-400">
+											No event details recorded for this session.
+										</span>
+									</div>
 								)}
 							</CardContent>
-						</Card> */}
+						</Card>
 
 						{/* Session Notes */}
 						<Card className="bg-white/90 backdrop-blur-md border border-indigo-100 shadow-xl p-6 rounded-3xl">
