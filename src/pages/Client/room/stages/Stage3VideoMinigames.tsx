@@ -9,6 +9,7 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuestionStore } from "@/store/questionStore";
 import { useStageAudio } from "@/hooks/useStageAudio";
+import { getYouTubeEmbedUrl } from "@/lib/utils";
 import type { Video } from "@/types";
 import StageCardLayout from "../layouts/StageCardLayout";
 
@@ -208,7 +209,7 @@ export default function Stage3VideoMinigames({
 												<div className="aspect-[16/9] w-full mb-4">
 													<iframe
 														className="w-full h-full rounded-xl"
-														src={video.link}
+														src={getYouTubeEmbedUrl(video.link)}
 														title={video.title}
 														frameBorder="0"
 														allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
