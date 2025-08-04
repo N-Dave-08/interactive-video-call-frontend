@@ -69,8 +69,9 @@ export default function Stage5EmotionalExpressions({
 	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
 	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
 
-	// Stage audio management - use step-based approach like Stage 1
-	useStageAudio("stage5", currentStep);
+	// Stage audio management - only handle tab-specific audio changes
+	// Room-level audio handles initial feelings audio when stage mounts
+	const { stopAudio } = useStageAudio("stage5", currentStep);
 
 	const selectAudio = () => {
 		const audio = new Audio(

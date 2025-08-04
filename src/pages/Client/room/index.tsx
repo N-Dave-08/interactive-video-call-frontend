@@ -56,8 +56,9 @@ export default function Room() {
 
 	// Stage audio management
 	const currentStage = `stage${step + 1}`;
-	// Don't play audio for Stage 5 as it handles its own audio with tabs
-	useStageAudio(step === 0 || step === 4 ? undefined : currentStage);
+	// Don't play audio for Stage 1 as Character component handles its own audio
+	// Include Stage 5 in room-level audio management - will play feelings audio initially
+	useStageAudio(step === 0 ? undefined : currentStage);
 
 	useEffect(() => {
 		if (session_id === "undefined") {
