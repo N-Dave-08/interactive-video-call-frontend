@@ -52,31 +52,24 @@ export default function Stage5EmotionalExpressions({
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 
-	const [currentTab, setCurrentTab] = React.useState<
-		"feelings" | "bodymap" | "drawingpad"
-	>("feelings");
+	const [currentStep, setCurrentStep] = React.useState(0);
 
-	// Define questions for each tab
-	const tabQuestions = {
-		feelings: "Okay, tell how you feel.",
-		bodymap: "Can you tell me where you feel things in your body?",
-		drawingpad: "Can you show me your feelings with a drawing?",
-	};
+	// Define questions for each step
+	const stepQuestions = [
+		"Okay, tell how you feel.",
+		"Can you tell me where you feel things in your body?",
+		"Can you show me your feelings with a drawing?",
+	];
 
 	useEffect(() => {
-		setQuestion(tabQuestions[currentTab]);
-	}, [setQuestion, currentTab]);
+		setQuestion(stepQuestions[currentStep]);
+	}, [setQuestion, currentStep]);
 
 	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
 	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
 
-	// Stage audio management - use different audio based on current tab
-	const tabAudioMap = {
-		feelings: "stage5-feelings",
-		bodymap: "stage5-bodymap",
-		drawingpad: "stage5-drawing",
-	};
-	useStageAudio(tabAudioMap[currentTab]);
+	// Stage audio management - use step-based approach like Stage 1
+	useStageAudio("stage5", currentStep);
 
 	const selectAudio = () => {
 		const audio = new Audio(
@@ -206,8 +199,8 @@ export default function Stage5EmotionalExpressions({
 	);
 
 	function renderTabContent() {
-		switch (currentTab) {
-			case "feelings":
+		switch (currentStep) {
+			case 0: // feelings
 				return (
 					<div className="relative">
 						<FloatingStars />
@@ -348,7 +341,7 @@ export default function Stage5EmotionalExpressions({
 			// 			</div>
 			// 		</div>
 			// 	);
-			case "bodymap":
+			case 1: // bodymap
 				return (
 					<div className="my-8 text-center">
 						<motion.div
@@ -377,7 +370,7 @@ export default function Stage5EmotionalExpressions({
 						</div>
 					</div>
 				);
-			case "drawingpad":
+			case 2: // drawingpad
 				return (
 					<div className="my-8 text-center">
 						<motion.div
@@ -436,13 +429,13 @@ export default function Stage5EmotionalExpressions({
 	}
 
 	const tabs: {
-		id: "feelings" | "bodymap" | "drawingpad";
+		step: number;
 		label: string;
 		emoji: React.ReactNode;
 		complete: boolean;
 	}[] = [
 		{
-			id: "feelings",
+			step: 0,
 			label: "Feelings",
 			emoji: (
 				<Icon
@@ -453,7 +446,7 @@ export default function Stage5EmotionalExpressions({
 			complete: !!value,
 		},
 		// {
-		// 	id: "map-event",
+		// 	step: 1,
 		// 	label: "Map Event",
 		// 	emoji: (
 		// 		<span role="img" aria-label="map" className="text-xl">
@@ -463,13 +456,13 @@ export default function Stage5EmotionalExpressions({
 		// 	complete: !!mapEvent?.place,
 		// },
 		{
-			id: "bodymap",
+			step: 1,
 			label: "Body Map",
 			emoji: <Icon icon="fluent-emoji:world-map" className="text-xl" />,
 			complete: bodyMapComplete,
 		},
 		{
-			id: "drawingpad",
+			step: 2,
 			label: "Drawing",
 			emoji: <Icon icon="fluent-emoji:artist-palette" className="text-xl" />,
 			complete: drawingPadComplete,
@@ -492,14 +485,14 @@ export default function Stage5EmotionalExpressions({
 						<div className="flex justify-center gap-2">
 							{tabs.map((tab) => (
 								<motion.button
-									key={tab.id}
+									key={tab.step}
 									type="button"
 									className={`px-6 py-4 rounded-2xl font-bold text-lg transition-all duration-300 flex items-center gap-2 border-3 relative overflow-hidden ${
-										currentTab === tab.id
+										currentStep === tab.step
 											? "bg-gradient-to-r from-pink-400 to-purple-400 text-white border-pink-300 shadow-lg"
 											: "bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 shadow-md"
 									}`}
-									onClick={() => setCurrentTab(tab.id)}
+									onClick={() => setCurrentStep(tab.step)}
 									whileHover={{ scale: 1.05, y: -2 }}
 									whileTap={{ scale: 0.95 }}
 								>
