@@ -184,7 +184,14 @@ export default function MapEventPicker({
 	const [weather, setWeather] = useState<MapEvent["weather"]>("clear");
 	const timeAudioRef = useRef<HTMLAudioElement | null>(null);
 	const weatherAudioRef = useRef<HTMLAudioElement | null>(null);
-	const { selectedPlace, setSelectedPlace } = useMapEventStore();
+	const { selectedPlace, setSelectedPlace, resetState } = useMapEventStore();
+
+	// Reset store state for new sessions (when no value is provided)
+	useEffect(() => {
+		if (!value) {
+			resetState();
+		}
+	}, [value, resetState]);
 
 	// Update internal state when value prop changes
 	useEffect(() => {
@@ -453,7 +460,7 @@ export default function MapEventPicker({
 
 	// For rendering, use value if controlled, otherwise use internal state
 	const renderTime = time || "morning";
-	const renderPlace = selectedPlace;
+	const renderPlace = value ? value.place : null;
 	const renderWeather = weather || "clear";
 
 	const selectedLocationData = locations.find((loc) => loc.id === renderPlace);
