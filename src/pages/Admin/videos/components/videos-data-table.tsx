@@ -1,20 +1,9 @@
+import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-	Play,
-	Plus,
-	Search,
-	Table2,
-	Trash2,
-	Video as VideoIcon,
-	X,
-} from "lucide-react";
-import * as React from "react";
 import { toast } from "sonner";
-import { deleteVideo } from "@/api/videos";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import SpinnerLoading from "@/components/ui/spinner-loading";
 import {
 	Table,
 	TableBody,
@@ -23,9 +12,21 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Play,
+	X,
+	Trash2,
+	Search,
+	Plus,
+	Video as VideoIcon,
+	Table2,
+} from "lucide-react";
+import SpinnerLoading from "@/components/ui/spinner-loading";
+import { deleteVideo } from "@/api/videos";
+import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/lib/utils";
 import type { Video } from "@/types";
-import { DeleteVideoDialog } from "./delete-video-dialog";
 import { AddVideoDialog } from "./add-video-dialog";
+import { DeleteVideoDialog } from "./delete-video-dialog";
 
 interface DataTableProps {
 	data: Video[];
@@ -47,55 +48,6 @@ export function DataTable({
 	const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
 
 	const queryClient = useQueryClient();
-
-	// Function to extract YouTube video ID and get thumbnail
-	const getYouTubeThumbnail = (url: string): string | undefined => {
-		try {
-			// Handle different YouTube URL formats
-			let videoId: string | null = null;
-
-			// youtube.com/watch?v=VIDEO_ID
-			const watchMatch = url.match(
-				/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-			);
-			if (watchMatch) {
-				videoId = watchMatch[1];
-			}
-
-			if (videoId) {
-				// Try maxresdefault first, fallback to hqdefault if not available
-				return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-			}
-
-			return undefined;
-		} catch {
-			return undefined;
-		}
-	};
-
-	// Function to get YouTube embed URL
-	const getYouTubeEmbedUrl = (url: string): string | undefined => {
-		try {
-			// Handle different YouTube URL formats
-			let videoId: string | null = null;
-
-			// youtube.com/watch?v=VIDEO_ID
-			const watchMatch = url.match(
-				/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-			);
-			if (watchMatch) {
-				videoId = watchMatch[1];
-			}
-
-			if (videoId) {
-				return `https://www.youtube.com/embed/${videoId}`;
-			}
-
-			return undefined;
-		} catch {
-			return undefined;
-		}
-	};
 
 	// Delete mutation
 	const deleteMutation = useMutation({
