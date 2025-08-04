@@ -71,7 +71,7 @@ export default function Stage5EmotionalExpressions({
 
 	// Stage audio management - only handle tab-specific audio changes
 	// Room-level audio handles initial feelings audio when stage mounts
-	const { stopAudio } = useStageAudio("stage5", currentStep);
+	useStageAudio("stage5", currentStep);
 
 	const selectAudio = () => {
 		const audio = new Audio(
