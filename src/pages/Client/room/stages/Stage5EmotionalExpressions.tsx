@@ -12,8 +12,6 @@ import {
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import BodyMap from "@/features/bodymap";
-import DrawingPad from "@/features/drawing-pad";
 import { useQuestionStore } from "@/store/questionStore";
 import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
@@ -30,9 +28,9 @@ export default function Stage5EmotionalExpressions({
 	onBack,
 	loading,
 	error,
-	onBodyMapChange,
-	onDrawingComplete,
-	gender,
+	// onBodyMapChange,
+	// onDrawingComplete,
+	// gender,
 	mapEvent,
 	onMapEventChange,
 }: {
@@ -52,33 +50,25 @@ export default function Stage5EmotionalExpressions({
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 
-	const [currentTab, setCurrentTab] = React.useState<
-		"feelings" | "map-event" | "bodymap" | "drawingpad"
-	>("feelings");
+	const [currentStep, setCurrentStep] = React.useState(0);
 
-	// Define questions for each tab
-	const tabQuestions = {
-		feelings: "Okay, tell how you feel.",
-		"map-event": "Pick a place and set the scene!",
-		bodymap: "Can you tell me where you feel things in your body?",
-		drawingpad: "Can you show me your feelings with a drawing?",
-	};
+	// Define questions for each step
+	const stepQuestions = [
+		"Okay, tell how you feel.",
+		"Pick a place and set the scene!",
+		"Can you tell me where you feel things in your body?",
+		"Can you show me your feelings with a drawing?",
+	];
 
 	useEffect(() => {
-		setQuestion(tabQuestions[currentTab]);
-	}, [setQuestion, currentTab]);
+		setQuestion(stepQuestions[currentStep]);
+	}, [setQuestion, currentStep]);
 
-	const [bodyMapComplete, setBodyMapComplete] = React.useState(false);
-	const [drawingPadComplete, setDrawingPadComplete] = React.useState(false);
+	const [bodyMapComplete] = React.useState(false);
+	const [drawingPadComplete] = React.useState(false);
 
-	// Stage audio management - use different audio based on current tab
-	const tabAudioMap = {
-		feelings: "stage5-feelings",
-		"map-event": "stage5-map",
-		bodymap: "stage5-bodymap",
-		drawingpad: "stage5-drawing",
-	};
-	useStageAudio(tabAudioMap[currentTab]);
+	// Stage audio management - use step-based approach like Stage 1
+	useStageAudio("stage5", currentStep);
 
 	const selectAudio = () => {
 		const audio = new Audio(
@@ -155,50 +145,39 @@ export default function Stage5EmotionalExpressions({
 			value: "sad",
 			label: "Sad",
 			emoji: <Icon icon="fluent-emoji:crying-face" className="text-4xl" />,
-			color: "from-blue-200 via-blue-300 to-blue-500",
-			bgColor: "bg-blue-50",
-			borderColor: "border-blue-200",
+			color: "from-blue-300 via-indigo-400 to-purple-400",
+			bgColor: "bg-blue-100",
+			borderColor: "border-blue-300",
 		},
 		{
 			value: "angry",
 			label: "Angry",
-			emoji: <Icon icon="fluent-emoji:angry-face" className="text-4xl" />,
-			color: "from-red-300 via-red-400 to-red-600",
+			emoji: <Icon icon="fluent-emoji:pouting-face" className="text-4xl" />,
+			color: "from-red-300 via-red-400 to-pink-400",
 			bgColor: "bg-red-100",
 			borderColor: "border-red-300",
 		},
 	];
 
-	// Check if all sections are complete
-	const allComplete = value && bodyMapComplete && drawingPadComplete;
-
 	const FloatingStars = () => (
 		<div className="absolute inset-0 pointer-events-none overflow-hidden">
-			{[...Array(6)].map((_, i) => (
+			{Array.from({ length: 20 }).map((_, i) => (
 				<motion.div
 					key={`star-${i + 1}`}
 					className="absolute text-yellow-300"
-					initial={{
-						x: `${Math.random() * 100}%`,
-						y: `${Math.random() * 100}%`,
-						rotate: 0,
-						scale: 0.5 + Math.random() * 0.5,
+					style={{
+						left: `${Math.random() * 100}%`,
+						top: `${Math.random() * 100}%`,
 					}}
 					animate={{
-						rotate: 360,
 						y: [0, -20, 0],
+						opacity: [0.3, 1, 0.3],
+						rotate: [0, 180, 360],
 					}}
 					transition={{
-						rotate: {
-							duration: 8 + i * 2,
-							repeat: Number.POSITIVE_INFINITY,
-							ease: "linear",
-						},
-						y: {
-							duration: 3 + i,
-							repeat: Number.POSITIVE_INFINITY,
-							ease: "easeInOut",
-						},
+						duration: 3 + Math.random() * 2,
+						repeat: Number.POSITIVE_INFINITY,
+						delay: Math.random() * 2,
 					}}
 				>
 					<Star className="w-4 h-4 fill-current" />
@@ -208,8 +187,8 @@ export default function Stage5EmotionalExpressions({
 	);
 
 	function renderTabContent() {
-		switch (currentTab) {
-			case "feelings":
+		switch (currentStep) {
+			case 0: // feelings
 				return (
 					<div className="relative">
 						<FloatingStars />
@@ -335,7 +314,7 @@ export default function Stage5EmotionalExpressions({
 						)}
 					</div>
 				);
-			case "map-event":
+			case 1: // map-event
 				return (
 					<div className="my-8 text-center">
 						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
@@ -350,85 +329,33 @@ export default function Stage5EmotionalExpressions({
 						</div>
 					</div>
 				);
-			case "bodymap":
+			case 2: // bodymap
 				return (
 					<div className="my-8 text-center">
-						<motion.div
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							className="mb-6"
-						>
-							<h3 className="text-2xl font-bold text-purple-600 mb-2">
-								Body Map Adventure!{" "}
-								<Icon
-									icon="fluent-emoji:world-map"
-									className="inline w-7 h-7 mr-1 align-middle"
-								/>
-							</h3>
-							<p className="text-gray-600">
-								Show us where you feel things in your body!
-							</p>
-						</motion.div>
+						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
+							<Icon icon="fluent-emoji:world-map" className="text-2xl" />
+							Body Map
+						</h3>
 						<div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-6 border-3 border-blue-200">
-							<BodyMap
-								gender={gender} // <-- pass gender
-								onBodyPartClick={() => setBodyMapComplete(true)}
-								onSelectionChange={onBodyMapChange}
-								onSkip={() => setBodyMapComplete(true)}
-							/>
+							{/* Body map component would go here */}
+							<p className="text-gray-600">
+								Body map functionality coming soon...
+							</p>
 						</div>
 					</div>
 				);
-			case "drawingpad":
+			case 3: // drawingpad
 				return (
 					<div className="my-8 text-center">
-						<motion.div
-							initial={{ opacity: 0, y: 20 }}
-							animate={{ opacity: 1, y: 0 }}
-							className="mb-6"
-						>
-							<h3 className="text-2xl font-bold text-purple-600 mb-2">
-								Drawing Time!{" "}
-								<Icon
-									icon="fluent-emoji:artist-palette"
-									className="inline w-7 h-7 mr-1 align-middle"
-								/>
-							</h3>
-							<p className="text-gray-600">Draw how you're feeling today!</p>
-						</motion.div>
-						<div className="bg-gradient-to-br from-yellow-50 to-pink-50 rounded-3xl p-6 border-3 border-yellow-200">
-							<DrawingPad
-								onComplete={onDrawingComplete}
-								markCompleteTrigger={drawingPadComplete}
-							/>
-							{!drawingPadComplete ? (
-								<motion.button
-									type="button"
-									className="mt-6 px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-400 to-purple-400 text-white font-bold text-lg border-3 border-pink-300 hover:from-pink-500 hover:to-purple-500 transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
-									onClick={() => setDrawingPadComplete(true)}
-									whileHover={{ scale: 1.05, y: -2 }}
-									whileTap={{ scale: 0.95 }}
-								>
-									<Icon
-										icon="fluent-emoji:artist-palette"
-										className="inline w-6 h-6 mr-1 align-middle"
-									/>
-									Mark Drawing as Complete!
-								</motion.button>
-							) : (
-								<motion.div
-									initial={{ scale: 0 }}
-									animate={{ scale: 1 }}
-									className="text-lg text-green-600 mt-4 flex items-center justify-center gap-2 font-bold"
-								>
-									<Check className="w-6 h-6 bg-green-100 rounded-full p-1" />
-									Drawing Complete! Amazing work!{" "}
-									<Icon
-										icon="fluent-emoji:glowing-star"
-										className="inline w-5 h-5 align-middle"
-									/>
-								</motion.div>
-							)}
+						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
+							<Icon icon="fluent-emoji:artist-palette" className="text-2xl" />
+							Drawing Pad
+						</h3>
+						<div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 border-3 border-yellow-200">
+							{/* Drawing pad component would go here */}
+							<p className="text-gray-600">
+								Drawing pad functionality coming soon...
+							</p>
 						</div>
 					</div>
 				);
@@ -438,13 +365,13 @@ export default function Stage5EmotionalExpressions({
 	}
 
 	const tabs: {
-		id: "feelings" | "map-event" | "bodymap" | "drawingpad";
+		step: number;
 		label: string;
 		emoji: React.ReactNode;
 		complete: boolean;
 	}[] = [
 		{
-			id: "feelings",
+			step: 0,
 			label: "Feelings",
 			emoji: (
 				<Icon
@@ -455,7 +382,7 @@ export default function Stage5EmotionalExpressions({
 			complete: !!value,
 		},
 		{
-			id: "map-event",
+			step: 1,
 			label: "Map Event",
 			emoji: (
 				<span role="img" aria-label="map" className="text-xl">
@@ -465,18 +392,21 @@ export default function Stage5EmotionalExpressions({
 			complete: !!mapEvent?.place,
 		},
 		{
-			id: "bodymap",
+			step: 2,
 			label: "Body Map",
 			emoji: <Icon icon="fluent-emoji:world-map" className="text-xl" />,
 			complete: bodyMapComplete,
 		},
 		{
-			id: "drawingpad",
+			step: 3,
 			label: "Drawing",
 			emoji: <Icon icon="fluent-emoji:artist-palette" className="text-xl" />,
 			complete: drawingPadComplete,
 		},
 	];
+
+	// Check if all tabs are complete
+	const allComplete = tabs.every((tab) => tab.complete);
 
 	return (
 		<motion.div
@@ -494,14 +424,14 @@ export default function Stage5EmotionalExpressions({
 						<div className="flex justify-center gap-2">
 							{tabs.map((tab) => (
 								<motion.button
-									key={tab.id}
+									key={tab.step}
 									type="button"
 									className={`px-6 py-4 rounded-2xl font-bold text-lg transition-all duration-300 flex items-center gap-2 border-3 relative overflow-hidden ${
-										currentTab === tab.id
+										currentStep === tab.step
 											? "bg-gradient-to-r from-pink-400 to-purple-400 text-white border-pink-300 shadow-lg"
 											: "bg-white text-gray-700 border-gray-200 hover:border-pink-300 hover:bg-pink-50 shadow-md"
 									}`}
-									onClick={() => setCurrentTab(tab.id)}
+									onClick={() => setCurrentStep(tab.step)}
 									whileHover={{ scale: 1.05, y: -2 }}
 									whileTap={{ scale: 0.95 }}
 								>
