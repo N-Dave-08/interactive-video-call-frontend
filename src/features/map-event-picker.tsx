@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	Clock,
@@ -26,14 +26,39 @@ interface MapEventPickerProps {
 }
 
 export default function MapEventPicker({
+	value,
 	onChange,
 	onComplete,
 	markCompleteTrigger,
 }: MapEventPickerProps) {
-	const [currentStep, setCurrentStep] = useState(1);
-	const [time, setTime] = useState<MapEvent["time"]>("morning");
-	const [weather, setWeather] = useState<MapEvent["weather"]>("sunny");
-	const { selectedPlace, setSelectedPlace } = useMapEventStore();
+	const {
+		selectedPlace,
+		currentStep,
+		time,
+		weather,
+		setSelectedPlace,
+		setCurrentStep,
+		setTime,
+		setWeather,
+	} = useMapEventStore();
+
+	// Update store state when value prop changes
+	useEffect(() => {
+		if (value) {
+			setTime(value.time);
+			setWeather(value.weather);
+			if (value.place) {
+				setSelectedPlace(value.place);
+			}
+
+			// Determine current step based on completed data
+			let step = 1;
+			if (value.time) step = 2;
+			if (value.weather) step = 3;
+			if (value.place) step = 4;
+			setCurrentStep(step);
+		}
+	}, [value, setSelectedPlace, setTime, setWeather, setCurrentStep]);
 
 	const timeOptions = [
 		{
