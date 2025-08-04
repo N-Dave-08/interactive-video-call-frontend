@@ -56,7 +56,8 @@ export default function Room() {
 
 	// Stage audio management
 	const currentStage = `stage${step + 1}`;
-	useStageAudio(step === 0 ? undefined : currentStage);
+	// Don't play audio for Stage 5 as it handles its own audio with tabs
+	useStageAudio(step === 0 || step === 4 ? undefined : currentStage);
 
 	useEffect(() => {
 		if (session_id === "undefined") {
