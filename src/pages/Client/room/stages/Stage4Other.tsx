@@ -342,18 +342,18 @@ export default function Stage4Other({
 			</motion.div>
 
 			{/* Navigation Buttons */}
-			<div className="sticky bottom-0 w-full z-20 bg-white/80 backdrop-blur-sm py-4">
+			<div className="sticky bottom-0 w-full z-20">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.7, duration: 0.5 }}
-					className="flex justify-between items-center"
+					className="flex justify-between items-center mt-8"
 				>
 					<Button
 						type="button"
 						variant="outline"
 						onClick={onBack}
-						className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent relative z-10"
+						className="px-6 py-3 text-base font-semibold border-2 border-gray-300 text-gray-600 rounded-2xl hover:border-gray-400 hover:bg-gray-50 transition-all duration-300 bg-transparent"
 					>
 						<ArrowLeft className="w-5 h-5 mr-2" />
 						Back
@@ -363,11 +363,7 @@ export default function Stage4Other({
 						type="button"
 						onClick={onNext}
 						disabled={loading}
-						className={`px-8 py-3 text-base font-semibold rounded-2xl shadow-lg transition-all duration-300 relative z-10 ${
-							loading
-								? "bg-gray-400 text-gray-600 cursor-not-allowed opacity-50"
-								: "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white hover:shadow-xl transform hover:scale-105 cursor-pointer"
-						}`}
+						className="px-8 py-3 text-base font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 					>
 						{loading ? (
 							<motion.div
