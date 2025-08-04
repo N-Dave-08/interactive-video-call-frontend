@@ -45,6 +45,11 @@ export const useStageAudio = (stage?: string, step?: number) => {
 			audioFile = stage1AudioFiles[step] || stage1AudioFiles[0];
 		}
 
+		// Special handling for Stage 5 which has multiple tabs
+		if (stage?.startsWith("stage5-")) {
+			audioFile = stageAudioMap[stage];
+		}
+
 		if (!audioFile) return;
 
 		// Create and play new audio
