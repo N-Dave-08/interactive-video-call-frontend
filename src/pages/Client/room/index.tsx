@@ -250,7 +250,7 @@ export default function Room() {
 	const [mapEvent, setMapEvent] = useState<MapEvent>({
 		time: "morning",
 		place: null,
-		weather: "clear",
+		weather: "sunny",
 	});
 
 	const [conversationData, setConversationData] = useState({
