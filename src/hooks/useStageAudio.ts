@@ -43,14 +43,16 @@ export const useStageAudio = (stage?: string, step?: number) => {
 		}
 
 		// Special handling for Stage 5 which has multiple tabs (feelings, map-event, bodymap, drawing)
-		if (stage === "stage5" && typeof step === "number") {
+		if (stage === "stage5") {
+			// When called from room level (no step), use feelings audio as default
+			// When called from Stage5 component (with step), use step-specific audio
 			const stage5AudioFiles = [
 				"/ai-voiced/feelings-audio.mp3", // step 0 - feelings
 				"/ai-voiced/map-event-audio.mp3", // step 1 - map-event
 				"/ai-voiced/body-map.mp3", // step 2 - bodymap
 				"/ai-voiced/draw-something.mp3", // step 3 - drawing
 			];
-			audioFile = stage5AudioFiles[step] || stage5AudioFiles[0];
+			audioFile = stage5AudioFiles[step || 0]; // Default to step 0 (feelings) if no step provided
 		}
 
 		if (!audioFile) return;
