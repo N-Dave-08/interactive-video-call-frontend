@@ -12,12 +12,12 @@ import {
 import React, { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import BodyMap from "@/features/bodymap";
-import DrawingPad from "@/features/drawing-pad";
 import { useQuestionStore } from "@/store/questionStore";
 import { useStageAudio } from "@/hooks/useStageAudio";
 import StageCardLayout from "../layouts/StageCardLayout";
-// import MapEventPicker from "@/features/map-event-picker";
+import MapEventPicker from "@/features/map-event-picker";
+import BodyMap from "@/features/bodymap";
+import DrawingPad from "@/features/drawing-pad";
 
 interface SelectedParts {
 	[key: string]: { pain: boolean; touch: boolean };
@@ -33,8 +33,8 @@ export default function Stage5EmotionalExpressions({
 	onBodyMapChange,
 	onDrawingComplete,
 	gender,
-	// mapEvent,
-	// onMapEventChange,
+	mapEvent,
+	onMapEventChange,
 }: {
 	value: string;
 	onChange: (val: string) => void;
@@ -45,10 +45,10 @@ export default function Stage5EmotionalExpressions({
 	onBodyMapChange?: (front: SelectedParts, back: SelectedParts) => void;
 	onDrawingComplete?: (drawingBase64: string) => void;
 	gender: "male" | "female";
-	// mapEvent?: import("@/features/map-event-picker").MapEvent;
-	// onMapEventChange?: (
-	// 	event: import("@/features/map-event-picker").MapEvent,
-	// ) => void;
+	mapEvent?: import("@/features/map-event-picker").MapEvent;
+	onMapEventChange?: (
+		event: import("@/features/map-event-picker").MapEvent,
+	) => void;
 }) {
 	const setQuestion = useQuestionStore((s) => s.setQuestion);
 
@@ -57,6 +57,7 @@ export default function Stage5EmotionalExpressions({
 	// Define questions for each step
 	const stepQuestions = [
 		"Okay, tell how you feel.",
+		"Pick a place and set the scene!",
 		"Can you tell me where you feel things in your body?",
 		"Can you show me your feelings with a drawing?",
 	];
@@ -146,50 +147,39 @@ export default function Stage5EmotionalExpressions({
 			value: "sad",
 			label: "Sad",
 			emoji: <Icon icon="fluent-emoji:crying-face" className="text-4xl" />,
-			color: "from-blue-200 via-blue-300 to-blue-500",
-			bgColor: "bg-blue-50",
-			borderColor: "border-blue-200",
+			color: "from-blue-300 via-indigo-400 to-purple-400",
+			bgColor: "bg-blue-100",
+			borderColor: "border-blue-300",
 		},
 		{
 			value: "angry",
 			label: "Angry",
-			emoji: <Icon icon="fluent-emoji:angry-face" className="text-4xl" />,
-			color: "from-red-300 via-red-400 to-red-600",
+			emoji: <Icon icon="fluent-emoji:pouting-face" className="text-4xl" />,
+			color: "from-red-300 via-red-400 to-pink-400",
 			bgColor: "bg-red-100",
 			borderColor: "border-red-300",
 		},
 	];
 
-	// Check if all sections are complete
-	const allComplete = value && bodyMapComplete && drawingPadComplete;
-
 	const FloatingStars = () => (
 		<div className="absolute inset-0 pointer-events-none overflow-hidden">
-			{[...Array(6)].map((_, i) => (
+			{Array.from({ length: 20 }).map((_, i) => (
 				<motion.div
 					key={`star-${i + 1}`}
 					className="absolute text-yellow-300"
-					initial={{
-						x: `${Math.random() * 100}%`,
-						y: `${Math.random() * 100}%`,
-						rotate: 0,
-						scale: 0.5 + Math.random() * 0.5,
+					style={{
+						left: `${Math.random() * 100}%`,
+						top: `${Math.random() * 100}%`,
 					}}
 					animate={{
-						rotate: 360,
 						y: [0, -20, 0],
+						opacity: [0.3, 1, 0.3],
+						rotate: [0, 180, 360],
 					}}
 					transition={{
-						rotate: {
-							duration: 8 + i * 2,
-							repeat: Number.POSITIVE_INFINITY,
-							ease: "linear",
-						},
-						y: {
-							duration: 3 + i,
-							repeat: Number.POSITIVE_INFINITY,
-							ease: "easeInOut",
-						},
+						duration: 3 + Math.random() * 2,
+						repeat: Number.POSITIVE_INFINITY,
+						delay: Math.random() * 2,
 					}}
 				>
 					<Star className="w-4 h-4 fill-current" />
@@ -326,22 +316,22 @@ export default function Stage5EmotionalExpressions({
 						)}
 					</div>
 				);
-			// case "map-event":
-			// 	return (
-			// 		<div className="my-8 text-center">
-			// 			<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
-			// 				<span role="img" aria-label="map">
-			// 					🗺️
-			// 				</span>{" "}
-			// 				Map Event Picker
-			// 			</h3>
-			// 			<div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-6 border-3 border-green-200">
-			// 				{/* MapEventPicker component */}
-			// 				<MapEventPicker value={mapEvent} onChange={onMapEventChange} />
-			// 			</div>
-			// 		</div>
-			// 	);
-			case 1: // bodymap
+			case 1: // map-event
+				return (
+					<div className="my-8 text-center">
+						<h3 className="text-2xl font-bold text-purple-600 mb-2 flex items-center justify-center gap-2">
+							<span role="img" aria-label="map">
+								🗺️
+							</span>{" "}
+							Map Event Picker
+						</h3>
+						<div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-3xl p-6 border-3 border-green-200">
+							{/* MapEventPicker component */}
+							<MapEventPicker value={mapEvent} onChange={onMapEventChange} />
+						</div>
+					</div>
+				);
+			case 2: // bodymap
 				return (
 					<div className="my-8 text-center">
 						<motion.div
@@ -362,7 +352,7 @@ export default function Stage5EmotionalExpressions({
 						</motion.div>
 						<div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-6 border-3 border-blue-200">
 							<BodyMap
-								gender={gender} // <-- pass gender
+								gender={gender}
 								onBodyPartClick={() => setBodyMapComplete(true)}
 								onSelectionChange={onBodyMapChange}
 								onSkip={() => setBodyMapComplete(true)}
@@ -370,7 +360,7 @@ export default function Stage5EmotionalExpressions({
 						</div>
 					</div>
 				);
-			case 2: // drawingpad
+			case 3: // drawingpad
 				return (
 					<div className="my-8 text-center">
 						<motion.div
@@ -457,17 +447,30 @@ export default function Stage5EmotionalExpressions({
 		// },
 		{
 			step: 1,
+			label: "Map Event",
+			emoji: (
+				<span role="img" aria-label="map" className="text-xl">
+					🗺️
+				</span>
+			),
+			complete: !!mapEvent?.place,
+		},
+		{
+			step: 2,
 			label: "Body Map",
 			emoji: <Icon icon="fluent-emoji:world-map" className="text-xl" />,
 			complete: bodyMapComplete,
 		},
 		{
-			step: 2,
+			step: 3,
 			label: "Drawing",
 			emoji: <Icon icon="fluent-emoji:artist-palette" className="text-xl" />,
 			complete: drawingPadComplete,
 		},
 	];
+
+	// Check if all tabs are complete
+	const allComplete = tabs.every((tab) => tab.complete);
 
 	return (
 		<motion.div

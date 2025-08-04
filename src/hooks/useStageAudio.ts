@@ -42,12 +42,13 @@ export const useStageAudio = (stage?: string, step?: number) => {
 			audioFile = stage1AudioFiles[step] || stage1AudioFiles[0];
 		}
 
-		// Special handling for Stage 5 which has multiple tabs (feelings, bodymap, drawing)
+		// Special handling for Stage 5 which has multiple tabs (feelings, map-event, bodymap, drawing)
 		if (stage === "stage5" && typeof step === "number") {
 			const stage5AudioFiles = [
 				"/ai-voiced/feelings-audio.mp3", // step 0 - feelings
-				"/ai-voiced/body-map.mp3", // step 1 - bodymap
-				"/ai-voiced/draw-something.mp3", // step 2 - drawing
+				"/ai-voiced/map-event-audio.mp3", // step 1 - map-event
+				"/ai-voiced/body-map.mp3", // step 2 - bodymap
+				"/ai-voiced/draw-something.mp3", // step 3 - drawing
 			];
 			audioFile = stage5AudioFiles[step] || stage5AudioFiles[0];
 		}
