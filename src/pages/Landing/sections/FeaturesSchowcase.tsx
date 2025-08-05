@@ -6,54 +6,30 @@ const features = [
 	{
 		title: "Interactive Avatar Creator",
 		description:
-			"Children can create and customize their own avatars with different hairstyles, clothes, and expressions. Make each session personal and engaging.",
+			"Create and customize avatars with hairstyles, clothes, and expressions.",
 		icon: Palette,
 		color: "from-blue-500 to-purple-600",
-		features: [
-			"Customizable hairstyles and clothes",
-			"Facial expressions and emotions",
-			"Background selection",
-			"Save favorite avatars",
-		],
 	},
 	{
 		title: "Emotional Expression Tools",
 		description:
-			"Body map and expression tools help children communicate their feelings effectively. Perfect for therapy and emotional development.",
+			"Body map and expression tools for effective emotional communication.",
 		icon: Heart,
 		color: "from-pink-500 to-rose-600",
-		features: [
-			"Interactive body map",
-			"Emotion selection tools",
-			"Feeling expression games",
-			"Progress tracking",
-		],
 	},
 	{
 		title: "Educational Mini-Games",
 		description:
-			"Engaging games like Flappy Bird, Snake, and Tetris make learning fun and interactive. Keep children engaged during sessions.",
+			"Engaging games like Flappy Bird, Snake, and Tetris for interactive learning.",
 		icon: Gamepad2,
 		color: "from-green-500 to-emerald-600",
-		features: [
-			"Multiple game options",
-			"Skill development focus",
-			"Progress monitoring",
-			"Fun learning experience",
-		],
 	},
 	{
 		title: "Interactive Drawing Pad",
 		description:
-			"Creative drawing tools allow children to express themselves artistically. Perfect for art therapy and creative expression.",
+			"Creative drawing tools for artistic expression and art therapy.",
 		icon: Sparkles,
 		color: "from-orange-500 to-yellow-600",
-		features: [
-			"Digital drawing canvas",
-			"Multiple brush tools",
-			"Color palette selection",
-			"Save and share artwork",
-		],
 	},
 ];
 
@@ -101,17 +77,6 @@ export default function FeaturesShowcase() {
 										{feature.description}
 									</p>
 								</div>
-							</div>
-
-							<div className="space-y-3">
-								{feature.features.map((item) => (
-									<div key={item} className="flex items-center gap-3">
-										<div
-											className={`w-2 h-2 rounded-full bg-gradient-to-r ${feature.color}`}
-										/>
-										<span className="text-gray-700 text-sm">{item}</span>
-									</div>
-								))}
 							</div>
 						</motion.div>
 					))}

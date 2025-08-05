@@ -47,9 +47,8 @@ export default function PlatformBenefitsSection() {
 						Why Choose Our Platform?
 					</h2>
 					<p className="text-xl text-gray-600 max-w-3xl mx-auto">
-						Our interactive video call platform is designed to make virtual
-						therapy more effective, engaging, and accessible for everyone
-						involved.
+						Our platform is designed to make child therapy sessions more
+						effective, engaging, and accessible for everyone involved.
 					</p>
 				</motion.div>
 

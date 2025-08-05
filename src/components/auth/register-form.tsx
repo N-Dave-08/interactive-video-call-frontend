@@ -23,6 +23,8 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import {
 	Select,
@@ -33,6 +35,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "../ui/select";
+import { Info } from "lucide-react";
 
 const registerSchema = z
 	.object({
@@ -44,6 +47,9 @@ const registerSchema = z
 		email: z.string().email("Invalid email address"),
 		password: z.string().min(6, "Password must be at least 6 characters"),
 		confirm_password: z.string().min(1, "Please confirm your password"),
+		privacy_policy_agreed: z.boolean().refine((val) => val === true, {
+			message: "You must agree to the Privacy Policy to continue",
+		}),
 	})
 	.refine((data) => data.password === data.confirm_password, {
 		message: "Passwords do not match",
@@ -54,6 +60,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function RegisterForm({ className }: React.ComponentProps<"form">) {
 	const [loading, setLoading] = useState(false);
+	const [privacyPolicyOpen, setPrivacyPolicyOpen] = useState(false);
 	const navigate = useNavigate();
 	const form = useForm<RegisterFormValues>({
 		resolver: zodResolver(registerSchema),
@@ -66,6 +73,7 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 			email: "",
 			password: "",
 			confirm_password: "",
+			privacy_policy_agreed: false,
 		},
 	});
 	const { handleSubmit, control } = form;
@@ -310,6 +318,83 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 										</FormItem>
 									)}
 								/>
+
+								{/* Privacy Policy Section */}
+								<div className="space-y-3">
+									<FormField
+										name="privacy_policy_agreed"
+										control={control}
+										render={({ field }) => (
+											<FormItem className="flex flex-row items-start space-x-3 space-y-0">
+												<FormControl>
+													<Checkbox
+														checked={field.value}
+														onCheckedChange={field.onChange}
+													/>
+												</FormControl>
+												<div className="space-y-1 leading-none">
+													<FormLabel className="text-sm font-normal">
+														I agree to the{" "}
+														<Dialog
+															open={privacyPolicyOpen}
+															onOpenChange={setPrivacyPolicyOpen}
+														>
+															<DialogTrigger asChild>
+																<button
+																	type="button"
+																	className="text-indigo-600 hover:text-indigo-800 underline underline-offset-2"
+																>
+																	Privacy Policy
+																</button>
+															</DialogTrigger>
+															<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+																<div className="space-y-4 text-sm text-gray-700">
+																	<div>
+																		<h4 className="text-lg font-semibold text-gray-900 mb-2">
+																			Privacy Policy
+																		</h4>
+																		<p className="mb-3 leading-relaxed">
+																			PrepPlay is committed to maintaining the
+																			highest standards of confidentiality and
+																			data security. All information shared
+																			within the app is securely encrypted and
+																			accessible only to authorized personnel.
+																			Children's identities and personal details
+																			are safeguarded at every step, and no data
+																			is shared with third parties without
+																			explicit, informed consent and legal
+																			compliance.
+																		</p>
+																	</div>
+																	<div>
+																		<h4 className="text-lg font-semibold text-gray-900 mb-2">
+																			Policy Statement
+																		</h4>
+																		<p className="leading-relaxed">
+																			PrepPlay adheres to a strict code of
+																			ethical practice rooted in child-centered
+																			and trauma-informed care. The application
+																			is designed to respect each child's
+																			autonomy, dignity, and privacy, providing
+																			interviewers with secure tools and
+																			protocols while prioritizing the
+																			well-being and safety of every user
+																			throughout their engagement with the
+																			platform.
+																		</p>
+																	</div>
+																</div>
+															</DialogContent>
+														</Dialog>
+														<Info className="w-4 h-4" />
+													</FormLabel>
+													<FormMessage />
+												</div>
+											</FormItem>
+										)}
+									/>
+								</div>
+
 								<Button
 									type="submit"
 									className="w-full mt-2 bg-indigo-500 text-white hover:bg-indigo-600 rounded-xl"
@@ -322,10 +407,6 @@ export function RegisterForm({ className }: React.ComponentProps<"form">) {
 					</Form>
 				</CardContent>
 			</Card>
-			<div className="text-indigo-700 *:[a]:hover:text-purple-600 text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-				By registering, you agree to our <a href="/">Terms of Service</a> and{" "}
-				<a href="/">Privacy Policy</a>.
-			</div>
 			<div className="text-center text-sm">
 				Already have an account?{" "}
 				<Link
