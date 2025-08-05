@@ -7,8 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import PrivacyProlicyModal from "./modals/privacy-policy-modal";
 
 const menuItems = [
-	{ name: "How it works", href: "/" },
-	{ name: "About", href: "/" },
+	{ name: "Mission & Vision", href: "#vision" },
+	{ name: "Features", href: "#features" },
 	{ name: "Privacy Policy", href: "/" },
 ];
 
@@ -103,16 +103,23 @@ export default function Navbar() {
 					>
 						<div className="lg:hidden">
 							<ul className="space-y-6 text-base">
-								{menuItems.map((item) => (
-									<li key={item.name}>
-										<a
-											href={item.href}
-											className="text-zinc-500 hover:text-zinc-900 block duration-150"
-										>
-											<span>{item.name}</span>
-										</a>
-									</li>
-								))}
+								{menuItems.map((item) => {
+									const isPrivacyPolicy = item.name === "Privacy Policy";
+									return (
+										<li key={item.name}>
+											{isPrivacyPolicy ? (
+												<PrivacyProlicyModal />
+											) : (
+												<a
+													href={item.href}
+													className="text-zinc-500 hover:text-zinc-900 block duration-150"
+												>
+													<span>{item.name}</span>
+												</a>
+											)}
+										</li>
+									);
+								})}
 								{/* Add dashboard link for authenticated users in mobile menu */}
 								{token && user && (
 									<li>
@@ -147,9 +154,9 @@ export default function Navbar() {
 									size="sm"
 									className={cn(isScrolled ? "lg:inline-flex" : "hidden")}
 								>
-									<a href="/get-started">
+									<Link to="/register">
 										<span>Get Started</span>
-									</a>
+									</Link>
 								</Button>
 							</div>
 						)}
