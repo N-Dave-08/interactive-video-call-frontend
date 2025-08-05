@@ -1,19 +1,19 @@
-import AccountCreationSection from "./AccountCreationSection";
+import InteractiveTherapySection from "./sections/CallToActionSection";
 import BlurBackground from "./backgrounds/blur-background";
-import Footer from "./Footer";
-import HeroSection from "./HeroSection";
-import InfoSection from "./InfoSection";
+import Footer from "./sections/Footer";
+import HeroSection from "./sections/HeroSection";
+import VisionSection from "./sections/VisionSection";
 import Navbar from "./Navbar";
-import StatsSection from "./StatsSection";
-import TestimonialsSection from "./TestimonialsSection";
+import PlatformBenefitsSection from "./sections/PlatformBenefitsSection";
+import FeaturesShowcase from "./sections/FeaturesSchowcase";
 
 export default function LandingPage() {
 	const sections = [
 		<HeroSection key="hero" />,
-		<StatsSection key="stats" />,
-		<InfoSection key="info" />,
-		<TestimonialsSection key="testimonials" />,
-		<AccountCreationSection key="account" />,
+		<PlatformBenefitsSection key="benefits" />,
+		<VisionSection key="vision" />,
+		<FeaturesShowcase key="features" />,
+		<InteractiveTherapySection key="interactive-therapy" />,
 		<Footer key="footer" />,
 	];
 
@@ -24,6 +24,15 @@ export default function LandingPage() {
 			{sections.map((Section, idx) => (
 				<div
 					key={Section.key}
+					id={
+						Section.key === "benefits"
+							? "benefits"
+							: Section.key === "features"
+								? "features"
+								: Section.key === "vision"
+									? "vision"
+									: undefined
+					}
 					className={
 						idx % 2 === 1 ? "bg-gradient-to-br from-slate-50 to-blue-50/50" : ""
 					}
