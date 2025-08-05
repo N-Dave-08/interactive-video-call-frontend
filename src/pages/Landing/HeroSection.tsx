@@ -1,4 +1,12 @@
-import { ArrowRight, Calendar, Play, Shield, Star, Users, X } from "lucide-react";
+import {
+	ArrowRight,
+	Calendar,
+	Play,
+	Shield,
+	Star,
+	Users,
+	X,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
 import motherBaby from "@/assets/mother-baby.svg";
@@ -7,10 +15,10 @@ import Container from "./Container";
 
 export default function HeroSection() {
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
-	
+
 	// Replace this with your actual YouTube video ID
 	const youtubeVideoId = "bp3NgXouCMo"; // Example ID, replace with your demo video
-	
+
 	const openVideoModal = () => setIsVideoModalOpen(true);
 	const closeVideoModal = () => setIsVideoModalOpen(false);
 
@@ -48,9 +56,9 @@ export default function HeroSection() {
 								</h1>
 
 								<p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-									Connect with certified healthcare professionals for personalized
-									consultations. Get the support and guidance you deserve, from
-									pregnancy to parenthood.
+									Connect with certified healthcare professionals for
+									personalized consultations. Get the support and guidance you
+									deserve, from pregnancy to parenthood.
 								</p>
 							</div>
 
@@ -81,7 +89,9 @@ export default function HeroSection() {
 								</div>
 								<div className="flex items-center gap-2">
 									<Calendar className="w-5 h-5 text-emerald-600" />
-									<span className="text-sm text-gray-600">Same Day Booking</span>
+									<span className="text-sm text-gray-600">
+										Same Day Booking
+									</span>
 								</div>
 								<div className="flex items-center gap-2">
 									<Shield className="w-5 h-5 text-purple-600" />
@@ -198,20 +208,28 @@ export default function HeroSection() {
 							initial={{ scale: 0.5, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.5, opacity: 0 }}
-							transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+							transition={{
+								duration: 0.3,
+								type: "spring",
+								stiffness: 300,
+								damping: 30,
+							}}
 							className="relative bg-white rounded-2xl overflow-hidden shadow-2xl max-w-4xl w-full"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
-							<button
+							<Button
 								onClick={closeVideoModal}
 								className="absolute top-4 right-4 z-10 bg-black/20 hover:bg-black/40 text-white rounded-full p-2 transition-all duration-200 backdrop-blur-sm"
 							>
 								<X className="w-6 h-6" />
-							</button>
+							</Button>
 
 							{/* Video Container */}
-							<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+							<div
+								className="relative w-full"
+								style={{ paddingBottom: "56.25%" }}
+							>
 								<iframe
 									className="absolute top-0 left-0 w-full h-full"
 									src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
