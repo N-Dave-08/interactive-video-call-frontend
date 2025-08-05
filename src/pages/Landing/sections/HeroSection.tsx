@@ -29,16 +29,16 @@ export default function HeroSection() {
 							<div className="space-y-6">
 								<h1 className="text-5xl lg:text-6xl font-bold leading-tight">
 									<span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-emerald-600 bg-clip-text text-transparent">
-										Expert Care
+										Interactive Therapy
 									</span>
 									<br />
-									<span className="text-gray-900">When You Need It Most</span>
+									<span className="text-gray-900">That Kids Actually Love</span>
 								</h1>
 
 								<p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-									Connect with certified healthcare professionals for
-									personalized consultations. Get the support and guidance you
-									deserve, from pregnancy to parenthood.
+									Transform virtual therapy sessions with engaging games,
+									interactive avatars, and creative tools. Make therapy fun and
+									effective for children.
 								</p>
 							</div>
 
@@ -50,7 +50,7 @@ export default function HeroSection() {
 									className="border-2 border-gray-200 hover:border-indigo-300 px-8 py-4 rounded-xl transition-all duration-300 bg-transparent hover:bg-indigo-50"
 								>
 									<Play className="w-5 h-5 mr-2" />
-									Watch Demo
+									What Demo
 								</Button>
 							</div>
 						</motion.div>
@@ -67,7 +67,7 @@ export default function HeroSection() {
 								<div className="relative bg-gradient-to-br from-indigo-50 to-emerald-50 rounded-3xl p-8 shadow-2xl">
 									<img
 										src={motherBaby || "/placeholder.svg"}
-										alt="Mother holding baby - consultation services"
+										alt="Interactive therapy session with games and avatars"
 										className="w-full h-auto object-cover rounded-2xl"
 									/>
 								</div>
