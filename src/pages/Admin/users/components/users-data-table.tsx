@@ -14,6 +14,7 @@ import {
 } from "@tanstack/react-table";
 import {
 	AlertCircle,
+	Archive,
 	Calendar,
 	CheckCircle,
 	ChevronDown,
@@ -29,9 +30,9 @@ import {
 	MapPin,
 	MoreVertical,
 	Phone,
+	RotateCcw,
 	Search,
 	Shield,
-	Trash2,
 	UserPlus,
 	XCircle,
 } from "lucide-react";
@@ -74,6 +75,9 @@ import type { UserPagination, UserStatistics } from "@/types";
 import { AddUserDialog } from "./add-user-dialog";
 import { DeleteUserDialog } from "./delete-user-dialog";
 import { EditUserDialog } from "./edit-user-dialog";
+import { UnarchiveUserDialog } from "./unarchive-user-dialog";
+import { BulkArchiveDialog } from "./bulk-archive-dialog";
+import { BulkUnarchiveDialog } from "./bulk-unarchive-dialog";
 
 const getConditionBadge = (condition: string) => {
 	const variants = {
@@ -96,6 +100,11 @@ const getConditionBadge = (condition: string) => {
 			variant: "outline" as const,
 			icon: AlertCircle,
 			color: "text-gray-600",
+		},
+		archived: {
+			variant: "outline" as const,
+			icon: Archive,
+			color: "text-gray-500",
 		},
 	};
 
@@ -325,6 +334,8 @@ const columns: ColumnDef<User>[] = [
 		id: "actions",
 		header: "",
 		cell: ({ row }) => {
+			const user = row.original;
+
 			const handleEdit = () => {
 				const event = new CustomEvent("editUser", {
 					detail: row.original,
@@ -334,6 +345,13 @@ const columns: ColumnDef<User>[] = [
 
 			const handleDelete = () => {
 				const event = new CustomEvent("deleteUser", {
+					detail: row.original,
+				});
+				window.dispatchEvent(event);
+			};
+
+			const handleUnarchive = () => {
+				const event = new CustomEvent("unarchiveUser", {
 					detail: row.original,
 				});
 				window.dispatchEvent(event);
@@ -355,13 +373,23 @@ const columns: ColumnDef<User>[] = [
 							<Edit className="h-4 w-4 mr-2" />
 							Edit User
 						</DropdownMenuItem>
-						<DropdownMenuItem
-							className="text-destructive focus:text-destructive"
-							onClick={handleDelete}
-						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							Delete User
-						</DropdownMenuItem>
+						{user.condition === "archived" ? (
+							<DropdownMenuItem
+								className="text-green-600 focus:text-green-600"
+								onClick={handleUnarchive}
+							>
+								<RotateCcw className="h-4 w-4 mr-2" />
+								Unarchive User
+							</DropdownMenuItem>
+						) : (
+							<DropdownMenuItem
+								className="text-destructive focus:text-destructive"
+								onClick={handleDelete}
+							>
+								<Archive className="h-4 w-4 mr-2" />
+								Archive User
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			);
@@ -389,6 +417,7 @@ interface DataTableProps {
 	rowsPerPage: number;
 	setRowsPerPage: (v: number) => void;
 	loading: boolean;
+	onUnarchiveUser?: (user: User) => void;
 }
 
 export function DataTable({
@@ -405,9 +434,8 @@ export function DataTable({
 	rowsPerPage,
 	setRowsPerPage,
 	loading,
+	onUnarchiveUser,
 }: DataTableProps) {
-	// Debug: log the data prop
-	// console.log("[DataTable] data:", data);
 	const [rowSelection, setRowSelection] = React.useState({});
 	const [columnVisibility, setColumnVisibility] =
 		React.useState<VisibilityState>({});
@@ -421,6 +449,14 @@ export function DataTable({
 	const [addDialogOpen, setAddDialogOpen] = React.useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 	const [deletingUser, setDeletingUser] = React.useState<User | null>(null);
+	const [unarchiveDialogOpen, setUnarchiveDialogOpen] = React.useState(false);
+	const [unarchivingUser, setUnarchivingUser] = React.useState<User | null>(
+		null,
+	);
+	const [bulkArchiveDialogOpen, setBulkArchiveDialogOpen] =
+		React.useState(false);
+	const [bulkUnarchiveDialogOpen, setBulkUnarchiveDialogOpen] =
+		React.useState(false);
 
 	React.useEffect(() => {
 		setTableData(data);
@@ -438,13 +474,26 @@ export function DataTable({
 			setDeleteDialogOpen(true);
 		};
 
+		const handleUnarchiveUser = (event: CustomEvent) => {
+			setUnarchivingUser(event.detail);
+			setUnarchiveDialogOpen(true);
+		};
+
 		window.addEventListener("editUser", handleEditUser as EventListener);
 		window.addEventListener("deleteUser", handleDeleteUser as EventListener);
+		window.addEventListener(
+			"unarchiveUser",
+			handleUnarchiveUser as EventListener,
+		);
 		return () => {
 			window.removeEventListener("editUser", handleEditUser as EventListener);
 			window.removeEventListener(
 				"deleteUser",
 				handleDeleteUser as EventListener,
+			);
+			window.removeEventListener(
+				"unarchiveUser",
+				handleUnarchiveUser as EventListener,
 			);
 		};
 	}, []);
@@ -461,7 +510,6 @@ export function DataTable({
 				pageIndex: page - 1,
 				pageSize: rowsPerPage,
 			},
-			// Removed globalFilter
 		},
 		getRowId: (row) => row.id.toString(),
 		enableRowSelection: true,
@@ -470,11 +518,9 @@ export function DataTable({
 		onColumnFiltersChange: setColumnFilters,
 		onColumnVisibilityChange: setColumnVisibility,
 		onPaginationChange: (pagination) => {
-			// Handle both direct object and updater function
 			let pageIndex: number | undefined;
 			let pageSize: number | undefined;
 			if (typeof pagination === "function") {
-				// Not expected in our usage, but handle for type safety
 				const result = pagination({
 					pageIndex: page - 1,
 					pageSize: rowsPerPage,
@@ -488,13 +534,11 @@ export function DataTable({
 			if (typeof pageIndex === "number") setPage(pageIndex + 1);
 			if (typeof pageSize === "number") setRowsPerPage(pageSize);
 		},
-		// Removed onGlobalFilterChange
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
 		getFacetedUniqueValues: getFacetedUniqueValues(),
-		// Removed getFilteredRowModel and globalFilterFn
 		meta: {
 			onConditionChange: (id: string, newValue: string) => {
 				setTableData((prev) =>
@@ -599,18 +643,20 @@ export function DataTable({
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="start" className="w-48">
-							{["approved", "pending", "rejected", "blocked"].map((status) => (
-								<DropdownMenuCheckboxItem
-									key={status}
-									className="capitalize"
-									checked={condition === status}
-									onCheckedChange={(value) => {
-										setCondition(value ? status : undefined);
-									}}
-								>
-									{getConditionBadge(status)}
-								</DropdownMenuCheckboxItem>
-							))}
+							{["approved", "pending", "rejected", "blocked", "archived"].map(
+								(status) => (
+									<DropdownMenuCheckboxItem
+										key={status}
+										className="capitalize"
+										checked={condition === status}
+										onCheckedChange={(value) => {
+											setCondition(value ? status : undefined);
+										}}
+									>
+										{getConditionBadge(status)}
+									</DropdownMenuCheckboxItem>
+								),
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
@@ -661,10 +707,6 @@ export function DataTable({
 						</span>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button variant="outline" size="sm">
-							<Mail className="h-4 w-4 mr-2" />
-							Email Selected
-						</Button>
 						<Button
 							variant="destructive"
 							size="sm"
@@ -672,20 +714,34 @@ export function DataTable({
 								const selectedUsers = table
 									.getFilteredSelectedRowModel()
 									.rows.map((row) => row.original);
-								// For bulk delete, we'll just delete the first selected user as an example
-								// In a real app, you might want a bulk delete confirmation dialog
 								if (selectedUsers.length > 0) {
-									const event = new CustomEvent("deleteUser", {
-										detail: selectedUsers[0],
-									});
-									window.dispatchEvent(event);
-									// Clear selection after delete
-									table.toggleAllPageRowsSelected(false);
+									// Check if any selected users are already archived
+									const hasArchivedUsers = selectedUsers.some(
+										(user) => user.condition === "archived",
+									);
+
+									if (hasArchivedUsers) {
+										// If any are archived, show bulk unarchive dialog
+										setBulkUnarchiveDialogOpen(true);
+									} else {
+										// If none are archived, show bulk archive dialog
+										setBulkArchiveDialogOpen(true);
+									}
 								}
 							}}
 						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							Delete Selected
+							<Archive className="h-4 w-4 mr-2" />
+							{(() => {
+								const selectedUsers = table
+									.getFilteredSelectedRowModel()
+									.rows.map((row) => row.original);
+								const hasArchivedUsers = selectedUsers.some(
+									(user) => user.condition === "archived",
+								);
+								return hasArchivedUsers
+									? "Unarchive Selected"
+									: "Archive Selected";
+							})()}
 						</Button>
 					</div>
 				</div>
@@ -871,6 +927,44 @@ export function DataTable({
 					onOpenChange={setDeleteDialogOpen}
 				/>
 			)}
+
+			{/* Unarchive User Dialog */}
+			{unarchivingUser && (
+				<UnarchiveUserDialog
+					user={unarchivingUser}
+					open={unarchiveDialogOpen}
+					onOpenChange={setUnarchiveDialogOpen}
+					onUnarchive={onUnarchiveUser}
+				/>
+			)}
+
+			{/* Bulk Archive Dialog */}
+			<BulkArchiveDialog
+				users={table
+					.getFilteredSelectedRowModel()
+					.rows.map((row) => row.original)}
+				open={bulkArchiveDialogOpen}
+				onOpenChange={(open) => {
+					setBulkArchiveDialogOpen(open);
+					if (!open) {
+						table.toggleAllPageRowsSelected(false);
+					}
+				}}
+			/>
+
+			{/* Bulk Unarchive Dialog */}
+			<BulkUnarchiveDialog
+				users={table
+					.getFilteredSelectedRowModel()
+					.rows.map((row) => row.original)}
+				open={bulkUnarchiveDialogOpen}
+				onOpenChange={(open) => {
+					setBulkUnarchiveDialogOpen(open);
+					if (!open) {
+						table.toggleAllPageRowsSelected(false);
+					}
+				}}
+			/>
 		</div>
 	);
 }
