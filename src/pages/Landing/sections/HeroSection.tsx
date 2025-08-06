@@ -1,7 +1,7 @@
 import { Play, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import motherBaby from "@/assets/mother-baby.svg";
+import motherBaby from "@/assets/pexels-liliana-drew-8506376.jpg";
 import { Button } from "@/components/ui/button";
 import Container from "../Container";
 
