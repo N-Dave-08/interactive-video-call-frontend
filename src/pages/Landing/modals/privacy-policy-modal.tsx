@@ -24,19 +24,23 @@ export default function PrivacyProlicyModal() {
 				<DialogHeader>
 					<DialogTitle>Privacy Policy</DialogTitle>
 					<DialogDescription>
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-						eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-						ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-						aliquip ex ea commodo consequat. Duis aute irure dolor in
-						reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-						pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-						culpa qui officia deserunt mollit anim id est laborum.
+						PrepPlay is committed to maintaining the highest standards of
+						confidentiality and data security. All information shared within the
+						app is securely encrypted and accessible only to authorized
+						personnel. Children’s identities and personal details are
+						safeguarded at every step, and no data is shared with third parties
+						without explicit, informed consent and legal compliance.
+					</DialogDescription>
+					<DialogTitle>Policy Statement</DialogTitle>
+					<DialogDescription>
+						PrepPlay adheres to a strict code of ethical practice rooted in
+						child-centered and trauma-informed care. The application is designed
+						to respect each child’s autonomy, dignity, and privacy, providing
+						interviewers with secure tools and protocols while prioritizing the
+						well-being and safety of every user throughout their engagement with
+						the platform.
 					</DialogDescription>
 				</DialogHeader>
-				<div className="flex items-center gap-3">
-					<Checkbox id="terms" />
-					<Label htmlFor="terms">Accept Terms and Conditions</Label>
-				</div>
 			</DialogContent>
 		</Dialog>
 	);
