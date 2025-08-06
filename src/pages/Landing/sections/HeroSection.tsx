@@ -47,7 +47,7 @@ export default function HeroSection() {
 									variant="outline"
 									size="lg"
 									onClick={openVideoModal}
-									className="border-2 border-gray-200 hover:border-indigo-300 px-8 py-4 rounded-xl transition-all duration-300 bg-transparent"
+									className="border-2 border-gray-200 hover:border-indigo-300 px-8 py-4 rounded-xl transition-all duration-300 bg-transparent hover:bg-indigo-50"
 								>
 									<Play className="w-5 h-5 mr-2" />
 									What Demo
@@ -102,13 +102,12 @@ export default function HeroSection() {
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
-							<button
-								type="button"
+							<Button
 								onClick={closeVideoModal}
 								className="absolute top-4 right-4 z-10 bg-black/20 hover:bg-black/40 text-white rounded-full p-2 transition-all duration-200 backdrop-blur-sm"
 							>
 								<X className="w-6 h-6" />
-							</button>
+							</Button>
 
 							{/* Video Container */}
 							<div
