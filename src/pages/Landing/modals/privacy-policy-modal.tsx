@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import {
 	Dialog,
 	DialogContent,
@@ -8,7 +8,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 
 export default function PrivacyProlicyModal() {
 	const [open, setOpen] = useState(false);
