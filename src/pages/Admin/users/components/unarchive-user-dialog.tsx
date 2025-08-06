@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Trash2, UserX } from "lucide-react";
+import { RotateCcw, UserCheck } from "lucide-react";
 import { toast } from "sonner";
-import { archiveUser } from "@/api/users";
+import { updateUserCondition } from "@/api/users";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,9 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import type { User } from "@/types";
 
-interface DeleteUserDialogProps {
+interface UnarchiveUserDialogProps {
 	user: {
 		id: string;
 		first_name: string;
@@ -28,33 +29,36 @@ interface DeleteUserDialogProps {
 	};
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	onUnarchive?: (user: User) => void;
 }
 
-export function DeleteUserDialog({
+export function UnarchiveUserDialog({
 	user,
 	open,
 	onOpenChange,
-}: DeleteUserDialogProps) {
+	onUnarchive,
+}: UnarchiveUserDialogProps) {
 	const queryClient = useQueryClient();
 	const { token } = useAuth();
 
-	const { mutate: archiveUserMutation, isPending } = useMutation({
+	const { mutate: unarchiveUserMutation, isPending } = useMutation({
 		mutationFn: async () => {
 			if (!token) throw new Error("No token");
-			await archiveUser(user.id, token);
+			await updateUserCondition(user.id, "approved", token);
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users"] });
-			toast.success("User archived successfully");
+			toast.success("User unarchived successfully");
+			onUnarchive?.(user as User);
 			onOpenChange(false);
 		},
 		onError: () => {
-			toast.error("Failed to archive user");
+			toast.error("Failed to unarchive user");
 		},
 	});
 
-	const handleArchive = async () => {
-		archiveUserMutation();
+	const handleUnarchive = async () => {
+		unarchiveUserMutation();
 	};
 
 	const getRoleBadge = (role: string) => {
@@ -97,6 +101,10 @@ export function DeleteUserDialog({
 				variant: "outline" as const,
 				color: "text-gray-600",
 			},
+			archived: {
+				variant: "outline" as const,
+				color: "text-gray-500",
+			},
 		};
 
 		const config =
@@ -116,29 +124,29 @@ export function DeleteUserDialog({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2 text-destructive">
-						<AlertTriangle className="h-5 w-5" />
-						Archive User
+					<DialogTitle className="flex items-center gap-2 text-green-600">
+						<UserCheck className="h-5 w-5" />
+						Unarchive User
 					</DialogTitle>
 					<DialogDescription>
-						This will archive the user account. The user will no longer be able
-						to access the system, but their data will be preserved.
+						This will restore the user account. The user will be able to access
+						the system again with their previous permissions.
 					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-6 py-4">
-					{/* Warning Message */}
-					<div className="rounded-lg border border-orange-200 bg-orange-50 p-4">
+					{/* Success Message */}
+					<div className="rounded-lg border border-green-200 bg-green-50 p-4">
 						<div className="flex items-start gap-3">
-							<AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+							<UserCheck className="h-5 w-5 text-green-600 mt-0.5" />
 							<div className="flex-1">
-								<h4 className="font-medium text-orange-800">
-									Are you sure you want to archive this user?
+								<h4 className="font-medium text-green-800">
+									Are you sure you want to unarchive this user?
 								</h4>
-								<p className="text-sm text-orange-700 mt-1">
-									This action will archive the user account. The user will no
-									longer be able to access the system, but their data will be
-									preserved for future reference.
+								<p className="text-sm text-green-700 mt-1">
+									This action will restore the user account. The user will be
+									able to access the system again with their previous
+									permissions and data.
 								</p>
 							</div>
 						</div>
@@ -177,15 +185,15 @@ export function DeleteUserDialog({
 						</div>
 					</div>
 
-					{/* Additional Warning */}
+					{/* Additional Info */}
 					<div className="text-sm text-muted-foreground">
 						<p>
 							<strong>User ID:</strong> {user.id}
 						</p>
 						<p className="mt-1">
-							This user will be archived and will no longer be able to access
-							the system. Their data will be preserved but they will not be able
-							to log in or perform any actions.
+							This user will be restored and will be able to log in and perform
+							actions according to their role permissions. All their previous
+							data and settings will be preserved.
 						</p>
 					</div>
 				</div>
@@ -199,20 +207,20 @@ export function DeleteUserDialog({
 						Cancel
 					</Button>
 					<Button
-						variant="destructive"
-						onClick={handleArchive}
+						variant="default"
+						onClick={handleUnarchive}
 						disabled={isPending}
-						className="gap-2"
+						className="gap-2 bg-green-600 hover:bg-green-700"
 					>
 						{isPending ? (
 							<>
-								<UserX className="h-4 w-4" />
-								Archiving...
+								<UserCheck className="h-4 w-4" />
+								Unarchiving...
 							</>
 						) : (
 							<>
-								<Trash2 className="h-4 w-4" />
-								Archive User
+								<RotateCcw className="h-4 w-4" />
+								Unarchive User
 							</>
 						)}
 					</Button>

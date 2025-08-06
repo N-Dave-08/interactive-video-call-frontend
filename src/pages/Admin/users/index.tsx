@@ -50,7 +50,8 @@ export default function UsersPage() {
 		Error
 	>({
 		queryKey: ["users", params],
-		queryFn: () => token ? queryUsers(params, token) : Promise.reject(new Error("No token")),
+		queryFn: () =>
+			token ? queryUsers(params, token) : Promise.reject(new Error("No token")),
 	});
 
 	if (error) return <div>{error.message || "Failed to fetch users"}</div>;
@@ -72,6 +73,11 @@ export default function UsersPage() {
 		rowsPerPage: 10,
 		totalPages: 1,
 		totalCount: 0,
+	};
+
+	const handleUnarchiveUser = (user: User) => {
+		// This will be handled by the unarchive dialog
+		// The query will be invalidated automatically
 	};
 
 	return (
@@ -100,6 +106,7 @@ export default function UsersPage() {
 				rowsPerPage={rowsPerPage}
 				setRowsPerPage={setRowsPerPage}
 				loading={loading}
+				onUnarchiveUser={handleUnarchiveUser}
 			/>
 		</>
 	);

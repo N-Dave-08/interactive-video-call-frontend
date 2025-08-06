@@ -10,7 +10,7 @@ export async function fetchUsers(token: string): Promise<User[]> {
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/get`,
 		{
 			headers: { Authorization: `Bearer ${token}` },
-		}
+		},
 	);
 	if (!response.ok) {
 		throw new Error("Failed to fetch users");
@@ -20,7 +20,10 @@ export async function fetchUsers(token: string): Promise<User[]> {
 	return json.data;
 }
 
-export async function queryUsers(params: UserQueryParams, token: string): Promise<{
+export async function queryUsers(
+	params: UserQueryParams,
+	token: string,
+): Promise<{
 	data: User[];
 	total: number;
 	statistics: UserStatistics;
@@ -51,13 +54,16 @@ export async function queryUsers(params: UserQueryParams, token: string): Promis
 export async function updateUserCondition(
 	userId: string,
 	condition: string,
-	token: string
+	token: string,
 ): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/condition`,
 		{
 			method: "PUT",
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
 			body: JSON.stringify({ condition }),
 		},
 	);
@@ -69,13 +75,16 @@ export async function updateUserCondition(
 export async function updateUserInfo(
 	userId: string,
 	data: Partial<User>,
-	token: string
+	token: string,
 ): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/info`,
 		{
 			method: "PUT",
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
 			body: JSON.stringify(data),
 		},
 	);
@@ -84,44 +93,57 @@ export async function updateUserInfo(
 	}
 }
 
-export async function updateUserProfilePicture(userId: string, file: File, token: string): Promise<string> {
-  const formData = new FormData();
-  formData.append('image', file);
+export async function updateUserProfilePicture(
+	userId: string,
+	file: File,
+	token: string,
+): Promise<string> {
+	const formData = new FormData();
+	formData.append("image", file);
 
-  const response = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/profile_picture`,
-    {
-      method: 'PUT',
-      body: formData,
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-  if (!response.ok) {
-    throw new Error('Failed to update profile picture');
-  }
-  const data = await response.json();
-  return data.data.profile_picture;
-}
-
-export async function deleteUser(userId: string, token: string): Promise<void> {
 	const response = await fetch(
-		`${import.meta.env.VITE_API_BASE_URL}/api/users/delete/${userId}`,
+		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/profile_picture`,
 		{
-			method: "DELETE",
+			method: "PUT",
+			body: formData,
 			headers: { Authorization: `Bearer ${token}` },
 		},
 	);
 	if (!response.ok) {
-		throw new Error("Failed to delete user");
+		throw new Error("Failed to update profile picture");
+	}
+	const data = await response.json();
+	return data.data.profile_picture;
+}
+
+export async function archiveUser(
+	userId: string,
+	token: string,
+): Promise<void> {
+	const response = await fetch(
+		`${import.meta.env.VITE_API_BASE_URL}/api/users/update/${userId}/archived`,
+		{
+			method: "PUT",
+			headers: { Authorization: `Bearer ${token}` },
+		},
+	);
+	if (!response.ok) {
+		throw new Error("Failed to archive user");
 	}
 }
 
-export async function createUser(data: Partial<User>, token: string): Promise<void> {
+export async function createUser(
+	data: Partial<User>,
+	token: string,
+): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/create`,
 		{
 			method: "POST",
-			headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${token}`,
+			},
 			body: JSON.stringify(data),
 		},
 	);
@@ -130,7 +152,10 @@ export async function createUser(data: Partial<User>, token: string): Promise<vo
 	}
 }
 
-export async function removeUserProfilePicture(userId: string, token: string): Promise<void> {
+export async function removeUserProfilePicture(
+	userId: string,
+	token: string,
+): Promise<void> {
 	const response = await fetch(
 		`${import.meta.env.VITE_API_BASE_URL}/api/users/remove/${userId}/profile_picture`,
 		{
