@@ -385,10 +385,6 @@ export function LoginForm({ className }: React.ComponentProps<"form">) {
 						</Form>
 					</CardContent>
 				</Card>
-				<div className="text-indigo-700 *:[a]:hover:text-purple-600 text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-					By clicking continue, you agree to our{" "}
-					<a href="/">Terms of Service</a> and <a href="/">Privacy Policy</a>.
-				</div>
 			</div>
 
 			<AlertDialog open={!!errorInfo} onOpenChange={() => setErrorInfo(null)}>
