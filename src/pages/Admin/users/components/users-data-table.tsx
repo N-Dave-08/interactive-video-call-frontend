@@ -715,17 +715,23 @@ export function DataTable({
 									.getFilteredSelectedRowModel()
 									.rows.map((row) => row.original);
 								if (selectedUsers.length > 0) {
-									// Check if any selected users are already archived
-									const hasArchivedUsers = selectedUsers.some(
+									// Check if ALL selected users are archived
+									const allArchived = selectedUsers.every(
 										(user) => user.condition === "archived",
 									);
 
-									if (hasArchivedUsers) {
-										// If any are archived, show bulk unarchive dialog
+									if (allArchived) {
+										// If all are archived, show bulk unarchive dialog
 										setBulkUnarchiveDialogOpen(true);
 									} else {
-										// If none are archived, show bulk archive dialog
-										setBulkArchiveDialogOpen(true);
+										// If any are not archived, show bulk archive dialog
+										// Filter out already archived users
+										const nonArchivedUsers = selectedUsers.filter(
+											(user) => user.condition !== "archived",
+										);
+										if (nonArchivedUsers.length > 0) {
+											setBulkArchiveDialogOpen(true);
+										}
 									}
 								}
 							}}
@@ -735,12 +741,20 @@ export function DataTable({
 								const selectedUsers = table
 									.getFilteredSelectedRowModel()
 									.rows.map((row) => row.original);
-								const hasArchivedUsers = selectedUsers.some(
+								const allArchived = selectedUsers.every(
 									(user) => user.condition === "archived",
 								);
-								return hasArchivedUsers
-									? "Unarchive Selected"
-									: "Archive Selected";
+								const nonArchivedUsers = selectedUsers.filter(
+									(user) => user.condition !== "archived",
+								);
+
+								if (allArchived) {
+									return "Unarchive Selected";
+								} else if (nonArchivedUsers.length > 0) {
+									return "Archive Selected";
+								} else {
+									return "No Action Available";
+								}
 							})()}
 						</Button>
 					</div>
