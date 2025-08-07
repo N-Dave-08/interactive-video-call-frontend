@@ -17,7 +17,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, isBefore, startOfDay } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createSession } from "@/api/sessions";
@@ -168,6 +168,9 @@ export default function CreateSessionModal({
 									mode="single"
 									selected={date}
 									onSelect={setDate}
+									disabled={(date) =>
+										isBefore(startOfDay(date), startOfDay(new Date()))
+									}
 									initialFocus
 								/>
 							</PopoverContent>

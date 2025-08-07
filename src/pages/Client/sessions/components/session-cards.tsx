@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
-	ArrowRight,
 	Calendar as CalendarIcon,
 	Clock,
 	FileText,
@@ -8,27 +7,29 @@ import {
 	Target,
 	User,
 	UserCheck,
+	CheckCircle,
+	XCircle,
+	PlayCircle,
+	Calendar,
+	AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { deleteSession, updateSession } from "@/api/sessions";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import type { Session } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { Suspense, lazy } from "react";
 
-const DeleteSessionDialog = lazy(() => import("./delete-session-dialog"));
-const CancelSessionDialog = lazy(() => import("./cancel-session-dialog"));
-const RescheduleSessionDialog = lazy(() => import("./reschedule-session-dialog"));
+const ActionMenu = lazy(() => import("./action-menu"));
 
 interface SessionCardsProps {
 	sessions: Session[];
 	user: { first_name: string; last_name: string };
 	onSessionDeleted?: (sessionId: string) => void;
-    onSessionUpdated?: () => void;
+	onSessionUpdated?: () => void;
 }
 
 // Helper to get color class for stage
@@ -44,48 +45,123 @@ function getStageColor(stage: string) {
 			return "bg-purple-100 text-purple-700 border-purple-300";
 		case "stage 5":
 			return "bg-indigo-100 text-indigo-700 border-indigo-300";
+		case "stage 6":
+			return "bg-pink-100 text-pink-700 border-pink-300";
+		case "completion":
+			return "bg-emerald-100 text-emerald-700 border-emerald-300";
 		default:
 			return "bg-gray-100 text-gray-700 border-gray-300";
 	}
 }
 
-// Helper to get badge style and label for status
-function getStatusBadgeStyle(status: string) {
+// Helper to calculate session progress
+function calculateSessionProgress(session: Session): {
+	percentage: number;
+	stage: number;
+	totalStages: number;
+} {
+	const stageMap: Record<string, number> = {
+		"stage 1": 1,
+		"stage 2": 2,
+		"stage 3": 3,
+		"stage 4": 4,
+		"stage 5": 5,
+		"stage 6": 6,
+		completion: 7,
+	};
+
+	const currentStage = stageMap[session.stage?.toLowerCase() || "stage 1"] || 1;
+	const totalStages = 7;
+	const percentage = (currentStage / totalStages) * 100;
+
+	return { percentage, stage: currentStage, totalStages };
+}
+
+// Helper to get status-specific styling and icon
+function getStatusStyle(status: string) {
 	switch (status) {
 		case "scheduled":
 			return {
 				label: "Scheduled",
-				className:
+				icon: Calendar,
+				badgeClass:
 					"bg-yellow-100 text-yellow-800 border-yellow-200 ring-2 ring-yellow-200",
+				cardClass: "border-l-4 border-l-yellow-400 bg-white",
+				titleClass: "text-yellow-800",
+				iconClass: "text-yellow-600",
+				blurColor: "bg-yellow-400",
+				statusColor: "text-yellow-600",
+				statusBg: "bg-yellow-50",
+				statusBorder: "border-yellow-200",
 			};
 		case "in_progress":
 			return {
 				label: "In Progress",
-				className:
+				icon: PlayCircle,
+				badgeClass:
 					"bg-blue-100 text-blue-800 border-blue-200 ring-2 ring-blue-200",
+				cardClass: "border-l-4 border-l-blue-400 bg-white",
+				titleClass: "text-blue-800",
+				iconClass: "text-blue-600",
+				blurColor: "bg-blue-400",
+				statusColor: "text-blue-600",
+				statusBg: "bg-blue-50",
+				statusBorder: "border-blue-200",
 			};
 		case "rescheduled":
 			return {
 				label: "Rescheduled",
-				className:
+				icon: AlertCircle,
+				badgeClass:
 					"bg-purple-100 text-purple-800 border-purple-200 ring-2 ring-purple-200",
+				cardClass: "border-l-4 border-l-purple-400 bg-white",
+				titleClass: "text-purple-800",
+				iconClass: "text-purple-600",
+				blurColor: "bg-purple-400",
+				statusColor: "text-purple-600",
+				statusBg: "bg-purple-50",
+				statusBorder: "border-purple-200",
 			};
 		case "completed":
 			return {
 				label: "Completed",
-				className:
+				icon: CheckCircle,
+				badgeClass:
 					"bg-emerald-100 text-emerald-800 border-emerald-200 ring-2 ring-emerald-200",
+				cardClass: "border-l-4 border-l-emerald-400 bg-white",
+				titleClass: "text-emerald-800",
+				iconClass: "text-emerald-600",
+				blurColor: "bg-emerald-400",
+				statusColor: "text-emerald-600",
+				statusBg: "bg-emerald-50",
+				statusBorder: "border-emerald-200",
 			};
 		case "cancelled":
 			return {
 				label: "Cancelled",
-				className:
+				icon: XCircle,
+				badgeClass:
 					"bg-red-100 text-red-800 border-red-200 ring-2 ring-red-200",
+				cardClass: "border-l-4 border-l-red-400 bg-white opacity-75",
+				titleClass: "text-red-800",
+				iconClass: "text-red-600",
+				blurColor: "bg-red-400",
+				statusColor: "text-red-600",
+				statusBg: "bg-red-50",
+				statusBorder: "border-red-200",
 			};
 		default:
 			return {
 				label: status,
-				className: "bg-gray-100 text-gray-700 border-gray-200",
+				icon: Calendar,
+				badgeClass: "bg-gray-100 text-gray-700 border-gray-200",
+				cardClass: "border-l-4 border-l-gray-400 bg-white",
+				titleClass: "text-gray-800",
+				iconClass: "text-gray-600",
+				blurColor: "bg-gray-400",
+				statusColor: "text-gray-600",
+				statusBg: "bg-gray-50",
+				statusBorder: "border-gray-200",
 			};
 	}
 }
@@ -94,10 +170,14 @@ export default function SessionCards({
 	sessions,
 	user,
 	onSessionDeleted,
-    onSessionUpdated,
+	onSessionUpdated,
 }: SessionCardsProps) {
 	const navigate = useNavigate();
 	const [now, setNow] = useState(new Date());
+	const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+		{},
+	);
+
 	useEffect(() => {
 		const interval = setInterval(() => setNow(new Date()), 1000);
 		return () => clearInterval(interval);
@@ -120,360 +200,493 @@ export default function SessionCards({
 
 	const { token } = useAuth();
 
+	const setLoading = (sessionId: string, loading: boolean) => {
+		setLoadingStates((prev) => ({ ...prev, [sessionId]: loading }));
+	};
+
 	const onDeleteSession = async (session_id: string) => {
 		if (!token) return alert("No token");
+		setLoading(session_id, true);
 		try {
 			await deleteSession(session_id, token);
 			onSessionDeleted?.(session_id);
 		} catch (_) {
 			alert("Failed to delete session. Please try again.");
+		} finally {
+			setLoading(session_id, false);
 		}
 	};
-
-	const [rescheduleOpen, setRescheduleOpen] = useState<string | null>(null);
-	const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(undefined);
-	const [rescheduleTime, setRescheduleTime] = useState<string>("");
-	const [rescheduleLoading, setRescheduleLoading] = useState(false);
-	const [rescheduleError, setRescheduleError] = useState<string | null>(null);
-
-	// Add state for cancel dialog
-	const [cancelOpen, setCancelOpen] = useState<string | null>(null);
-	const [cancelLoading, setCancelLoading] = useState(false);
-	const [cancelError, setCancelError] = useState<string | null>(null);
-
-	const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
-	const [deleteLoading, setDeleteLoading] = useState(false);
 
 	// console.log(": sessions", sessions);
 
 	return (
 		<div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
 			<AnimatePresence mode="popLayout">
-				{sessions.map((session) => (
-					<motion.div
-						key={session.session_id}
-						layout
-						exit={{
-							opacity: 0,
-							scale: 0.8,
-							y: -20,
-							transition: { duration: 0.2 },
-						}}
-						transition={{
-							duration: 0.3,
-							ease: "easeOut",
-						}}
-						whileHover={{ y: -5, scale: 1.02 }}
-						className="relative"
-					>
-						<Card
-							className="rounded-2xl shadow-lg border-none bg-gradient-to-br from-white to-blue-50 hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col"
-							onClick={() =>
-								navigate(`/sessions/${session.session_id}`, {
-									state: { session },
-								})
-							}
+				{sessions.map((session) => {
+					const statusStyle = getStatusStyle(session.status);
+					const StatusIcon = statusStyle.icon;
+					const isLoading = loadingStates[session.session_id] || false;
+
+					return (
+						<motion.div
+							key={session.session_id}
+							layout
+							initial={{ opacity: 0, scale: 0.9, y: 20 }}
+							animate={{ opacity: 1, scale: 1, y: 0 }}
+							exit={{
+								opacity: 0,
+								scale: 0.8,
+								y: -20,
+								transition: { duration: 0.2 },
+							}}
+							transition={{
+								duration: 0.3,
+								ease: "easeOut",
+							}}
+							whileHover={{
+								y: -5,
+								scale: 1.02,
+								transition: { duration: 0.2 },
+							}}
+							className="relative"
 						>
-							<CardHeader className="pb-2 flex flex-col items-start px-6 pt-6">
-								<div className="flex items-center justify-between w-full mb-2">
-									<CardTitle className="text-xl font-extrabold text-purple-700">
-										{session.title}
-									</CardTitle>
-									<div className="flex items-center gap-2">
-										<Badge
-											variant={session.end_time ? "secondary" : "default"}
-											className={getStatusBadgeStyle(session.status).className + " rounded-full px-3 py-1 text-sm font-semibold border capitalize"}
-										>
-											{getStatusBadgeStyle(session.status).label}
-										</Badge>
-										<Suspense fallback={<div>Loading...</div>}>
-											<DeleteSessionDialog
-												open={deleteOpen === session.session_id}
-												onOpenChange={open => setDeleteOpen(open ? session.session_id : null)}
-												onDelete={async () => {
-													setDeleteLoading(true);
-													try {
-														await onDeleteSession(session.session_id);
-														setDeleteOpen(null);
-													} catch (_) {
-														// error handled in onDeleteSession
-													} finally {
-														setDeleteLoading(false);
-													}
-												}}
-												loading={deleteLoading}
-											/>
-										</Suspense>
-										{/* Cancel button: only show if not completed or cancelled */}
-										{session.status !== "completed" && session.status !== "cancelled" && (
-											<Suspense fallback={<div>Loading...</div>}>
-												<CancelSessionDialog
-													open={cancelOpen === session.session_id}
-													onOpenChange={open => { if (!open) setCancelOpen(null); else { setCancelOpen(session.session_id); setCancelError(null); } }}
-													onCancel={async () => {
-														setCancelLoading(true);
-														setCancelError(null);
-														try {
-															if (!session.session_id) return;
-															if (!token) {
-																setCancelError("No token available.");
-																setCancelLoading(false);
-																return;
-															}
-															await updateSession(session.session_id as string, { status: "cancelled" }, token);
-															setCancelOpen(null);
-															onSessionUpdated?.();
-														} catch {
-															setCancelError("Failed to cancel session. Please try again.");
-														}
-														setCancelLoading(false);
-													}}
-													loading={cancelLoading}
-													error={cancelError}
-													clearError={() => setCancelError(null)}
-												/>
-											</Suspense>
-										)}
-									</div>
-								</div>
-								{/* Only show stage if session is not completed */}
-								{session.stage && session.status !== "completed" && (
-									<div className="flex items-center gap-2 mb-1">
-										<Target className="h-4 w-4 text-gray-500" />
-										<Badge
-											variant="secondary"
-											className={`text-sm font-medium rounded-full px-3 py-1 border ${getStageColor(session.stage)}`}
-										>
-											{session.stage.toUpperCase()}
-										</Badge>
-									</div>
-								)}
-							</CardHeader>
-							<CardContent className="space-y-4 flex-grow px-6">
-								{/* Date and Time */}
-								<div className="bg-blue-50 rounded-xl p-3 space-y-2 border border-blue-100">
-									<div className="flex items-center gap-2 text-sm text-gray-700">
-										<CalendarIcon className="h-4 w-4 text-blue-500" />
-										<span className="font-semibold">Start:</span>
-										<span>
-											{formatDate(session.start_time)} at{" "}
-											{formatTime(session.start_time)}
-										</span>
-									</div>
-									{session.end_time ? (
-										<div className="flex items-center gap-2 text-sm text-gray-700">
-											<Clock className="h-4 w-4 text-blue-500" />
-											<span className="font-semibold">End:</span>
-											<span>
-												{formatDate(session.end_time)} at{" "}
-												{formatTime(session.end_time)}
+							<Card
+								className={`py-0 relative rounded-2xl shadow-lg border-none ${statusStyle.cardClass} hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col relative overflow-hidden ${
+									isLoading ? "pointer-events-none" : ""
+								}`}
+								onClick={() =>
+									!isLoading &&
+									navigate(`/sessions/${session.session_id}`, {
+										state: { session },
+									})
+								}
+							>
+								{/* Loading Overlay */}
+								{isLoading && (
+									<motion.div
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										className="absolute inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50 rounded-2xl"
+									>
+										<div className="flex flex-col items-center gap-2">
+											<div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+											<span className="text-sm text-gray-600 font-medium">
+												Processing...
 											</span>
 										</div>
-									) : (
-										<div className="flex items-center gap-2 text-sm text-gray-400 italic">
-											<Clock className="h-4 w-4 text-gray-300" />
-											<span>No end time recorded yet</span>
+									</motion.div>
+								)}
+
+								{/* Enhanced Status Header */}
+								<div
+									className={`${statusStyle.statusBg} ${statusStyle.statusBorder} border-b px-6 py-3 relative overflow-hidden`}
+								>
+									{/* Status Background Pattern */}
+									<div
+										className={`absolute inset-0 opacity-5 ${statusStyle.statusColor.replace("text-", "bg-")}`}
+									>
+										<div
+											className="absolute inset-0"
+											style={{
+												backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23currentColor' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+												backgroundSize: "20px 20px",
+											}}
+										/>
+									</div>
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-3">
+											<div
+												className={`p-2 rounded-full ${statusStyle.statusBg} border ${statusStyle.statusBorder}`}
+											>
+												<StatusIcon
+													className={`h-5 w-5 ${statusStyle.statusColor}`}
+												/>
+											</div>
+											<div>
+												<h2
+													className={`text-lg font-bold ${statusStyle.statusColor}`}
+												>
+													{statusStyle.label}
+												</h2>
+												<p className="text-sm text-gray-600">
+													{(() => {
+														switch (session.status) {
+															case "scheduled":
+																return "Session is scheduled and ready";
+															case "in_progress":
+																return "Session is currently active";
+															case "rescheduled":
+																return "Session has been rescheduled";
+															case "completed":
+																return "Session has been completed";
+															case "cancelled":
+																return "Session has been cancelled";
+															default:
+																return "Session status unknown";
+														}
+													})()}
+												</p>
+											</div>
+										</div>
+										<div className="flex items-center gap-2">
+											{/* Status indicators or additional info can go here */}
+										</div>
+									</div>
+								</div>
+
+								<CardHeader className="pb-2 flex flex-col items-start px-6 pt-6">
+									<div className="flex items-center justify-between w-full mb-2">
+										<CardTitle
+											className={`text-xl font-extrabold ${statusStyle.titleClass}`}
+										>
+											{session.title}
+										</CardTitle>
+									</div>
+									{/* Session Progress - Show for in-progress sessions */}
+									{session.status === "in_progress" && session.stage && (
+										<div className="space-y-2 mb-3 w-full">
+											<div className="flex items-center justify-between text-xs text-gray-600">
+												<span className="font-medium">Session Progress</span>
+												<span className="text-gray-500">
+													{calculateSessionProgress(session).stage} of{" "}
+													{calculateSessionProgress(session).totalStages} stages
+												</span>
+											</div>
+											<div className="w-full bg-gray-200 rounded-full h-2">
+												<motion.div
+													className={`h-2 rounded-full ${statusStyle.iconClass.replace("text-", "bg-").replace("-600", "-500")}`}
+													initial={{ width: 0 }}
+													animate={{
+														width: `${calculateSessionProgress(session).percentage}%`,
+													}}
+													transition={{ duration: 0.8, ease: "easeOut" }}
+												/>
+											</div>
+											<div className="flex items-center gap-2">
+												<Target className="h-3 w-3 text-gray-500" />
+												<Badge
+													variant="secondary"
+													className={`text-xs font-medium rounded-full px-2 py-0.5 border ${getStageColor(session.stage)}`}
+												>
+													{session.stage.toUpperCase()}
+												</Badge>
+											</div>
 										</div>
 									)}
-								</div>
-								{/* Child Information */}
-								<div className="flex items-center gap-2">
-									<User className="h-5 w-5 text-pink-500" />
-									<div>
-										<span className="font-bold text-gray-800 text-base">
-											{(session.child_data.first_name || session.child_data.last_name)
-												? `${session.child_data.first_name} ${session.child_data.last_name}`.trim()
-												: <span className="italic text-gray-400">No name</span>}
-										</span>
-										<span className="text-sm text-gray-500 ml-2">
-											{session.child_data.age
-												? `(${session.child_data.age} years old)`
-												: <span className="italic text-gray-400">(Age not set)</span>}
-										</span>
-									</div>
-								</div>
-								{/* Tags */}
-								<div className="space-y-2">
-									<div className="flex items-center gap-2">
-										<Tag className="h-4 w-4 text-emerald-500" />
-										<span className="font-semibold text-sm text-gray-700">
-											Tags:
-										</span>
-									</div>
-									<div className="flex flex-wrap gap-1">
-										{session.tags.length > 0 ? (
-											session.tags.map((tag) => (
+
+									{/* Only show stage badge for non-completed sessions without progress bar */}
+									{session.stage &&
+										session.status !== "completed" &&
+										session.status !== "in_progress" && (
+											<div className="flex items-center gap-2 mb-1">
+												<Target className="h-4 w-4 text-gray-500" />
 												<Badge
-													key={tag}
-													variant="outline"
-													className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium border border-emerald-200"
+													variant="secondary"
+													className={`text-sm font-medium rounded-full px-3 py-1 border ${getStageColor(session.stage)}`}
 												>
-													{tag.replace(/_/g, " ")}
+													{session.stage.toUpperCase()}
 												</Badge>
-											))
-										) : (
-											<span className="italic text-gray-400">No tags</span>
+											</div>
+										)}
+
+									{/* Completion indicator for completed sessions */}
+									{session.status === "completed" && (
+										<div className="flex items-center gap-2 mb-3">
+											<CheckCircle className="h-4 w-4 text-emerald-500" />
+											<div className="flex items-center gap-2">
+												<span className="text-sm font-medium text-emerald-700">
+													Session Completed
+												</span>
+												<Badge
+													variant="secondary"
+													className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs font-medium rounded-full px-2 py-0.5"
+												>
+													100% Complete
+												</Badge>
+											</div>
+										</div>
+									)}
+								</CardHeader>
+								<CardContent className="space-y-4 flex-grow px-6">
+									{/* Primary Information Section */}
+									<div className="space-y-3">
+										{/* Child Information - Most Important */}
+										<div className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-100">
+											<div className="flex items-center gap-3">
+												<div className="p-2 bg-pink-100 rounded-full">
+													<User className="h-5 w-5 text-pink-600" />
+												</div>
+												<div className="flex-1">
+													<h3 className="font-bold text-gray-900 text-lg">
+														{session.child_data.first_name ||
+														session.child_data.last_name ? (
+															`${session.child_data.first_name} ${session.child_data.last_name}`.trim()
+														) : (
+															<span className="italic text-gray-500">
+																No name
+															</span>
+														)}
+													</h3>
+													<p className="text-sm text-gray-600">
+														{session.child_data.age ? (
+															`${session.child_data.age} years old`
+														) : (
+															<span className="italic text-gray-400">
+																Age not set
+															</span>
+														)}
+													</p>
+												</div>
+											</div>
+										</div>
+
+										{/* Date and Time - Secondary Importance */}
+										<div
+											className={`rounded-xl p-3 space-y-2 border ${statusStyle.iconClass.replace("text-", "border-").replace("-600", "-200")} ${statusStyle.iconClass.replace("text-", "bg-").replace("-600", "-50")}`}
+										>
+											<div className="flex items-center gap-2 text-sm text-gray-700">
+												<CalendarIcon
+													className={`h-4 w-4 ${statusStyle.iconClass}`}
+												/>
+												<span className="font-semibold">Start:</span>
+												<span>
+													{formatDate(session.start_time)} at{" "}
+													{formatTime(session.start_time)}
+												</span>
+											</div>
+											{session.end_time ? (
+												<div className="flex items-center gap-2 text-sm text-gray-700">
+													<Clock
+														className={`h-4 w-4 ${statusStyle.iconClass}`}
+													/>
+													<span className="font-semibold">End:</span>
+													<span>
+														{formatDate(session.end_time)} at{" "}
+														{formatTime(session.end_time)}
+													</span>
+												</div>
+											) : (
+												<div className="flex items-center gap-2 text-sm text-gray-400 italic">
+													<Clock className="h-4 w-4 text-gray-300" />
+													<span>No end time recorded yet</span>
+												</div>
+											)}
+
+											{/* Time remaining for scheduled sessions */}
+											{session.status === "scheduled" && (
+												<div className="flex items-center gap-2 text-xs text-yellow-600 font-medium mt-2 pt-2 border-t border-yellow-200">
+													<Clock className="h-3 w-3" />
+													<span>
+														{(() => {
+															const start = new Date(session.start_time);
+															const timeDiff = start.getTime() - now.getTime();
+															const hours = Math.floor(
+																timeDiff / (1000 * 60 * 60),
+															);
+															const minutes = Math.floor(
+																(timeDiff % (1000 * 60 * 60)) / (1000 * 60),
+															);
+
+															if (timeDiff <= 0) {
+																return "Ready to start";
+															} else if (hours > 24) {
+																const days = Math.floor(hours / 24);
+																return `Starts in ${days} day${days > 1 ? "s" : ""}`;
+															} else if (hours > 0) {
+																return `Starts in ${hours}h ${minutes}m`;
+															} else {
+																return `Starts in ${minutes}m`;
+															}
+														})()}
+													</span>
+												</div>
+											)}
+										</div>
+									</div>
+
+									{/* Secondary Information Section */}
+									<div className="space-y-3">
+										{/* Tags - Quick Reference */}
+										{session.tags.length > 0 && (
+											<div className="space-y-2">
+												<div className="flex items-center gap-2">
+													<Tag className="h-4 w-4 text-emerald-500" />
+													<span className="font-semibold text-sm text-gray-700">
+														Tags:
+													</span>
+												</div>
+												<div className="flex flex-wrap gap-1">
+													{session.tags.map((tag) => (
+														<Badge
+															key={tag}
+															variant="outline"
+															className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium border border-emerald-200"
+														>
+															{tag.replace(/_/g, " ")}
+														</Badge>
+													))}
+												</div>
+											</div>
+										)}
+
+										{/* Session Notes - Detailed Information */}
+										{session.session_notes && (
+											<div className="space-y-2">
+												<div className="flex items-center gap-2">
+													<FileText
+														className={`h-4 w-4 ${statusStyle.iconClass}`}
+													/>
+													<span className="font-semibold text-sm text-gray-700">
+														Session Notes:
+													</span>
+												</div>
+												<p
+													className={`text-sm text-gray-700 leading-relaxed p-4 rounded-xl border-l-4 ${statusStyle.iconClass.replace("text-", "bg-").replace("-600", "-50")} ${statusStyle.iconClass.replace("text-", "border-").replace("-600", "-200")}`}
+												>
+													{session.session_notes}
+												</p>
+											</div>
 										)}
 									</div>
-								</div>
-								{/* Session Notes */}
-								<div className="space-y-2">
+								</CardContent>
+								<div className="flex items-center justify-between pt-4 border-t border-gray-100 px-6 pb-6">
 									<div className="flex items-center gap-2">
-										<FileText className="h-4 w-4 text-amber-500" />
-										<span className="font-semibold text-sm text-gray-700">
-											Session Notes:
+										<UserCheck className="h-5 w-5 text-violet-500" />
+										<span className="text-sm text-gray-700">
+											<span className="font-semibold">Conducted by:</span>
+											<span className="ml-1 text-gray-800 capitalize font-medium">
+												{user.first_name} {user.last_name}
+											</span>
 										</span>
 									</div>
-									<p className="text-sm text-gray-700 leading-relaxed bg-amber-50 p-4 rounded-xl border-l-4 border-amber-200">
-										{session.session_notes
-											? session.session_notes
-											: <span className="italic text-gray-400">No notes</span>}
-									</p>
-								</div>
-							</CardContent>
-							<div className="flex items-center gap-2 pt-4 border-t border-gray-100 px-6 pb-6">
-								<UserCheck className="h-5 w-5 text-violet-500" />
-								<span className="text-sm text-gray-700">
-									<span className="font-semibold">Conducted by:</span>
-									<span className="ml-1 text-gray-800 capitalize font-medium">
-										{user.first_name} {user.last_name}
-									</span>
-								</span>
-								{/* Start button for scheduled sessions when time is reached */}
-								{session.status === "scheduled" && (() => {
-									const start = new Date(session.start_time);
-									const canStart = start <= now && !session.end_time;
-									if (!canStart) return null;
-									return (
-										<Button
-											size="sm"
-											className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1"
-											onClick={async (e) => {
-												e.stopPropagation();
+
+									{/* Unified Action Menu */}
+									<Suspense fallback={<div>Loading...</div>}>
+										<ActionMenu
+											session={session}
+											onStart={async () => {
+												setLoading(session.session_id, true);
 												try {
 													if (!session.session_id) return;
 													if (!token) {
 														alert("No token");
 														return;
 													}
-													await updateSession(session.session_id as string, { status: "in_progress" }, token);
+													await updateSession(
+														session.session_id as string,
+														{ status: "in_progress" },
+														token,
+													);
 													navigate(`/room/${session.session_id}`);
 												} catch {
 													alert("Failed to start session. Please try again.");
+												} finally {
+													setLoading(session.session_id, false);
 												}
 											}}
-										>
-											Start <ArrowRight className="h-4 w-4" />
-										</Button>
-									);
-								})()}
-								{/* Reschedule button for scheduled or rescheduled sessions */}
-								{(session.status === "scheduled" || session.status === "rescheduled") && (
-									<>
-										<Button
-											size="sm"
-											variant="outline"
-											className="rounded-full border-blue-400 text-blue-700 hover:bg-blue-50 ml-2"
-											onClick={e => {
-												e.stopPropagation();
-												setRescheduleOpen(session.session_id);
-												const start = new Date(session.start_time);
-												setRescheduleDate(Number.isNaN(start.getTime()) ? undefined : start);
-												const pad = (n: number) => n.toString().padStart(2, "0");
-												setRescheduleTime(Number.isNaN(start.getTime()) ? "" : `${pad(start.getHours())}:${pad(start.getMinutes())}`);
-												setRescheduleError(null);
+											onContinue={() => {
+												navigate(`/room/${session.session_id}`);
 											}}
-										>
-											Reschedule
-										</Button>
-										<Suspense fallback={<div>Loading...</div>}>
-											<RescheduleSessionDialog
-												open={rescheduleOpen === session.session_id}
-												onOpenChange={open => { if (!open) setRescheduleOpen(null); }}
-												onReschedule={async e => {
-													e.preventDefault();
-													if (!rescheduleDate || !rescheduleTime) {
-														setRescheduleError("Please select both date and time.");
+											onReschedule={async (newStartTime: string) => {
+												setLoading(session.session_id, true);
+												try {
+													if (!session.session_id) return;
+													if (!token) {
+														alert("No token");
 														return;
 													}
-													setRescheduleLoading(true);
-													setRescheduleError(null);
-													try {
-														const [hours, minutes] = rescheduleTime.split(":");
-														if (!rescheduleDate) return;
-														const dt = new Date(rescheduleDate);
-														dt.setHours(Number(hours));
-														dt.setMinutes(Number(minutes));
-														dt.setSeconds(0);
-														if (!session.session_id) return;
-														if (!token) {
-															setRescheduleError("No token available.");
-															setRescheduleLoading(false);
-															return;
-														}
-														await updateSession(session.session_id as string, { start_time: dt.toISOString(), status: "rescheduled" }, token);
-														setRescheduleOpen(null);
-														onSessionUpdated?.();
-													} catch  {
-														setRescheduleError("Failed to reschedule session. Please try again.");
+													await updateSession(
+														session.session_id as string,
+														{
+															start_time: newStartTime,
+															status: "rescheduled",
+														},
+														token,
+													);
+													onSessionUpdated?.();
+												} catch {
+													alert(
+														"Failed to reschedule session. Please try again.",
+													);
+												} finally {
+													setLoading(session.session_id, false);
+												}
+											}}
+											onCancel={async () => {
+												setLoading(session.session_id, true);
+												try {
+													if (!session.session_id) return;
+													if (!token) {
+														alert("No token");
+														return;
 													}
-													setRescheduleLoading(false);
-												}}
-												loading={rescheduleLoading}
-												error={rescheduleError}
-												date={rescheduleDate}
-												time={rescheduleTime}
-												setDate={setRescheduleDate}
-												setTime={setRescheduleTime}
-												clearError={() => setRescheduleError(null)}
-											/>
-										</Suspense>
-									</>
-								)}
-								{/* Continue button for in-progress sessions */}
-								{session.status === "in_progress" && !session.end_time && (() => {
-    const start = new Date(session.start_time);
-    const notStartedYet = start > now;
-    if (notStartedYet) {
-        return (
-            <div className="ml-auto flex flex-col items-end">
-                <Button
-                    size="sm"
-                    className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/room/${session.session_id}`);
-                    }}
-                    disabled={notStartedYet}
-                    title={`Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}`}
-                >
-                    Continue <ArrowRight className="h-4 w-4" />
-                </Button>
-                <span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
-            </div>
-        );
-    }
-    return (
-        <div className="ml-auto flex flex-col items-end">
-            <Button
-                size="sm"
-                className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-4 py-2 flex items-center gap-1 disabled:opacity-60 disabled:cursor-not-allowed"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/room/${session.session_id}`);
-                }}
-                disabled={notStartedYet}
-            >
-                Continue <ArrowRight className="h-4 w-4" />
-            </Button>
-        </div>
-    );
-})()}
+													await updateSession(
+														session.session_id as string,
+														{ status: "cancelled" },
+														token,
+													);
+													onSessionUpdated?.();
+												} catch {
+													alert("Failed to cancel session. Please try again.");
+												} finally {
+													setLoading(session.session_id, false);
+												}
+											}}
+											onDelete={async () => {
+												setLoading(session.session_id, true);
+												try {
+													await onDeleteSession(session.session_id);
+												} catch {
+													alert("Failed to delete session. Please try again.");
+												} finally {
+													setLoading(session.session_id, false);
+												}
+											}}
+											onEnd={async () => {
+												setLoading(session.session_id, true);
+												try {
+													if (!session.session_id) return;
+													if (!token) {
+														alert("No token");
+														return;
+													}
+													await updateSession(
+														session.session_id as string,
+														{
+															status: "completed",
+															end_time: new Date().toISOString(),
+														},
+														token,
+													);
+													onSessionUpdated?.();
+												} catch {
+													alert("Failed to end session. Please try again.");
+												} finally {
+													setLoading(session.session_id, false);
+												}
+											}}
+											isLoading={isLoading}
+											canStart={(() => {
+												const start = new Date(session.start_time);
+												return start <= now && !session.end_time;
+											})()}
+											canContinue={(() => {
+												const start = new Date(session.start_time);
+												return start <= now && !session.end_time;
+											})()}
+										/>
+									</Suspense>
 								</div>
+
+								{/* blur */}
+								{/* <div
+								// className={`absolute ${statusStyle.blurColor} size-1/2 rounded-full bottom-0 right-0 blur-3xl z-0 opacity-10`}
+								/> */}
 							</Card>
 						</motion.div>
-					))}
-				</AnimatePresence>
-			</div>
+					);
+				})}
+			</AnimatePresence>
+		</div>
 	);
 }
