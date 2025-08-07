@@ -30,17 +30,27 @@ export function BulkArchiveDialog({
 	const queryClient = useQueryClient();
 	const { token } = useAuth();
 
+	// Filter out already archived users
+	const nonArchivedUsers = users.filter(
+		(user) => user.condition !== "archived",
+	);
+	const skippedUsers = users.filter((user) => user.condition === "archived");
+
 	const { mutate: archiveUsersMutation, isPending } = useMutation({
 		mutationFn: async () => {
 			if (!token) throw new Error("No token");
-			// Archive all users sequentially
-			for (const user of users) {
+			// Archive only non-archived users sequentially
+			for (const user of nonArchivedUsers) {
 				await archiveUser(user.id, token);
 			}
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["users"] });
-			toast.success(`Successfully archived ${users.length} user(s)`);
+			const message =
+				skippedUsers.length > 0
+					? `Successfully archived ${nonArchivedUsers.length} user(s). ${skippedUsers.length} user(s) were already archived and skipped.`
+					: `Successfully archived ${nonArchivedUsers.length} user(s)`;
+			toast.success(message);
 			onOpenChange(false);
 		},
 		onError: () => {
@@ -116,9 +126,15 @@ export function BulkArchiveDialog({
 						Bulk Archive Users
 					</DialogTitle>
 					<DialogDescription>
-						This will archive {users.length} selected user(s). They will no
-						longer be able to access the system, but their data will be
+						This will archive {nonArchivedUsers.length} selected user(s). They
+						will no longer be able to access the system, but their data will be
 						preserved.
+						{skippedUsers.length > 0 && (
+							<span className="block mt-1 text-orange-600">
+								{skippedUsers.length} user(s) are already archived and will be
+								skipped.
+							</span>
+						)}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -129,12 +145,20 @@ export function BulkArchiveDialog({
 							<Archive className="h-5 w-5 text-orange-600 mt-0.5" />
 							<div className="flex-1">
 								<h4 className="font-medium text-orange-800">
-									Are you sure you want to archive {users.length} user(s)?
+									Are you sure you want to archive {nonArchivedUsers.length}{" "}
+									user(s)?
 								</h4>
 								<p className="text-sm text-orange-700 mt-1">
-									This action will archive all selected user accounts. The users
-									will no longer be able to access the system, but their data
-									will be preserved for future reference.
+									This action will archive all selected user accounts that are
+									not already archived. The users will no longer be able to
+									access the system, but their data will be preserved for future
+									reference.
+									{skippedUsers.length > 0 && (
+										<span className="block mt-2 text-orange-600 font-medium">
+											{skippedUsers.length} user(s) are already archived and
+											will be skipped.
+										</span>
+									)}
 								</p>
 							</div>
 						</div>
@@ -144,7 +168,8 @@ export function BulkArchiveDialog({
 					<div className="space-y-3">
 						<h4 className="font-medium text-sm">Selected Users:</h4>
 						<div className="max-h-60 overflow-y-auto space-y-2">
-							{users.map((user) => (
+							{/* Users to be archived */}
+							{nonArchivedUsers.map((user) => (
 								<div
 									key={user.id}
 									className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30"
@@ -173,6 +198,43 @@ export function BulkArchiveDialog({
 									</div>
 								</div>
 							))}
+
+							{/* Skipped users (already archived) */}
+							{skippedUsers.map((user) => (
+								<div
+									key={user.id}
+									className="flex items-center gap-3 p-3 rounded-lg border bg-orange-50 border-orange-200"
+								>
+									<Avatar className="h-8 w-8">
+										<AvatarImage
+											src={user.profile_picture ?? "/placeholder.svg"}
+											alt={`${user.first_name} ${user.last_name}`}
+										/>
+										<AvatarFallback className="text-xs">
+											{user.first_name[0]}
+											{user.last_name[0]}
+										</AvatarFallback>
+									</Avatar>
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-2 mb-1">
+											<span className="font-medium text-sm truncate">
+												{user.first_name} {user.last_name}
+											</span>
+											{getRoleBadge(user.role)}
+											{getConditionBadge(user.condition)}
+											<Badge
+												variant="outline"
+												className="text-orange-600 border-orange-300 text-xs"
+											>
+												Will be skipped
+											</Badge>
+										</div>
+										<div className="text-xs text-muted-foreground truncate">
+											{user.email}
+										</div>
+									</div>
+								</div>
+							))}
 						</div>
 					</div>
 
@@ -181,10 +243,20 @@ export function BulkArchiveDialog({
 						<p>
 							<strong>Total Users:</strong> {users.length}
 						</p>
+						<p>
+							<strong>Users to Archive:</strong> {nonArchivedUsers.length}
+						</p>
+						{skippedUsers.length > 0 && (
+							<p>
+								<strong>Users to Skip:</strong> {skippedUsers.length} (already
+								archived)
+							</p>
+						)}
 						<p className="mt-1">
-							All selected users will be archived and will no longer be able to
-							access the system. Their data will be preserved but they will not
-							be able to log in or perform any actions.
+							All selected users that are not already archived will be archived
+							and will no longer be able to access the system. Their data will
+							be preserved but they will not be able to log in or perform any
+							actions.
 						</p>
 					</div>
 				</div>
@@ -200,7 +272,7 @@ export function BulkArchiveDialog({
 					<Button
 						variant="destructive"
 						onClick={handleArchive}
-						disabled={isPending}
+						disabled={isPending || nonArchivedUsers.length === 0}
 						className="gap-2"
 					>
 						{isPending ? (
@@ -211,7 +283,7 @@ export function BulkArchiveDialog({
 						) : (
 							<>
 								<Users className="h-4 w-4" />
-								Archive {users.length} User(s)
+								Archive {nonArchivedUsers.length} User(s)
 							</>
 						)}
 					</Button>
