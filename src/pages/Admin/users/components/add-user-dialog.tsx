@@ -116,7 +116,14 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
 			toast.error("Please fix the errors in the form");
 			return;
 		}
-		addUser(formData);
+
+		// Create a copy of formData and prepend +63 to phone number if it exists
+		const userData = {
+			...formData,
+			phone_number: formData.phone_number ? `+63${formData.phone_number}` : "",
+		};
+
+		addUser(userData);
 	};
 
 	const handleCancel = () => {
@@ -210,14 +217,25 @@ export function AddUserDialog({ open, onOpenChange }: AddUserDialogProps) {
 
 					<div className="space-y-2">
 						<Label htmlFor="phone_number">Phone Number</Label>
-						<Input
-							id="phone_number"
-							value={formData.phone_number}
-							onChange={(e) =>
-								handleInputChange("phone_number", e.target.value)
-							}
-							placeholder="+1 (555) 123-4567"
-						/>
+						<div className="flex items-center">
+							<span className="px-2 py-2 border border-r-0 rounded-l-lg bg-gray-100 text-gray-700 select-none">
+								+63
+							</span>
+							<Input
+								id="phone_number"
+								type="text"
+								inputMode="numeric"
+								maxLength={10}
+								className="rounded-r-lg rounded-l-none"
+								placeholder="9123456789"
+								value={formData.phone_number}
+								onChange={(e) => {
+									// Only allow numbers, max 10 digits
+									const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+									handleInputChange("phone_number", value);
+								}}
+							/>
+						</div>
 					</div>
 
 					<div className="space-y-2">
