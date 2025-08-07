@@ -9,7 +9,9 @@ import { Suspense, lazy } from "react";
 
 // Lazy load dashboard components
 const StatsCards = lazy(() => import("./components/StatsCards.tsx"));
-const SessionDurationChart = lazy(() => import("./components/SessionDurationChart.tsx"));
+const SessionDurationChart = lazy(
+	() => import("./components/SessionDurationChart.tsx"),
+);
 const QuickStats = lazy(() => import("./components/QuickStats.tsx"));
 const RecentActivity = lazy(() => import("./components/RecentActivity.tsx"));
 const PendingActions = lazy(() => import("./components/PendingActions.tsx"));
@@ -27,7 +29,14 @@ const ChartLoadingFallback = () => (
 // Loading cards fallback
 const LoadingCardsFallback = () => (
 	<div className="grid w-full gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-6 mb-8">
-		{["users", "social-workers", "admins", "approved", "duration", "upcoming"].map((cardType) => (
+		{[
+			"users",
+			"social-workers",
+			"admins",
+			"approved",
+			"duration",
+			"upcoming",
+		].map((cardType) => (
 			<Card key={`loading-${cardType}`}>
 				<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 					<CardTitle className="text-sm font-medium">Loading...</CardTitle>
@@ -45,7 +54,10 @@ export default function AdminDashboard() {
 	const { token } = useAuth();
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["users-dashboard-stats"],
-		queryFn: () => token ? queryUsers({ page: 1, rowsPerPage: 1 }, token) : Promise.reject(new Error("No token")),
+		queryFn: () =>
+			token
+				? queryUsers({ page: 1, rowsPerPage: 1 }, token)
+				: Promise.reject(new Error("No token")),
 		select: (res) => res.statistics,
 	});
 
@@ -60,12 +72,10 @@ export default function AdminDashboard() {
 	});
 
 	// Fetch session statistics for admin
-	const {
-		data: sessionsData,
-		isLoading: isLoadingSessions,
-	} = useQuery({
+	const { data: sessionsData, isLoading: isLoadingSessions } = useQuery({
 		queryKey: ["admin-all-sessions"],
-		queryFn: () => token ? fetchAllSessions(token) : Promise.reject(new Error("No token")),
+		queryFn: () =>
+			token ? fetchAllSessions(token) : Promise.reject(new Error("No token")),
 		select: (res) => res.data,
 	});
 
@@ -74,7 +84,7 @@ export default function AdminDashboard() {
 	let upcomingSessionsCount = 0;
 	if (sessionsData && Array.isArray(sessionsData)) {
 		const completedSessions = sessionsData.filter(
-			s => s.status === "completed" && s.start_time && s.end_time
+			(s) => s.status === "completed" && s.start_time && s.end_time,
 		);
 		if (completedSessions.length > 0) {
 			const totalDuration = completedSessions.reduce((sum, s) => {
@@ -83,10 +93,12 @@ export default function AdminDashboard() {
 				const end = new Date(s.end_time).getTime();
 				return sum + (end - start);
 			}, 0);
-			averageSessionDuration = Math.round(totalDuration / completedSessions.length / 60000); // in minutes
+			averageSessionDuration = Math.round(
+				totalDuration / completedSessions.length / 60000,
+			); // in minutes
 		}
 		const now = new Date();
-		upcomingSessionsCount = sessionsData.filter(s => {
+		upcomingSessionsCount = sessionsData.filter((s) => {
 			if (!s.start_time) return false;
 			const start = new Date(s.start_time);
 			return start > now && s.status !== "cancelled";
@@ -97,10 +109,10 @@ export default function AdminDashboard() {
 	let avgSessionDurationData: { date: string; avgDuration: number }[] = [];
 	if (sessionsData && Array.isArray(sessionsData)) {
 		const completedSessions = sessionsData.filter(
-			s => s.status === "completed" && s.start_time && s.end_time
+			(s) => s.status === "completed" && s.start_time && s.end_time,
 		);
 		const durationByDate: Record<string, number[]> = {};
-		completedSessions.forEach(s => {
+		completedSessions.forEach((s) => {
 			if (!s.start_time || !s.end_time) return;
 			const date = new Date(s.start_time).toISOString().slice(0, 10); // YYYY-MM-DD
 			const start = new Date(s.start_time).getTime();
@@ -112,7 +124,9 @@ export default function AdminDashboard() {
 		avgSessionDurationData = Object.entries(durationByDate)
 			.map(([date, durations]) => ({
 				date,
-				avgDuration: Math.round(durations.reduce((a, b) => a + b, 0) / durations.length),
+				avgDuration: Math.round(
+					durations.reduce((a, b) => a + b, 0) / durations.length,
+				),
 			}))
 			.sort((a, b) => a.date.localeCompare(b.date));
 	}
@@ -136,10 +150,10 @@ export default function AdminDashboard() {
 					Overview of your system, users, and recent activity.
 				</p>
 			</div>
-			
+
 			{/* Stats Cards */}
 			<Suspense fallback={<LoadingCardsFallback />}>
-				<StatsCards 
+				<StatsCards
 					data={data}
 					isLoadingSessions={isLoadingSessions}
 					averageSessionDuration={averageSessionDuration}
@@ -155,13 +169,29 @@ export default function AdminDashboard() {
 			{/* Quick Stats, Recent Activity, Pending Actions */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 				{/* Quick Stats */}
-				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
+				<Suspense
+					fallback={
+						<Card>
+							<CardContent>
+								<SpinnerLoading />
+							</CardContent>
+						</Card>
+					}
+				>
 					<QuickStats data={data} />
 				</Suspense>
 
 				{/* Recent Activity */}
-				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
-					<RecentActivity 
+				<Suspense
+					fallback={
+						<Card>
+							<CardContent>
+								<SpinnerLoading />
+							</CardContent>
+						</Card>
+					}
+				>
+					<RecentActivity
 						activities={activities}
 						isLoadingActivities={isLoadingActivities}
 						activitiesError={activitiesError}
@@ -169,7 +199,15 @@ export default function AdminDashboard() {
 				</Suspense>
 
 				{/* Pending Actions */}
-				<Suspense fallback={<Card><CardContent className="p-6"><SpinnerLoading /></CardContent></Card>}>
+				<Suspense
+					fallback={
+						<Card>
+							<CardContent>
+								<SpinnerLoading />
+							</CardContent>
+						</Card>
+					}
+				>
 					<PendingActions data={data} />
 				</Suspense>
 			</div>

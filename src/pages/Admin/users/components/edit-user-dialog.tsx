@@ -64,7 +64,9 @@ export function EditUserDialog({
 		last_name: user.last_name,
 		username: user.username,
 		email: user.email,
-		phone_number: user.phone_number || "",
+		phone_number: user.phone_number
+			? user.phone_number.replace(/^\+63/, "")
+			: "",
 		place_of_assignment: user.place_of_assignment,
 		role: user.role as "admin" | "social_worker",
 		condition: user.condition as
@@ -124,7 +126,14 @@ export function EditUserDialog({
 			toast.error("Please fix the errors in the form");
 			return;
 		}
-		editUser(formData);
+
+		// Create a copy of formData and prepend +63 to phone number if it exists
+		const userData = {
+			...formData,
+			phone_number: formData.phone_number ? `+63${formData.phone_number}` : "",
+		};
+
+		editUser(userData);
 	};
 
 	return (
@@ -220,14 +229,25 @@ export function EditUserDialog({
 
 					<div className="space-y-2">
 						<Label htmlFor="phone_number">Phone Number</Label>
-						<Input
-							id="phone_number"
-							value={formData.phone_number}
-							onChange={(e) =>
-								handleInputChange("phone_number", e.target.value)
-							}
-							placeholder="+1 (555) 123-4567"
-						/>
+						<div className="flex items-center">
+							<span className="px-2 py-2 border border-r-0 rounded-l-lg bg-gray-100 text-gray-700 select-none">
+								+63
+							</span>
+							<Input
+								id="phone_number"
+								type="text"
+								inputMode="numeric"
+								maxLength={10}
+								className="rounded-r-lg rounded-l-none"
+								placeholder="9123456789"
+								value={formData.phone_number}
+								onChange={(e) => {
+									// Only allow numbers, max 10 digits
+									const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+									handleInputChange("phone_number", value);
+								}}
+							/>
+						</div>
 					</div>
 
 					{/* Place of Assignment and Role side by side */}

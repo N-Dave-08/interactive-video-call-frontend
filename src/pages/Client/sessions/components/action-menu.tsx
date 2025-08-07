@@ -327,7 +327,49 @@ export default function ActionMenu({
 			);
 		}
 
-		// If no primary action, show all actions in dropdown
+		// If only one action available, show it as a direct button
+		if (actions.length === 1) {
+			const action = actions[0];
+			return (
+				<div className={cn("flex items-center gap-2", className)}>
+					<motion.div
+						whileHover={{ scale: 1.02 }}
+						whileTap={{ scale: 0.98 }}
+						transition={{ duration: 0.1 }}
+					>
+						<Button
+							onClick={(e) => {
+								e.stopPropagation();
+								action.onClick?.();
+							}}
+							disabled={action.disabled}
+							variant={
+								action.type === "destructive" ? "destructive" : "outline"
+							}
+							className={cn(
+								"rounded-full px-4 py-2 font-medium shadow-md hover:shadow-lg transition-all duration-200",
+								action.type === "destructive" &&
+									"bg-red-500 hover:bg-red-600 text-white",
+							)}
+						>
+							{isLoading ? (
+								<>
+									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+									Loading...
+								</>
+							) : (
+								<>
+									<action.icon className="h-4 w-4 mr-2" />
+									{action.label}
+								</>
+							)}
+						</Button>
+					</motion.div>
+				</div>
+			);
+		}
+
+		// If multiple actions but no primary, show all actions in dropdown
 		return (
 			<div className={cn("flex items-center gap-2", className)}>
 				<DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

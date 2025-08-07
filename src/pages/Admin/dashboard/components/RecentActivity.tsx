@@ -1,18 +1,17 @@
 import { Activity, Bell, CheckCircle, Settings, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import type { Activity as ActivityType } from "@/types";
 
 interface RecentActivityProps {
 	activities: ActivityType[] | undefined;
 	isLoadingActivities: boolean;
-	activitiesError: any;
+	activitiesError: Error | null;
 }
 
-export default function RecentActivity({ 
-	activities, 
-	isLoadingActivities, 
-	activitiesError 
+export default function RecentActivity({
+	activities,
+	isLoadingActivities,
+	activitiesError,
 }: RecentActivityProps) {
 	const getActivityIcon = (type: string) => {
 		switch (type) {
@@ -62,10 +61,7 @@ export default function RecentActivity({
 						))
 					)}
 				</div>
-				<Button variant="ghost" size="sm" className="w-full mt-4">
-					View all activity
-				</Button>
 			</CardContent>
 		</Card>
 	);
-} 
+}
