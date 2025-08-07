@@ -75,7 +75,7 @@ export default function UsersPage() {
 		totalCount: 0,
 	};
 
-	const handleUnarchiveUser = (user: User) => {
+	const handleUnarchiveUser = (_user: User) => {
 		// This will be handled by the unarchive dialog
 		// The query will be invalidated automatically
 	};
