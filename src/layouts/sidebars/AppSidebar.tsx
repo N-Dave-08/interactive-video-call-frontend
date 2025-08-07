@@ -77,12 +77,14 @@ export default function AppSidebar() {
 
 	const items = user?.role === "admin" ? adminItems : clientItems;
 
+	const bgUrl = "forest.jpg";
+
 	return (
 		<Sidebar>
-			{/* <div
-			// className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none bg-primary"
-			// style={{ backgroundImage: `url(/backgrounds${bgUrl})` }}
-			/> */}
+			<div
+				className="absolute inset-0 bg-cover bg-center opacity-60 pointer-events-none"
+				style={{ backgroundImage: `url(/backgrounds/${bgUrl})` }}
+			/>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
@@ -103,7 +105,7 @@ export default function AppSidebar() {
 
 			<SidebarContent className="">
 				{/* gradient */}
-				{/* <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-blue-100/60 pointer-events-none" /> */}
+				<div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-blue-100/60 pointer-events-none" />
 				{/* Menu Tabs */}
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
