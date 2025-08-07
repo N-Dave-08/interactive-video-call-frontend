@@ -105,7 +105,7 @@ export default function AppSidebar() {
 
 			<SidebarContent className="">
 				{/* gradient */}
-				<div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/60 to-blue-100/60 pointer-events-none" />
+				<div className="absolute inset-0 bg-gradient-to-b from-indigo-500/20 via-white/20 to-white/80 pointer-events-none" />
 				{/* Menu Tabs */}
 				<SidebarGroup>
 					<SidebarGroupLabel>Application</SidebarGroupLabel>
