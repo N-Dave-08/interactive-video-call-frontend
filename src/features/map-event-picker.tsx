@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	Clock,
@@ -42,6 +42,9 @@ export default function MapEventPicker({
 		setWeather,
 	} = useMapEventStore();
 
+	// Track if user is actively making changes to prevent auto-advancement
+	const [isEditing, setIsEditing] = React.useState(false);
+
 	// Update store state when value prop changes
 	useEffect(() => {
 		if (value) {
@@ -51,14 +54,34 @@ export default function MapEventPicker({
 				setSelectedPlace(value.place);
 			}
 
-			// Determine current step based on completed data
+			// Don't auto-advance if user is actively editing
+			if (isEditing) {
+				return;
+			}
+
+			// Only auto-advance to completion step if we're not currently in the middle of editing
+			// This prevents jumping to completion when user clicks "Make Changes" and then selects something
+			if (currentStep === 4) {
+				// If we're already at completion step, stay there
+				return;
+			}
+
+			// Determine current step based on completed data, but don't auto-advance to completion
 			let step = 1;
 			if (value.time) step = 2;
 			if (value.weather) step = 3;
-			if (value.place) step = 4;
+			if (value.place) step = 3; // Don't auto-advance to completion step
 			setCurrentStep(step);
 		}
-	}, [value, setSelectedPlace, setTime, setWeather, setCurrentStep]);
+	}, [
+		value,
+		setSelectedPlace,
+		setTime,
+		setWeather,
+		setCurrentStep,
+		currentStep,
+		isEditing,
+	]);
 
 	const timeOptions = [
 		{
@@ -173,6 +196,7 @@ export default function MapEventPicker({
 		if (onChange) {
 			onChange({ time, place: selectedPlaceValue, weather });
 		}
+		setIsEditing(false); // Reset editing flag when completing
 		setCurrentStep(4);
 	};
 
@@ -378,7 +402,10 @@ export default function MapEventPicker({
 			<div className="flex justify-center">
 				<button
 					type="button"
-					onClick={() => setCurrentStep(1)}
+					onClick={() => {
+						setIsEditing(true);
+						setCurrentStep(1);
+					}}
 					className="px-8 py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-semibold hover:border-gray-400 hover:bg-gray-50 transition-all"
 				>
 					Make Changes

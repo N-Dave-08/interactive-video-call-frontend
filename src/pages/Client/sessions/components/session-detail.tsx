@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Icon } from "@iconify/react";
 import {
 	ArrowLeft,
 	ArrowRight,
@@ -10,7 +11,6 @@ import {
 	Palette,
 	Tag,
 	Target,
-	UserCheck,
 	Sun,
 	Cloud,
 	CloudRain,
@@ -58,6 +58,51 @@ function formatBodyMapAnnotation(annotation: string) {
 		.replace(/^./, (str) => str.toUpperCase());
 	const typeLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
 	return `${partLabel.trim()}${typeLabel ? ` (${typeLabel})` : ""}`;
+}
+
+function getFeelingIcon(feeling: string) {
+	const feelingLower = feeling.toLowerCase();
+
+	// Match the emojis from Stage 5
+	if (feelingLower.includes("happy")) {
+		return (
+			<Icon
+				icon="fluent-emoji:smiling-face-with-smiling-eyes"
+				className="h-5 w-5"
+			/>
+		);
+	}
+	if (feelingLower.includes("excited")) {
+		return <Icon icon="fluent-emoji:star-struck" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("calm")) {
+		return <Icon icon="fluent-emoji:relieved-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("curious")) {
+		return <Icon icon="fluent-emoji:thinking-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("proud")) {
+		return (
+			<Icon
+				icon="fluent-emoji:smiling-face-with-sunglasses"
+				className="h-5 w-5"
+			/>
+		);
+	}
+	if (feelingLower.includes("nervous")) {
+		return (
+			<Icon icon="fluent-emoji:anxious-face-with-sweat" className="h-5 w-5" />
+		);
+	}
+	if (feelingLower.includes("sad")) {
+		return <Icon icon="fluent-emoji:crying-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("angry")) {
+		return <Icon icon="fluent-emoji:pouting-face" className="h-5 w-5" />;
+	}
+
+	// Default for other feelings
+	return <Icon icon="fluent-emoji:neutral-face" className="h-5 w-5" />;
 }
 
 export default function SessionDetailPage() {
@@ -268,30 +313,6 @@ export default function SessionDetailPage() {
 								</div>
 							</CardContent>
 						</Card>
-
-						{/* Interviewer Card */}
-						<Card className="w-full bg-white/90 backdrop-blur-md border border-green-100 shadow-xl p-6 rounded-3xl">
-							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg text-green-700">
-									<UserCheck className="h-5 w-5 text-green-400" />
-									Conducted By
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="text-center">
-									<div className="w-16 h-16 bg-gradient-to-br from-green-200 to-emerald-200 rounded-full mx-auto mb-2 flex items-center justify-center text-green-800 text-xl font-bold">
-										{session.user.first_name[0]}
-										{session.user.last_name[0]}
-									</div>
-									<div className="font-medium text-green-900 text-lg">
-										{session.user.first_name} {session.user.last_name}
-									</div>
-									<div className="text-sm text-green-600 mt-1">
-										Social Worker
-									</div>
-								</div>
-							</CardContent>
-						</Card>
 					</div>
 
 					{/* Right Column: Session Info */}
@@ -419,27 +440,33 @@ export default function SessionDetailPage() {
 								<Separator className="bg-pink-100" />
 								<div className="space-y-3">
 									<div>
-										<span className="text-sm font-medium text-pink-700 mb-2 block">
+										<span className="text-sm font-medium text-pink-700 mb-4 block">
 											Selected Feelings
 										</span>
-										<div className="flex flex-wrap gap-2">
+										<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 											{session.emotional_expression.selected_feelings.length >
 											0 ? (
 												session.emotional_expression.selected_feelings.map(
 													(feeling) => (
-														<Badge
+														<div
 															key={feeling}
-															className="bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200 transition-colors"
-															variant="outline"
+															className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:from-yellow-100 hover:to-orange-100 transition-all duration-200 shadow-sm hover:shadow-md"
 														>
-															{feeling}
-														</Badge>
+															<div className="text-3xl">
+																{getFeelingIcon(feeling)}
+															</div>
+															<div className="text-sm font-semibold text-yellow-800 text-center capitalize">
+																{feeling}
+															</div>
+														</div>
 													),
 												)
 											) : (
-												<span className="text-pink-300 italic">
-													None selected
-												</span>
+												<div className="col-span-full text-center py-8">
+													<span className="text-pink-300 italic">
+														No feelings selected
+													</span>
+												</div>
 											)}
 										</div>
 									</div>

@@ -32,7 +32,6 @@ import {
 	Phone,
 	RotateCcw,
 	Search,
-	Shield,
 	UserPlus,
 	XCircle,
 } from "lucide-react";
@@ -43,7 +42,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
@@ -563,63 +561,46 @@ export function DataTable({
 				</Button>
 			</div>
 
-			{/* Stats Cards */}
-			<div className="grid gap-4 md:grid-cols-5">
-				{[
-					{
-						title: "Total Users",
-						icon: Shield,
-						iconClass: "text-muted-foreground",
-						value: statistics ? statistics.totalUsers : tableData.length,
-						valueClass: "",
-					},
-					{
-						title: "Admins",
-						icon: UserPlus,
-						iconClass: "text-purple-600",
-						value: statistics
+			{/* Quick Stats */}
+			<div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+				<div className="p-3 bg-blue-50 rounded-lg border">
+					<div className="text-sm font-medium text-blue-600">Total Users</div>
+					<div className="text-2xl font-bold">
+						{statistics ? statistics.totalUsers : tableData.length}
+					</div>
+				</div>
+				<div className="p-3 bg-purple-50 rounded-lg border">
+					<div className="text-sm font-medium text-purple-600">Admins</div>
+					<div className="text-2xl font-bold">
+						{statistics
 							? statistics.adminCount
-							: tableData.filter((u) => u.role === "admin").length,
-						valueClass: "text-purple-600",
-					},
-					{
-						title: "Social Workers",
-						icon: UserPlus,
-						iconClass: "text-sky-600",
-						value: statistics
+							: tableData.filter((u) => u.role === "admin").length}
+					</div>
+				</div>
+				<div className="p-3 bg-sky-50 rounded-lg border">
+					<div className="text-sm font-medium text-sky-600">Social Workers</div>
+					<div className="text-2xl font-bold">
+						{statistics
 							? statistics.socialWorkerCount
-							: tableData.filter((u) => u.role === "social_worker").length,
-						valueClass: "text-sky-600",
-					},
-					{
-						title: "Approved",
-						icon: CheckCircle,
-						iconClass: "text-green-600",
-						value: statistics
+							: tableData.filter((u) => u.role === "social_worker").length}
+					</div>
+				</div>
+				<div className="p-3 bg-green-50 rounded-lg border">
+					<div className="text-sm font-medium text-green-600">Approved</div>
+					<div className="text-2xl font-bold">
+						{statistics
 							? statistics.approvedCount
-							: tableData.filter((u) => u.condition === "approved").length,
-						valueClass: "text-green-600",
-					},
-					{
-						title: "Pending",
-						icon: Clock,
-						iconClass: "text-yellow-600",
-						value: statistics
+							: tableData.filter((u) => u.condition === "approved").length}
+					</div>
+				</div>
+				<div className="p-3 bg-yellow-50 rounded-lg border">
+					<div className="text-sm font-medium text-yellow-600">Pending</div>
+					<div className="text-2xl font-bold">
+						{statistics
 							? statistics.needForApprovalCount
-							: tableData.filter((u) => u.condition === "pending").length,
-						valueClass: "text-yellow-600",
-					},
-				].map(({ title, icon: Icon, iconClass, value, valueClass }) => (
-					<Card key={title}>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">{title}</CardTitle>
-							<Icon className={"h-4 w-4 " + iconClass} />
-						</CardHeader>
-						<CardContent>
-							<div className={"text-2xl font-bold " + valueClass}>{value}</div>
-						</CardContent>
-					</Card>
-				))}
+							: tableData.filter((u) => u.condition === "pending").length}
+					</div>
+				</div>
 			</div>
 
 			{/* Toolbar */}
