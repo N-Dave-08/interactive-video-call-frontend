@@ -8,8 +8,8 @@ import Container from "../Container";
 export default function HeroSection() {
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
-	// Replace this with your actual YouTube video ID
-	const youtubeVideoId = "bp3NgXouCMo"; // Example ID, replace with your demo video
+	// Local video file path
+	const videoPath = "/videos/dswd-demo.mp4";
 
 	const openVideoModal = () => setIsVideoModalOpen(true);
 	const closeVideoModal = () => setIsVideoModalOpen(false);
@@ -50,7 +50,7 @@ export default function HeroSection() {
 									className="border-2 border-gray-200 hover:border-indigo-300 px-8 py-4 rounded-xl transition-all duration-300 bg-transparent hover:bg-indigo-50"
 								>
 									<Play className="w-5 h-5 mr-2" />
-									What Demo
+									Watch Demo
 								</Button>
 							</div>
 						</motion.div>
@@ -110,18 +110,17 @@ export default function HeroSection() {
 							</Button>
 
 							{/* Video Container */}
-							<div
-								className="relative w-full"
-								style={{ paddingBottom: "56.25%" }}
-							>
-								<iframe
-									className="absolute top-0 left-0 w-full h-full"
-									src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&rel=0&modestbranding=1`}
+							<div className="relative w-full">
+								<video
+									className="w-full h-auto rounded-xl"
+									controls
+									autoPlay
+									muted
 									title="Demo Video"
-									frameBorder="0"
-									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-									allowFullScreen
-								/>
+								>
+									<source src={videoPath} type="video/mp4" />
+									Your browser does not support the video tag.
+								</video>
 							</div>
 						</motion.div>
 					</motion.div>

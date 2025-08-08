@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Icon } from "@iconify/react";
 import {
 	ArrowLeft,
 	ArrowRight,
@@ -10,8 +11,12 @@ import {
 	Palette,
 	Tag,
 	Target,
-	UserCheck,
-	Sun, Sunset, Moon, CloudRain, Zap, Wind, MapPin,
+	Sun,
+	Cloud,
+	CloudRain,
+	Zap,
+	Wind,
+	MapPin,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +58,51 @@ function formatBodyMapAnnotation(annotation: string) {
 		.replace(/^./, (str) => str.toUpperCase());
 	const typeLabel = type ? type.charAt(0).toUpperCase() + type.slice(1) : "";
 	return `${partLabel.trim()}${typeLabel ? ` (${typeLabel})` : ""}`;
+}
+
+function getFeelingIcon(feeling: string) {
+	const feelingLower = feeling.toLowerCase();
+
+	// Match the emojis from Stage 5
+	if (feelingLower.includes("happy")) {
+		return (
+			<Icon
+				icon="fluent-emoji:smiling-face-with-smiling-eyes"
+				className="h-5 w-5"
+			/>
+		);
+	}
+	if (feelingLower.includes("excited")) {
+		return <Icon icon="fluent-emoji:star-struck" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("calm")) {
+		return <Icon icon="fluent-emoji:relieved-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("curious")) {
+		return <Icon icon="fluent-emoji:thinking-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("proud")) {
+		return (
+			<Icon
+				icon="fluent-emoji:smiling-face-with-sunglasses"
+				className="h-5 w-5"
+			/>
+		);
+	}
+	if (feelingLower.includes("nervous")) {
+		return (
+			<Icon icon="fluent-emoji:anxious-face-with-sweat" className="h-5 w-5" />
+		);
+	}
+	if (feelingLower.includes("sad")) {
+		return <Icon icon="fluent-emoji:crying-face" className="h-5 w-5" />;
+	}
+	if (feelingLower.includes("angry")) {
+		return <Icon icon="fluent-emoji:pouting-face" className="h-5 w-5" />;
+	}
+
+	// Default for other feelings
+	return <Icon icon="fluent-emoji:neutral-face" className="h-5 w-5" />;
 }
 
 export default function SessionDetailPage() {
@@ -248,34 +298,17 @@ export default function SessionDetailPage() {
 									<div className="flex items-center justify-center gap-2 text-blue-400 mt-2">
 										<Cake className="h-5 w-5 text-pink-400" />
 										<span className="text-sm">
-											{session.child_data.birthday && !Number.isNaN(new Date(session.child_data.birthday).getTime())
-												? formatDate(session.child_data.birthday)
-												: <span className="italic text-blue-300">Birthday not set</span>}
+											{session.child_data.birthday &&
+											!Number.isNaN(
+												new Date(session.child_data.birthday).getTime(),
+											) ? (
+												formatDate(session.child_data.birthday)
+											) : (
+												<span className="italic text-blue-300">
+													Birthday not set
+												</span>
+											)}
 										</span>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
-
-						{/* Interviewer Card */}
-						<Card className="w-full bg-white/90 backdrop-blur-md border border-green-100 shadow-xl p-6 rounded-3xl">
-							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg text-green-700">
-									<UserCheck className="h-5 w-5 text-green-400" />
-									Conducted By
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="text-center">
-									<div className="w-16 h-16 bg-gradient-to-br from-green-200 to-emerald-200 rounded-full mx-auto mb-2 flex items-center justify-center text-green-800 text-xl font-bold">
-										{session.user.first_name[0]}
-										{session.user.last_name[0]}
-									</div>
-									<div className="font-medium text-green-900 text-lg">
-										{session.user.first_name} {session.user.last_name}
-									</div>
-									<div className="text-sm text-green-600 mt-1">
-										Social Worker
 									</div>
 								</div>
 							</CardContent>
@@ -407,27 +440,33 @@ export default function SessionDetailPage() {
 								<Separator className="bg-pink-100" />
 								<div className="space-y-3">
 									<div>
-										<span className="text-sm font-medium text-pink-700 mb-2 block">
+										<span className="text-sm font-medium text-pink-700 mb-4 block">
 											Selected Feelings
 										</span>
-										<div className="flex flex-wrap gap-2">
+										<div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 											{session.emotional_expression.selected_feelings.length >
 											0 ? (
 												session.emotional_expression.selected_feelings.map(
 													(feeling) => (
-														<Badge
+														<div
 															key={feeling}
-															className="bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200 transition-colors"
-															variant="outline"
+															className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:from-yellow-100 hover:to-orange-100 transition-all duration-200 shadow-sm hover:shadow-md"
 														>
-															{feeling}
-														</Badge>
+															<div className="text-3xl">
+																{getFeelingIcon(feeling)}
+															</div>
+															<div className="text-sm font-semibold text-yellow-800 text-center capitalize">
+																{feeling}
+															</div>
+														</div>
 													),
 												)
 											) : (
-												<span className="text-pink-300 italic">
-													None selected
-												</span>
+												<div className="col-span-full text-center py-8">
+													<span className="text-pink-300 italic">
+														No feelings selected
+													</span>
+												</div>
 											)}
 										</div>
 									</div>
@@ -461,72 +500,110 @@ export default function SessionDetailPage() {
 						</Card>
 
 						{/* Map Event Card - Redesigned */}
-						<Card className="bg-white/90 backdrop-blur-md border border-yellow-100 shadow-xl p-6 rounded-3xl">
+						<Card className="bg-white/90 backdrop-blur-md border border-purple-100 shadow-xl p-6 rounded-3xl">
 							<CardHeader className="pb-4">
-								<CardTitle className="flex items-center gap-2 text-lg text-yellow-700">
-									<MapPin className="h-5 w-5 text-yellow-400" />
-									Map Event
+								<CardTitle className="flex items-center gap-2 text-lg text-purple-700">
+									<MapPin className="h-5 w-5 text-purple-400" />
+									Event Details
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
 								{session.event ? (
-									<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-yellow-900">
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+									<div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-purple-900">
+										<div className="flex flex-col items-center justify-center p-3 bg-purple-50 rounded-xl border border-purple-100">
 											{(() => {
 												switch (session.event.time) {
 													case "morning":
-														return <Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														);
 													case "afternoon":
-														return <Sunset className="h-8 w-8 text-orange-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-orange-500 mb-2" />
+														);
 													case "evening":
-														return <Moon className="h-8 w-8 text-indigo-500 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-red-500 mb-2" />
+														);
 													default:
-														return null
+														return (
+															<Clock className="h-8 w-8 text-gray-500 mb-2" />
+														);
 												}
 											})()}
 											<span className="font-semibold text-sm">Time</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.time
-													? session.event.time.charAt(0).toUpperCase() + session.event.time.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-purple-700">
+												{session.event.time ? (
+													session.event.time.charAt(0).toUpperCase() +
+													session.event.time.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
-											<MapPin className="h-8 w-8 text-blue-500 mb-2" />
+										<div className="flex flex-col items-center justify-center p-3 bg-green-50 rounded-xl border border-green-100">
+											<MapPin className="h-8 w-8 text-green-500 mb-2" />
 											<span className="font-semibold text-sm">Location</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.place
-													? session.event.place.charAt(0).toUpperCase() + session.event.place.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-green-700">
+												{session.event.place ? (
+													session.event.place.charAt(0).toUpperCase() +
+													session.event.place.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 
-										<div className="flex flex-col items-center justify-center p-3 bg-yellow-50 rounded-xl border border-yellow-100">
+										<div className="flex flex-col items-center justify-center p-3 bg-blue-50 rounded-xl border border-blue-100">
 											{(() => {
 												switch (session.event.weather) {
 													case "clear":
-														return <Sun className="h-8 w-8 text-yellow-400 mb-2" />
+														return (
+															<Sun className="h-8 w-8 text-yellow-500 mb-2" />
+														);
 													case "rain":
-														return <CloudRain className="h-8 w-8 text-blue-400 mb-2" />
+														return (
+															<CloudRain className="h-8 w-8 text-blue-500 mb-2" />
+														);
 													case "thunderstorm":
-														return <Zap className="h-8 w-8 text-purple-500 mb-2" />
+														return (
+															<Zap className="h-8 w-8 text-purple-500 mb-2" />
+														);
 													case "windy":
-														return <Wind className="h-8 w-8 text-teal-400 mb-2" />
+														return (
+															<Wind className="h-8 w-8 text-teal-500 mb-2" />
+														);
 													default:
-														return null
+														return (
+															<Cloud className="h-8 w-8 text-gray-500 mb-2" />
+														);
 												}
 											})()}
 											<span className="font-semibold text-sm">Weather</span>
-											<span className="text-xs text-yellow-700">
-												{session.event.weather
-													? session.event.weather.charAt(0).toUpperCase() + session.event.weather.slice(1)
-													: <span className="italic text-gray-400">None selected</span>}
+											<span className="text-xs text-blue-700">
+												{session.event.weather ? (
+													session.event.weather.charAt(0).toUpperCase() +
+													session.event.weather.slice(1)
+												) : (
+													<span className="italic text-gray-400">
+														None selected
+													</span>
+												)}
 											</span>
 										</div>
 									</div>
 								) : (
-									<span className="italic text-gray-400">No map event recorded for this session.</span>
+									<div className="text-center py-8">
+										<MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+										<span className="italic text-gray-400">
+											No event details recorded for this session.
+										</span>
+									</div>
 								)}
 							</CardContent>
 						</Card>
@@ -607,55 +684,68 @@ export default function SessionDetailPage() {
 							</div>
 						</div>
 						{/* Button logic for session actions */}
-						<>{(() => {
-							const start = new Date(session.start_time);
-							const notStartedYet = start > now;
-							// Scheduled session: show Start button only when time is reached
-							if (session.status === "scheduled" && !session.end_time) {
-								if (notStartedYet) return null;
-								return (
-									<Button
-										size="lg"
-										className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
-										onClick={async () => {
-											if (!session.session_id) return;
-											if (!token) {
-												alert("No token");
-												return;
-											}
-											try {
-												await updateSession(session.session_id, { status: "in_progress" }, token);
-												navigate(`/room/${session.session_id}`);
-											} catch {
-												alert("Failed to start session. Please try again.");
-											}
-										}}
-									>
-										Start <ArrowRight className="h-4 w-4" />
-									</Button>
-								);
-							}
-							// In-progress session: show Continue button, disabled if not started yet
-							if (session.status === "in_progress" && !session.end_time) {
-								return (
-									<div className="ml-auto flex flex-col items-end">
+						<>
+							{(() => {
+								const start = new Date(session.start_time);
+								const notStartedYet = start > now;
+								// Scheduled session: show Start button only when time is reached
+								if (session.status === "scheduled" && !session.end_time) {
+									if (notStartedYet) return null;
+									return (
 										<Button
 											size="lg"
-											className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-											onClick={() => navigate(`/room/${session.session_id}`)}
-											disabled={notStartedYet}
-											title={notStartedYet ? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}` : undefined}
+											className="ml-auto rounded-full bg-green-500 text-white hover:bg-green-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2"
+											onClick={async () => {
+												if (!session.session_id) return;
+												if (!token) {
+													alert("No token");
+													return;
+												}
+												try {
+													await updateSession(
+														session.session_id,
+														{ status: "in_progress" },
+														token,
+													);
+													navigate(`/room/${session.session_id}`);
+												} catch {
+													alert("Failed to start session. Please try again.");
+												}
+											}}
 										>
-											Continue <ArrowRight className="h-4 w-4" />
+											Start <ArrowRight className="h-4 w-4" />
 										</Button>
-										{notStartedYet && (
-											<span className="text-xs text-gray-500 mt-1">Available at {formatDate(session.start_time)} {formatTime(session.start_time)}</span>
-										)}
-									</div>
-								);
-							}
-							return null;
-						})()}</>
+									);
+								}
+								// In-progress session: show Continue button, disabled if not started yet
+								if (session.status === "in_progress" && !session.end_time) {
+									return (
+										<div className="ml-auto flex flex-col items-end">
+											<Button
+												size="lg"
+												className="rounded-full bg-purple-500 text-white hover:bg-purple-600 shadow-md hover:shadow-lg transition-all duration-200 px-6 py-2 flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+												onClick={() => navigate(`/room/${session.session_id}`)}
+												disabled={notStartedYet}
+												title={
+													notStartedYet
+														? `Available at ${formatDate(session.start_time)} ${formatTime(session.start_time)}`
+														: undefined
+												}
+											>
+												Continue <ArrowRight className="h-4 w-4" />
+											</Button>
+											{notStartedYet && (
+												<span className="text-xs text-gray-500 mt-1">
+													Available at {formatDate(session.start_time)}{" "}
+													{formatTime(session.start_time)}
+												</span>
+											)}
+										</div>
+									);
+								}
+								return null;
+							})()}
+						</>
 					</CardContent>
 				</Card>
 			</div>
