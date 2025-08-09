@@ -9,7 +9,7 @@ export default function HeroSection() {
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
 	// Local video file path
-	const videoPath = "/videos/dswd-demo.mp4";
+	const videoPath = "/videos/version-1-demo.mp4";
 
 	const openVideoModal = () => setIsVideoModalOpen(true);
 	const closeVideoModal = () => setIsVideoModalOpen(false);
