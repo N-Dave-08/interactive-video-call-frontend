@@ -12,8 +12,24 @@ export default defineConfig({
 		VitePWA({
 			registerType: "autoUpdate",
 			workbox: {
-				globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-				maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+				// Exclude large files from caching to avoid size issues
+				globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2}"],
+				globIgnores: [
+					"**/videos/**",
+					"**/*.mp4",
+					"**/*.mov",
+					"**/*.avi",
+					"**/*.webm",
+					"**/backgrounds/**", // Exclude all background images
+					"**/*.jpg", // Exclude all JPEG files which can be large
+					"**/*.jpeg",
+					"**/assets/**/*.jpg",
+					"**/assets/**/*.jpeg",
+					"**/assets/**/*.mp3", // Exclude audio files
+					"**/ai-voiced/**",
+					"**/sound-effects/**",
+				],
+				maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // Increased to 10MB for other assets
 			},
 			manifest: {
 				name: "Interactive Video Call",
@@ -41,6 +57,19 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
+		},
+	},
+	// Ensure static files are properly served in production
+	build: {
+		rollupOptions: {
+			external: [],
+		},
+		assetsInlineLimit: 0, // Don't inline any assets, serve them as separate files
+	},
+	// Configure dev server for proper video serving
+	server: {
+		fs: {
+			allow: [".."],
 		},
 	},
 });

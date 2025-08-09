@@ -7,12 +7,24 @@ import Container from "../Container";
 
 export default function HeroSection() {
 	const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+	const [videoError, setVideoError] = useState(false);
+	const [videoLoading, setVideoLoading] = useState(true);
 
 	// Local video file path
 	const videoPath = "/videos/version-1-demo.mp4";
 
 	const openVideoModal = () => setIsVideoModalOpen(true);
 	const closeVideoModal = () => setIsVideoModalOpen(false);
+
+	const handleVideoError = () => {
+		setVideoError(true);
+		setVideoLoading(false);
+	};
+
+	const handleVideoLoad = () => {
+		setVideoLoading(false);
+		setVideoError(false);
+	};
 
 	return (
 		<>
@@ -111,16 +123,41 @@ export default function HeroSection() {
 
 							{/* Video Container */}
 							<div className="relative w-full">
-								<video
-									className="w-full h-auto rounded-xl"
-									controls
-									autoPlay
-									muted
-									title="Demo Video"
-								>
-									<source src={videoPath} type="video/mp4" />
-									Your browser does not support the video tag.
-								</video>
+								{videoLoading && !videoError && (
+									<div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center">
+										<div className="text-center">
+											<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-2"></div>
+											<p className="text-gray-600">Loading video...</p>
+										</div>
+									</div>
+								)}
+
+								{videoError ? (
+									<div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center">
+										<div className="text-center">
+											<p className="text-red-600 mb-2">
+												Video temporarily unavailable
+											</p>
+											<p className="text-gray-600 text-sm">
+												Please try again later
+											</p>
+										</div>
+									</div>
+								) : (
+									<video
+										className={`w-full h-auto rounded-xl ${videoLoading ? "hidden" : ""}`}
+										controls
+										autoPlay
+										muted
+										title="Demo Video"
+										onLoadedData={handleVideoLoad}
+										onError={handleVideoError}
+										preload="metadata"
+									>
+										<source src={videoPath} type="video/mp4" />
+										Your browser does not support the video tag.
+									</video>
+								)}
 							</div>
 						</motion.div>
 					</motion.div>
