@@ -72,7 +72,15 @@ export default function ActionMenu({
 
 	// Determine available actions based on session status
 	const getAvailableActions = () => {
-		const actions = [];
+		const actions: Array<{
+			id: string;
+			label: string;
+			icon: React.ComponentType<{ className?: string }>;
+			onClick?: () => void;
+			type: "primary" | "secondary" | "destructive";
+			disabled: boolean;
+			isIconOnly?: boolean;
+		}> = [];
 
 		switch (session.status) {
 			case "scheduled":
@@ -201,6 +209,7 @@ export default function ActionMenu({
 			onClick: () => setDeleteOpen(true),
 			type: "destructive",
 			disabled: isLoading,
+			isIconOnly: true, // Mark delete as icon-only
 		});
 
 		return actions;
@@ -295,7 +304,9 @@ export default function ActionMenu({
 								</AnimatePresence>
 
 								{destructiveActions.length > 0 &&
-									secondaryActions.length > 0 && <DropdownMenuSeparator />}
+									secondaryActions.length > 0 && (
+										<DropdownMenuSeparator className="my-2" />
+									)}
 
 								<AnimatePresence>
 									{destructiveActions.map((action) => (
@@ -312,7 +323,8 @@ export default function ActionMenu({
 													action.onClick?.();
 												}}
 												disabled={action.disabled}
-												className="flex items-center gap-3 cursor-pointer text-red-600 hover:text-red-700 hover:bg-red-50"
+												className="flex items-center gap-3 cursor-pointer"
+												title={action.isIconOnly ? action.label : undefined}
 											>
 												<action.icon className="h-4 w-4" />
 												<span>{action.label}</span>
@@ -347,20 +359,30 @@ export default function ActionMenu({
 								action.type === "destructive" ? "destructive" : "outline"
 							}
 							className={cn(
-								"rounded-full px-4 py-2 font-medium shadow-md hover:shadow-lg transition-all duration-200",
+								"rounded-full font-medium shadow-md hover:shadow-lg transition-all duration-200",
+								// If destructive and icon-only, make it a small icon button with ghost styling
+								action.type === "destructive" && action.isIconOnly
+									? "p-2 h-10 w-10 bg-transparent hover:bg-red-50 text-red-600 hover:text-red-700 border border-red-200 hover:border-red-300"
+									: "px-4 py-2",
+								// Regular destructive button styling
 								action.type === "destructive" &&
-									"bg-red-500 hover:bg-red-600 text-white",
+									!action.isIconOnly &&
+									"bg-red-500 hover:bg-red-600 text-white border-2 border-red-600 hover:border-red-700",
 							)}
 						>
 							{isLoading ? (
 								<>
-									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-									Loading...
+									<div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+									{!action.isIconOnly && (
+										<span className="ml-2">Loading...</span>
+									)}
 								</>
 							) : (
 								<>
-									<action.icon className="h-4 w-4 mr-2" />
-									{action.label}
+									<action.icon className="h-4 w-4" />
+									{!action.isIconOnly && (
+										<span className="ml-2">{action.label}</span>
+									)}
 								</>
 							)}
 						</Button>
@@ -406,6 +428,7 @@ export default function ActionMenu({
 											action.type === "destructive" &&
 												"text-red-600 hover:text-red-700 hover:bg-red-50",
 										)}
+										title={action.isIconOnly ? action.label : undefined}
 									>
 										<action.icon className="h-4 w-4" />
 										<span>{action.label}</span>
