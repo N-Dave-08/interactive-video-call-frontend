@@ -89,6 +89,7 @@ export default function Room() {
 				const stage = session?.stage;
 				// Use 0-based mapping for stageToStep
 				const stageToStep: Record<string, number> = {
+					welcome: 0,
 					"Stage 1": 0,
 					"Stage 2": 1,
 					"Stage 3": 2,
@@ -261,7 +262,22 @@ export default function Room() {
 	});
 
 	// Handler for 'Got it!' in stage 1
-	const handleGotIt = () => {
+	const handleGotIt = async () => {
+		if (!user || !session_id || !token) return;
+
+		try {
+			// Update session stage to "Stage 1" when user starts
+			await updateSession(
+				session_id,
+				{
+					stage: "Stage 1",
+				},
+				token,
+			);
+		} catch (err: unknown) {
+			console.error("Failed to update session stage:", err);
+		}
+
 		localStorage.removeItem("stage1-current-step"); // Clear stepper state for new session
 		setShowChildForm(true);
 		localStorage.setItem("showChildForm", "true");
