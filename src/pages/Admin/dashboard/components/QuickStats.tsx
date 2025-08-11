@@ -17,50 +17,66 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUserStats } from "@/api/users";
+import { useAuth } from "@/hooks/useAuth";
+import SpinnerLoading from "@/components/ui/spinner-loading";
 
-interface QuickStatsData {
-	approvedCount?: number;
-	pendingCount?: number;
-	rejectedCount?: number;
-	blockedCount?: number;
-	needForApprovalCount?: number;
-	approvalRate?: number;
-}
-
-interface QuickStatsProps {
-	data?: QuickStatsData;
-}
-
-export default function QuickStats({ data }: QuickStatsProps) {
+export default function QuickStats() {
 	const id = "quick-stats-interactive";
+	const { token } = useAuth();
+
+	// Time period options
+	const timePeriods = [
+		{ key: "all", label: "All Time" },
+		{ key: "weekly", label: "Weekly" },
+		{ key: "monthly", label: "Monthly" },
+		{ key: "last3months", label: "Last 3 Months" },
+	];
+
+	const [activeTimePeriod, setActiveTimePeriod] = React.useState("all");
+
+	// Fetch user statistics based on selected period
+	const { data: periodData, isLoading } = useQuery({
+		queryKey: ["user-stats", activeTimePeriod],
+		queryFn: () => {
+			if (!token) throw new Error("No token available");
+			return fetchUserStats(activeTimePeriod, token);
+		},
+		enabled: !!token,
+	});
+
+	// Use period data from API
+	const statsData = periodData;
 
 	// Prepare pie chart data - representing actual user counts by status
 	const chartData = [
 		{
 			stat: "approved",
-			value: data?.approvedCount || 0,
+			value: statsData?.approvedCount || 0,
 			fill: "var(--color-approved)",
 		},
 		{
 			stat: "pending",
-			value: data?.pendingCount || 0,
+			value: statsData?.pendingCount || 0,
 			fill: "var(--color-pending)",
 		},
 		{
 			stat: "rejected",
-			value: data?.rejectedCount || 0,
+			value: statsData?.rejectedCount || 0,
 			fill: "var(--color-rejected)",
 		},
 		{
 			stat: "blocked",
-			value: data?.blockedCount || 0,
+			value: statsData?.blockedCount || 0,
 			fill: "var(--color-blocked)",
 		},
-		{
-			stat: "needApproval",
-			value: data?.needForApprovalCount || 0,
-			fill: "var(--color-needApproval)",
-		},
+		// Note: needForApprovalCount is not available in the API response
+		// {
+		// 	stat: "needApproval",
+		// 	value: statsData?.needForApprovalCount || 0,
+		// 	fill: "var(--color-needApproval)",
+		// },
 	];
 
 	const chartConfig = {
@@ -80,26 +96,22 @@ export default function QuickStats({ data }: QuickStatsProps) {
 			label: "Blocked Users",
 			color: "var(--chart-4)",
 		},
-		needApproval: {
-			label: "Need Approval",
-			color: "var(--chart-5)",
-		},
+		// needApproval: {
+		// 	label: "Need Approval",
+		// 	color: "var(--chart-5)",
+		// },
 	};
 
-	// Time period options
-	const timePeriods = [
-		{ key: "all-time", label: "All Time" },
-		{ key: "this-week", label: "This Week" },
-		{ key: "this-month", label: "This Month" },
-		{ key: "last-month", label: "Last Month" },
-		{ key: "last-3-months", label: "Last 3 Months" },
-	];
-
-	const [activeTimePeriod, setActiveTimePeriod] = React.useState("all-time");
 	const [activeIndex] = React.useState(0);
 
 	// Calculate total users
 	const totalUsers = chartData.reduce((acc, curr) => acc + curr.value, 0);
+
+	// Calculate approval rate
+	const approvalRate =
+		totalUsers > 0
+			? (((statsData?.approvedCount || 0) / totalUsers) * 100).toFixed(2)
+			: "0.00";
 
 	return (
 		<Card data-chart={id} className="flex flex-col">
@@ -135,7 +147,14 @@ export default function QuickStats({ data }: QuickStatsProps) {
 				</Select>
 			</CardHeader>
 			<CardContent className="flex-1 pb-0">
-				{totalUsers === 0 ? (
+				{isLoading ? (
+					<div className="flex flex-col items-center justify-center h-[250px]">
+						<SpinnerLoading />
+						<span className="text-sm text-muted-foreground mt-2">
+							Loading stats...
+						</span>
+					</div>
+				) : totalUsers === 0 ? (
 					<div className="flex flex-col items-center justify-center h-[250px] text-slate-400">
 						<Icon
 							icon="mdi:chart-pie"
@@ -215,8 +234,8 @@ export default function QuickStats({ data }: QuickStatsProps) {
 			</CardContent>
 			<CardContent className="flex-col gap-2 text-sm text-center">
 				<div className="flex items-center gap-2 leading-none font-medium justify-center">
-					Approval Rate: {data?.approvalRate || 0}%{" "}
-					{(data?.approvalRate || 0) > 50 ? (
+					Approval Rate: {approvalRate}%{" "}
+					{parseFloat(approvalRate) > 50 ? (
 						<TrendingUp className="h-4 w-4" />
 					) : (
 						<TrendingDown className="h-4 w-4" />

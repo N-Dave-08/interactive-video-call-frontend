@@ -167,3 +167,29 @@ export async function removeUserProfilePicture(
 		throw new Error("Failed to remove profile picture");
 	}
 }
+
+interface UserStatsResponse {
+	totalUsers: number;
+	approvedCount: number;
+	rejectedCount: number;
+	blockedCount: number;
+	pendingCount: number;
+}
+
+export async function fetchUserStats(
+	period: string,
+	token: string,
+): Promise<UserStatsResponse> {
+	const response = await fetch(
+		`${import.meta.env.VITE_API_BASE_URL}/api/users/get/stats?period=${period}`,
+		{
+			headers: { Authorization: `Bearer ${token}` },
+		},
+	);
+	if (!response.ok) {
+		throw new Error("Failed to fetch user statistics");
+	}
+	const json: { success: boolean; data: UserStatsResponse } =
+		await response.json();
+	return json.data;
+}
