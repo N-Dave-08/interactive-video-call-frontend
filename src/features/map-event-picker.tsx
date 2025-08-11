@@ -158,14 +158,11 @@ export default function MapEventPicker({
 		{ value: "park", label: "Park", icon: "🌳" },
 		{ value: "beach", label: "Beach", icon: "🏖️" },
 		{ value: "home", label: "Home", icon: "🏠" },
-		{ value: "restaurant", label: "Restaurant", icon: "🍽️" },
-		{ value: "market", label: "Market", icon: "🛒" },
+		{ value: "lake", label: "Lake", icon: "🏞️" },
+		{ value: "toy-store", label: "Toy Store", icon: "🧸" },
 		{ value: "playground", label: "Playground", icon: "🎠" },
-		{ value: "library", label: "Library", icon: "📚" },
-		{ value: "cafe", label: "Cafe", icon: "☕" },
-		{ value: "museum", label: "Museum", icon: "🏛️" },
-		{ value: "cinema", label: "Cinema", icon: "🎬" },
-		{ value: "outdoor", label: "Outdoor", icon: "🌲" },
+		{ value: "ice-cream-shop", label: "Ice Cream Shop", icon: "🍦" },
+		{ value: "zoo", label: "Zoo", icon: "🦁" },
 	];
 
 	const steps = [
