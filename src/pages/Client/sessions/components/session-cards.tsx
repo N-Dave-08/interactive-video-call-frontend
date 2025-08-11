@@ -375,9 +375,7 @@ export default function SessionCards({
 													variant="secondary"
 													className={`text-xs font-medium rounded-full px-2 py-0.5 border ${getStageColor(session.stage)}`}
 												>
-													{session.stage === "welcome"
-														? "READY TO START"
-														: session.stage.toUpperCase()}
+													{session.stage.toUpperCase()}
 												</Badge>
 											</div>
 										</div>
@@ -386,16 +384,15 @@ export default function SessionCards({
 									{/* Only show stage badge for non-completed sessions without progress bar */}
 									{session.stage &&
 										session.status !== "completed" &&
-										session.status !== "in_progress" && (
+										session.status !== "in_progress" &&
+										session.stage !== "welcome" && (
 											<div className="flex items-center gap-2 mb-1">
 												<Target className="h-4 w-4 text-gray-500" />
 												<Badge
 													variant="secondary"
 													className={`text-sm font-medium rounded-full px-3 py-1 border ${getStageColor(session.stage)}`}
 												>
-													{session.stage === "welcome"
-														? "READY TO START"
-														: session.stage.toUpperCase()}
+													{session.stage.toUpperCase()}
 												</Badge>
 											</div>
 										)}
@@ -416,6 +413,29 @@ export default function SessionCards({
 															<p className="text-xs text-orange-700">
 																Click "Start Session" to begin your interactive
 																session
+															</p>
+														</div>
+													</div>
+												</div>
+											</div>
+										)}
+
+									{/* Show message for sessions in welcome stage that are in progress */}
+									{session.stage === "welcome" &&
+										session.status === "in_progress" && (
+											<div className="space-y-2 mb-3 w-full">
+												<div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200">
+													<div className="flex items-center gap-3">
+														<div className="p-2 bg-blue-100 rounded-full">
+															<PlayCircle className="h-5 w-5 text-blue-600" />
+														</div>
+														<div>
+															<h3 className="font-bold text-blue-900 text-sm">
+																Session Started
+															</h3>
+															<p className="text-xs text-blue-700">
+																Click "Continue Session" to proceed with the
+																interactive session
 															</p>
 														</div>
 													</div>

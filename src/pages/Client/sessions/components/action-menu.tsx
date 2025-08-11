@@ -82,18 +82,6 @@ export default function ActionMenu({
 			isIconOnly?: boolean;
 		}> = [];
 
-		// Check if session is in welcome stage (should show start button regardless of status)
-		if (session.stage === "welcome" && canStart) {
-			actions.push({
-				id: "start",
-				label: "Start Session",
-				icon: Play,
-				onClick: onStart,
-				type: "primary",
-				disabled: isLoading,
-			});
-		}
-
 		switch (session.status) {
 			case "scheduled":
 				if (canStart) {
