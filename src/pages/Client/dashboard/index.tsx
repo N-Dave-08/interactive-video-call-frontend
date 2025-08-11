@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchSessionsBySocialWorkerId } from "@/api/sessions";
@@ -12,7 +11,6 @@ import WelcomeCard from "./components/WelcomeCard";
 import StatisticsCards from "./components/StatisticsCards";
 import ActiveSessionsList from "./components/ActiveSessionsList";
 import UpcomingSessionsList from "./components/UpcomingSessionsList";
-
 
 export default function Dashboard() {
 	const { user, token } = useAuth();
@@ -46,10 +44,12 @@ export default function Dashboard() {
 			try {
 				const response = await fetchSessionsBySocialWorkerId(user.id, token);
 				setSessions(response.data);
-				
+
 				// Calculate cancelled count manually from sessions data
-				const cancelledCount = response.data.filter(session => session.status === "cancelled").length;
-				
+				const cancelledCount = response.data.filter(
+					(session) => session.status === "cancelled",
+				).length;
+
 				setCounts({
 					...response.counts,
 					cancelled: cancelledCount,
@@ -65,45 +65,55 @@ export default function Dashboard() {
 
 	const totalSessions = sessions.length;
 	const completedSessions = counts.completed;
-	const completionRate = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0;
+	const completionRate =
+		totalSessions > 0
+			? Math.round((completedSessions / totalSessions) * 100)
+			: 0;
 
 	// Calculate percentage change from last month
 	const calculateMonthlyChange = () => {
 		const now = new Date();
 		const currentMonth = now.getMonth();
 		const currentYear = now.getFullYear();
-		
+
 		// Get sessions from current month
-		const currentMonthSessions = sessions.filter(session => {
+		const currentMonthSessions = sessions.filter((session) => {
 			const sessionDate = new Date(session.createdAt);
-			return sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear;
+			return (
+				sessionDate.getMonth() === currentMonth &&
+				sessionDate.getFullYear() === currentYear
+			);
 		});
-		
+
 		// Get sessions from previous month
-		const previousMonthSessions = sessions.filter(session => {
+		const previousMonthSessions = sessions.filter((session) => {
 			const sessionDate = new Date(session.createdAt);
 			const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
 			const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-			return sessionDate.getMonth() === previousMonth && sessionDate.getFullYear() === previousYear;
+			return (
+				sessionDate.getMonth() === previousMonth &&
+				sessionDate.getFullYear() === previousYear
+			);
 		});
-		
+
 		const currentCount = currentMonthSessions.length;
 		const previousCount = previousMonthSessions.length;
-		
+
 		if (previousCount === 0) {
 			return currentCount > 0 ? 100 : 0; // If no previous month data, show 100% if current month has data
 		}
-		
+
 		const change = ((currentCount - previousCount) / previousCount) * 100;
 		return Math.round(change);
 	};
 
 	const monthlyChange = calculateMonthlyChange();
-	const monthlyChangeText = monthlyChange > 0 
-		? `+${monthlyChange}% from last month`
-		: monthlyChange < 0 
-		? `${monthlyChange}% from last month`
-		: "No change from last month";
+	const monthlyChangeText =
+		monthlyChange > 0
+			? `+${monthlyChange}% from last month`
+			: monthlyChange < 0
+				? `${monthlyChange}% from last month`
+				: "No change from last month";
 
 	const formatTime = (dateString: string) => {
 		return new Date(dateString).toLocaleTimeString("en-US", {
@@ -143,11 +153,16 @@ export default function Dashboard() {
 	};
 
 	// Filter upcoming sessions (sessions with future start times)
-	const upcomingSessions = sessions.filter(session => {
-		const sessionStartTime = new Date(session.start_time);
-		const now = new Date();
-		return sessionStartTime > now && session.status !== "cancelled";
-	}).sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+	const upcomingSessions = sessions
+		.filter((session) => {
+			const sessionStartTime = new Date(session.start_time);
+			const now = new Date();
+			return sessionStartTime > now && session.status !== "cancelled";
+		})
+		.sort(
+			(a, b) =>
+				new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
+		);
 
 	const pieData = [
 		{ name: "Scheduled", value: counts.scheduled, key: "scheduled" },
@@ -160,27 +175,27 @@ export default function Dashboard() {
 	const PIE_COLORS = ["#60A5FA", "#FBBF24", "#34D399", "#A78BFA", "#F87171"];
 
 	const dashboardChartConfig = {
-  scheduled: {
-    label: "Scheduled",
-    color: PIE_COLORS[0],
-  },
-  in_progress: {
-    label: "In Progress",
-    color: PIE_COLORS[1],
-  },
-  completed: {
-    label: "Completed",
-    color: PIE_COLORS[2],
-  },
-  rescheduled: {
-    label: "Rescheduled",
-    color: PIE_COLORS[3],
-  },
-  cancelled: {
-    label: "Cancelled",
-    color: PIE_COLORS[4],
-  },
-};
+		scheduled: {
+			label: "Scheduled",
+			color: PIE_COLORS[0],
+		},
+		in_progress: {
+			label: "In Progress",
+			color: PIE_COLORS[1],
+		},
+		completed: {
+			label: "Completed",
+			color: PIE_COLORS[2],
+		},
+		rescheduled: {
+			label: "Rescheduled",
+			color: PIE_COLORS[3],
+		},
+		cancelled: {
+			label: "Cancelled",
+			color: PIE_COLORS[4],
+		},
+	};
 
 	if (loading) {
 		return (
@@ -203,65 +218,102 @@ export default function Dashboard() {
 	}
 
 	return (
-		<>
-			{/* Header */}
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-slate-900 mb-2">
-					{getGreeting()}, {user?.first_name} {user?.last_name}
-				</h1>
-				<p className="text-slate-600">Here's what's happening with your sessions today.</p>
+		<div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+			{/* Enhanced Header Section */}
+			<div className="relative mb-6">
+				{/* Background decoration */}
+				<div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-indigo-600/5 to-purple-600/5 rounded-2xl" />
+				<div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-2xl" />
+				<div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-xl" />
+
+				{/* Header content */}
+				<div className="relative z-10 pt-4 pb-3 px-3">
+					<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+						<h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent">
+							{getGreeting()}, {user?.first_name}
+						</h1>
+						<div className="flex items-center gap-3">
+							<div className="hidden lg:block w-px h-8 bg-gradient-to-b from-transparent via-slate-300 to-transparent" />
+							<div className="text-right">
+								<p className="text-xs font-medium text-slate-500">
+									Today's Date
+								</p>
+								<p className="text-sm font-semibold text-slate-700">
+									{new Date().toLocaleDateString("en-US", {
+										weekday: "long",
+										year: "numeric",
+										month: "long",
+										day: "numeric",
+									})}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			{/* Grid Layout */}
-			<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-12">
-				{/* Pie Chart for Session Statuses */}
-				<div className="md:col-span-2 lg:col-span-7">
-					<SessionStatusPieChart
-						pieData={pieData}
-						dashboardChartConfig={dashboardChartConfig}
-						PIE_COLORS={PIE_COLORS}
-					/>
+			{/* Main Dashboard Content */}
+			<div className="space-y-8">
+				{/* Top Row - Chart and Welcome Card */}
+				<div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+					{/* Welcome Card */}
+					<div className="xl:col-span-8">
+						<div className="h-full">
+							<WelcomeCard
+								counts={counts}
+								onViewSchedule={() => navigate("/schedule")}
+							/>
+						</div>
+					</div>
+
+					{/* Pie Chart for Session Statuses */}
+					<div className="xl:col-span-4">
+						<div className="h-full">
+							<SessionStatusPieChart
+								pieData={pieData}
+								dashboardChartConfig={dashboardChartConfig}
+								PIE_COLORS={PIE_COLORS}
+							/>
+						</div>
+					</div>
 				</div>
 
-				{/* Welcome Card */}
-				<div className="md:col-span-2 lg:col-span-5">
-					<WelcomeCard
+				{/* Statistics Cards Row */}
+				<div className="w-full">
+					<StatisticsCards
+						totalSessions={totalSessions}
 						counts={counts}
-						onViewSchedule={() => navigate("/schedule")}
+						completionRate={completionRate}
+						monthlyChange={monthlyChange}
+						monthlyChangeText={monthlyChangeText}
 					/>
 				</div>
 
-				{/* Statistics Cards */}
-				<StatisticsCards
-					totalSessions={totalSessions}
-					counts={counts}
-					completionRate={completionRate}
-					monthlyChange={monthlyChange}
-					monthlyChangeText={monthlyChangeText}
-				/>
+				{/* Bottom Row - Sessions Lists */}
+				<div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+					{/* Current Sessions */}
+					<div className="xl:col-span-8">
+						<ActiveSessionsList
+							sessions={sessions}
+							navigate={navigate}
+							getDisplayName={getDisplayName}
+							formatTime={formatTime}
+							getStatusColor={getStatusColor}
+						/>
+					</div>
 
-				{/* Current Sessions */}
-				<div className="md:col-span-2 lg:col-span-8">
-					<ActiveSessionsList
-						sessions={sessions}
-						navigate={navigate}
-						getDisplayName={getDisplayName}
-						formatTime={formatTime}
-						getStatusColor={getStatusColor}
-					/>
-				</div>
-
-				{/* Upcoming Sessions */}
-				<div className="md:col-span-2 lg:col-span-4">
-					<UpcomingSessionsList
-						sessions={upcomingSessions}
-						navigate={navigate}
-						getDisplayName={getDisplayName}
-						formatDate={formatDate}
-						formatTime={formatTime}
-					/>
+					{/* Upcoming Sessions */}
+					<div className="xl:col-span-4">
+						<UpcomingSessionsList
+							sessions={upcomingSessions}
+							navigate={navigate}
+							getDisplayName={getDisplayName}
+							formatDate={formatDate}
+							formatTime={formatTime}
+						/>
+					</div>
 				</div>
 			</div>
-		</>
+		</div>
 	);
 }
