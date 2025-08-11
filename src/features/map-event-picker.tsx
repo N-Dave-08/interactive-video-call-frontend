@@ -89,80 +89,72 @@ export default function MapEventPicker({
 			label: "Morning",
 			time: "7:00 - 12:00 PM",
 			icon: Sun,
-			color: "from-yellow-200 to-orange-200",
+			color: "from-orange-200 to-yellow-200",
 		},
 		{
 			value: "afternoon" as const,
 			label: "Afternoon",
 			time: "12:00 - 5:00 PM",
 			icon: Sun,
-			color: "from-orange-200 to-red-200",
+			color: "from-red-200 to-pink-200",
 		},
 		{
 			value: "evening" as const,
 			label: "Evening",
 			time: "5:00 - 8:00 PM",
 			icon: Sun,
-			color: "from-red-200 to-purple-200",
+			color: "from-purple-200 to-blue-200",
 		},
 		{
 			value: "night" as const,
 			label: "Night",
 			time: "8:00 PM - 12:00 AM",
 			icon: Clock,
-			color: "from-purple-200 to-indigo-200",
+			color: "from-indigo-200 to-purple-200",
 		},
 	];
 
 	const weatherOptions = [
 		{
 			value: "sunny" as const,
-			label: "Sunny",
+			label: "Clear",
 			icon: Sun,
-			color: "from-yellow-200 to-orange-200",
-		},
-		{
-			value: "cloudy" as const,
-			label: "Cloudy",
-			icon: Cloud,
-			color: "from-gray-200 to-blue-200",
+			color: "from-blue-200 to-light-blue-200",
 		},
 		{
 			value: "rainy" as const,
-			label: "Rainy",
+			label: "Rain",
 			icon: CloudRain,
-			color: "from-blue-200 to-gray-200",
+			color: "from-light-blue-200 to-purple-200",
+		},
+		{
+			value: "stormy" as const,
+			label: "Storm",
+			icon: Zap,
+			color: "from-purple-200 to-dark-purple-200",
 		},
 		{
 			value: "windy" as const,
 			label: "Windy",
 			icon: Wind,
-			color: "from-green-200 to-teal-200",
-		},
-		{
-			value: "stormy" as const,
-			label: "Stormy",
-			icon: Zap,
-			color: "from-purple-200 to-gray-200",
-		},
-		{
-			value: "foggy" as const,
-			label: "Foggy",
-			icon: Cloud,
-			color: "from-gray-300 to-gray-400",
+			color: "from-green-200 to-light-green-200",
 		},
 	];
 
 	const placeOptions = [
-		{ value: "school", label: "School", icon: "🏫" },
-		{ value: "park", label: "Park", icon: "🌳" },
-		{ value: "beach", label: "Beach", icon: "🏖️" },
 		{ value: "home", label: "Home", icon: "🏠" },
+		{ value: "neighbor", label: "Neighbor", icon: "🏘️" },
+		{ value: "hospital", label: "Hospital", icon: "🏥" },
+		{ value: "school", label: "School", icon: "🏫" },
+		{ value: "shop", label: "Shop", icon: "🏪" },
+		{ value: "park", label: "Park", icon: "🌳" },
 		{ value: "lake", label: "Lake", icon: "🏞️" },
-		{ value: "toy-store", label: "Toy Store", icon: "🧸" },
+		{ value: "road", label: "Road", icon: "🛣️" },
+		{ value: "river", label: "River", icon: "🌊" },
 		{ value: "playground", label: "Playground", icon: "🎠" },
-		{ value: "ice-cream-shop", label: "Ice Cream Shop", icon: "🍦" },
-		{ value: "zoo", label: "Zoo", icon: "🦁" },
+		{ value: "barn", label: "Barn", icon: "🏚️" },
+		{ value: "forest", label: "Forest", icon: "🌲" },
+		{ value: "mountains", label: "Mountains", icon: "⛰️" },
 	];
 
 	const steps = [
@@ -228,7 +220,7 @@ export default function MapEventPicker({
 						onClick={() => handleTimeSelect(option.value)}
 						className={`p-4 rounded-xl border-2 transition-all ${
 							time === option.value
-								? "border-purple-500 bg-gradient-to-r from-purple-100 to-pink-100 scale-105"
+								? `border-purple-500 bg-gradient-to-r ${option.color} scale-105 relative`
 								: "border-gray-200 bg-white hover:border-purple-300 hover:scale-102"
 						}`}
 						whileHover={{ scale: 1.02 }}
@@ -276,22 +268,29 @@ export default function MapEventPicker({
 					</p>
 				</div>
 			</div>
-			<div className="grid grid-cols-3 gap-3 mb-6">
+			<div className="grid grid-cols-2 gap-3 mb-6">
 				{weatherOptions.map((option) => (
 					<motion.button
 						key={option.value}
 						onClick={() => handleWeatherSelect(option.value)}
 						className={`p-4 rounded-xl border-2 transition-all ${
 							weather === option.value
-								? "border-purple-500 bg-gradient-to-r from-purple-100 to-pink-100 scale-105"
+								? `border-purple-500 bg-gradient-to-r ${option.color} scale-105 relative`
 								: "border-gray-200 bg-white hover:border-purple-300 hover:scale-102"
 						}`}
 						whileHover={{ scale: 1.02 }}
 						whileTap={{ scale: 0.98 }}
 					>
-						<div className="text-center">
-							<option.icon className="w-8 h-8 mx-auto mb-2 text-gray-600" />
-							<div className="font-semibold text-gray-800">{option.label}</div>
+						<div className="flex items-center gap-3">
+							<option.icon className="w-6 h-6 text-gray-600" />
+							<div className="text-left">
+								<div className="font-semibold text-gray-800">
+									{option.label}
+								</div>
+							</div>
+							{weather === option.value && (
+								<Star className="w-5 h-5 text-yellow-500 ml-auto" />
+							)}
 						</div>
 					</motion.button>
 				))}
