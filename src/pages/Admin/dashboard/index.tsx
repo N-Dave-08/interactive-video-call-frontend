@@ -178,7 +178,7 @@ export default function AdminDashboard() {
 						</Card>
 					}
 				>
-					<QuickStats data={data} />
+					<QuickStats />
 				</Suspense>
 
 				{/* Recent Activity */}
