@@ -109,7 +109,12 @@ export default function Room() {
 					!!child.last_name &&
 					!!child.age &&
 					!!child.birthday;
-				if (restoredStep > 0 && !isStage1Complete) {
+
+				// Handle welcome stage - show initial welcome screen
+				if (stage === "welcome") {
+					setStep(0);
+					setShowChildForm(false); // Don't show form yet, show welcome first
+				} else if (restoredStep > 0 && !isStage1Complete) {
 					setStep(0); // Force back to Stage 1
 					setShowChildForm(true);
 				} else {
@@ -263,24 +268,18 @@ export default function Room() {
 
 	// Handler for 'Got it!' in stage 1
 	const handleGotIt = async () => {
-		if (!user || !session_id || !token) return;
-
-		try {
-			// Update session stage to "Stage 1" when user starts
-			await updateSession(
-				session_id,
-				{
-					stage: "Stage 1",
-				},
-				token,
-			);
-		} catch (err: unknown) {
-			console.error("Failed to update session stage:", err);
-		}
-
 		localStorage.removeItem("stage1-current-step"); // Clear stepper state for new session
 		setShowChildForm(true);
 		localStorage.setItem("showChildForm", "true");
+
+		// Update session stage to Stage 1 when user clicks "Got it!"
+		if (session_id && user && token) {
+			try {
+				await updateSession(session_id, { stage: "Stage 1" }, token);
+			} catch (err: unknown) {
+				console.error("Failed to update session stage:", err);
+			}
+		}
 	};
 
 	// Update all handleXNext functions to set the backend to the NEXT stage

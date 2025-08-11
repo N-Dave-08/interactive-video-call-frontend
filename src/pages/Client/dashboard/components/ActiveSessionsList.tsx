@@ -29,7 +29,7 @@ const ActiveSessionsList: React.FC<ActiveSessionsListProps> = ({
 	);
 
 	return (
-		<Card className="shadow-xl rounded-2xl border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden py-0">
+		<Card className="shadow-xl rounded-2xl border-0 bg-gradient-to-br from-slate-50 to-white overflow-hidden py-0 gap-0">
 			<CardHeader className="bg-gradient-to-r from-slate-900 to-slate-800 text-white py-6">
 				<div className="flex items-center justify-between">
 					<div>

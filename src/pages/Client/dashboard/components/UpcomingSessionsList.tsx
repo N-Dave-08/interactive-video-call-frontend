@@ -8,11 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Calendar, Clock } from "lucide-react";
 import ChildAvatar from "@/components/ChildAvatar";
-import React from "react";
+import type { Session } from "@/types";
 
 interface UpcomingSessionsListProps {
-	sessions: any[];
-	navigate: (path: string, options?: any) => void;
+	sessions: Session[];
+	navigate: (path: string, options?: Record<string, unknown>) => void;
 	getDisplayName: (first?: string, last?: string) => string;
 	formatDate: (dateString: string) => string;
 	formatTime: (dateString: string) => string;
