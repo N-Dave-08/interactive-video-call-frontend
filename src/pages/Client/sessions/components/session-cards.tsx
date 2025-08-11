@@ -35,6 +35,8 @@ interface SessionCardsProps {
 // Helper to get color class for stage
 function getStageColor(stage: string) {
 	switch (stage.toLowerCase()) {
+		case "welcome":
+			return "bg-orange-100 text-orange-700 border-orange-300";
 		case "stage 1":
 			return "bg-blue-100 text-blue-700 border-blue-300";
 		case "stage 2":
@@ -61,6 +63,7 @@ function calculateSessionProgress(session: Session): {
 	totalStages: number;
 } {
 	const stageMap: Record<string, number> = {
+		welcome: 0,
 		"stage 1": 1,
 		"stage 2": 2,
 		"stage 3": 3,
@@ -70,7 +73,7 @@ function calculateSessionProgress(session: Session): {
 		completion: 7,
 	};
 
-	const currentStage = stageMap[session.stage?.toLowerCase() || "stage 1"] || 1;
+	const currentStage = stageMap[session.stage?.toLowerCase() || "welcome"] || 0;
 	const totalStages = 7;
 	const percentage = (currentStage / totalStages) * 100;
 
@@ -310,6 +313,14 @@ export default function SessionCards({
 												</h2>
 												<p className="text-sm text-gray-600">
 													{(() => {
+														if (session.stage === "welcome") {
+															if (session.status === "scheduled") {
+																return "Session is scheduled and ready to start";
+															} else if (session.status === "in_progress") {
+																return "Session is ready to begin";
+															}
+															return "Click to start your session";
+														}
 														switch (session.status) {
 															case "scheduled":
 																return "Session is scheduled and ready";
@@ -347,10 +358,6 @@ export default function SessionCards({
 										<div className="space-y-2 mb-3 w-full">
 											<div className="flex items-center justify-between text-xs text-gray-600">
 												<span className="font-medium">Session Progress</span>
-												<span className="text-gray-500">
-													{calculateSessionProgress(session).stage} of{" "}
-													{calculateSessionProgress(session).totalStages} stages
-												</span>
 											</div>
 											<div className="w-full bg-gray-200 rounded-full h-2">
 												<motion.div
@@ -368,7 +375,9 @@ export default function SessionCards({
 													variant="secondary"
 													className={`text-xs font-medium rounded-full px-2 py-0.5 border ${getStageColor(session.stage)}`}
 												>
-													{session.stage.toUpperCase()}
+													{session.stage === "welcome"
+														? "READY TO START"
+														: session.stage.toUpperCase()}
 												</Badge>
 											</div>
 										</div>
@@ -384,8 +393,33 @@ export default function SessionCards({
 													variant="secondary"
 													className={`text-sm font-medium rounded-full px-3 py-1 border ${getStageColor(session.stage)}`}
 												>
-													{session.stage.toUpperCase()}
+													{session.stage === "welcome"
+														? "READY TO START"
+														: session.stage.toUpperCase()}
 												</Badge>
+											</div>
+										)}
+
+									{/* Show welcome message for sessions in welcome stage */}
+									{session.stage === "welcome" &&
+										session.status !== "in_progress" && (
+											<div className="space-y-2 mb-3 w-full">
+												<div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-200">
+													<div className="flex items-center gap-3">
+														<div className="p-2 bg-orange-100 rounded-full">
+															<PlayCircle className="h-5 w-5 text-orange-600" />
+														</div>
+														<div>
+															<h3 className="font-bold text-orange-900 text-sm">
+																Ready to Begin
+															</h3>
+															<p className="text-xs text-orange-700">
+																Click "Start Session" to begin your interactive
+																session
+															</p>
+														</div>
+													</div>
+												</div>
 											</div>
 										)}
 
@@ -574,7 +608,10 @@ export default function SessionCards({
 													}
 													await updateSession(
 														session.session_id as string,
-														{ status: "in_progress" },
+														{
+															status: "in_progress",
+															stage: "Stage 1",
+														},
 														token,
 													);
 													navigate(`/room/${session.session_id}`);

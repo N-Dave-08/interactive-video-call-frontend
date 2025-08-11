@@ -106,7 +106,7 @@ export default function CreateSessionModal({
 				},
 				session_notes: "",
 				tags: [],
-				stage: "Stage 1",
+				stage: "welcome",
 			};
 			const session = await createSession(payload, token);
 			setOpen(false);
